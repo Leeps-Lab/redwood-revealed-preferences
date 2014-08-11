@@ -10,18 +10,23 @@ Redwood.controller("SubjectCtrl", ["$scope", "RedwoodSubject", function($scope, 
         for (var i = 0; i < results.length; i++) {
             
             var result = results[i];
+            var period = i + 1;
+            var points = result.chosen === "x" ? result.x : result.y;
 
             $scope.results.push({
-                period: i+1,
+                period: period,
                 xValue: result.x,
                 yValue: result.y,
                 chosen: result.chosen,
-                points: result.chosen === "x" ? result.x : result.y,
+                points: points,
                 earnings: 0.0,
                 selected: false
             });
+            rs.send("__set_points__", {period: period, points: points})
         }
 
+        rs.send("__set_show_up_fee__", {show_up_fee: 5.0});
+        rs.send("__set_conversion_rate__", {conversion_rate: 1/3});
         rs.trigger("earnings", $scope.totalEarnings);
     });
     
@@ -35,7 +40,7 @@ Redwood.controller("SubjectCtrl", ["$scope", "RedwoodSubject", function($scope, 
             return prev + next.earnings;
         }, 5.0);
 
-        //$scope.totalEarnings += result.earnings;
+        rs.send("__mark_paid__", {period: period, paid: result.points})
         rs.trigger("earnings", $scope.totalEarnings);
     });
 }]);
