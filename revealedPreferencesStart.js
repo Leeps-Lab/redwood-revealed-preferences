@@ -19,23 +19,15 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
             rounds            : rs.config.rounds || 1,
-            x_over_y_threshold: rs.config.x_over_y_threshold,
-            referencePeriod   : rs.config.referencePeriod,
+            priceThreshold    : rs.config.x_over_y_threshold,
             delay             : parseFloat(rs.config.delay) || 5,
             timeLimit         : parseFloat(rs.config.timeLimit) || 75,
             pause             : rs.config.pause,
         };
 
-        $scope.endowment = {}
-        if($scope.config.referencePeriod) {
-            var referenceResult = rs.self.data.results.filter(function(result) {
-                return result.period === $scope.config.referencePeriod;
-            })[0];
-            $scope.endowment.x = referenceResult.x;
-            $scope.endowment.y = referenceResult.y;
-        } else {
-            $scope.endowment.x = $scope.config.Ex;
-            $scope.endowment.y = $scope.config.Ey;
+        $scope.endowment = {
+            x: $scope.config.Ex,
+            y: $scope.config.Ey
         }
 
         $scope.currentRound = 0;
