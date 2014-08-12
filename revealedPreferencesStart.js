@@ -14,8 +14,6 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             Z                 : extractConfigEntry(rs.config.Z, userIndex),
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
-            XGrid             : extractConfigEntry(rs.config.XGrid, userIndex),
-            YGrid             : extractConfigEntry(rs.config.YGrid, userIndex),
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
             rounds            : rs.config.rounds || 1,
