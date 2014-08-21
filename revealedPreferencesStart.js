@@ -21,6 +21,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             delay             : parseFloat(rs.config.delay) || 5,
             timeLimit         : parseFloat(rs.config.timeLimit) || 75,
             pause             : rs.config.pause,
+            pauseAtEnd        : rs.config.pauseAtEnd == "TRUE" || false
         };
 
         $scope.endowment = {
@@ -45,21 +46,25 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.cursor = undefined;
         rs.trigger("selection", [$scope.endowment.x, $scope.endowment.y])
 
+        // set initial price
         var prices = rs.self.get("prices");
         $scope.prices = {}
         $scope.prices.x = $scope.currentRound > 1 ? prices.x : $scope.config.Px;
         $scope.prices.y = $scope.currentRound > 1 ? prices.y : $scope.config.Py;
 
+        // find axis intersections
         $scope.budget = ($scope.endowment.x * $scope.prices.x) + ($scope.endowment.y * $scope.prices.y);
 
         $scope.intercepts = {};
         $scope.intercepts.x = $scope.budget / $scope.prices.x;
         $scope.intercepts.y = $scope.budget / $scope.prices.y;
 
+        // set plot limits
         $scope.limits = {}
         $scope.limits.x = $scope.config.XLimit ? $scope.config.XLimit : $scope.intercepts.x;
         $scope.limits.y = $scope.config.YLimit ? $scope.config.YLimit : $scope.intercepts.y;
 
+        // set budget functions
         $scope.budgetFunction = function(x) {
             return ($scope.budget - x * $scope.prices.x) / $scope.prices.y;
         }
@@ -72,16 +77,20 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
 
         // set timeout to automatically confirm after 75 seconds
         // needs a way to stop timer between rounds
-        $scope.timeRemaining = 0;
-        $scope.stopWatch = stopWatch.instance()
-            .frequency(1)
-            .duration($scope.config.timeLimit)
-            .onTick(function(tick, t) {
-                $scope.timeRemaining = $scope.timeTotal - t;
-            })
-            .onComplete(function() {
-                $scope.confirm();
-            }).start();
+        if (!$scope.stopWatch) {
+            $scope.timeRemaining = 0;
+            $scope.stopWatch = stopWatch.instance()
+                .frequency(1)
+                .duration($scope.config.timeLimit)
+                .onTick(function(tick, t) {
+                    $scope.timeRemaining = $scope.timeTotal - t;
+                })
+                .onComplete(function() {
+                    $scope.confirm();
+                }).start();
+        } else {
+            $scope.stopWatch.duration($scope.stopWatch.getDurationInTicks() + $scope.config.timeLimit - $scope.timeRemaining)
+        }
 
         $scope.timeTotal = $scope.stopWatch.getDurationInTicks();
     });
