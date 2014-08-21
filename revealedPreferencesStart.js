@@ -11,7 +11,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             Ey                : extractConfigEntry(rs.config.Ey, userIndex),
             Px                : extractConfigEntry(rs.config.Px, userIndex),
             Py                : extractConfigEntry(rs.config.Py, userIndex),
-            Z                 : extractConfigEntry(rs.config.Z, userIndex),
+            adjustmentRate    : extractConfigEntry(rs.config.Z, userIndex),
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
@@ -67,10 +67,11 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             return ($scope.budget - y * $scope.prices.y) / $scope.prices.x;
         }
 
-        rs.trigger("round_started");
+        rs.trigger("round_started", {endowment: $scope.endowment, price: $scope.prices.y / $scope.prices.x});
         $scope.inputEnabled = true;
 
         // set timeout to automatically confirm after 75 seconds
+        // needs a way to stop timer between rounds
         $scope.timeRemaining = 0;
         $scope.stopWatch = stopWatch.instance()
             .frequency(1)
@@ -111,24 +112,23 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.results.push(value);
 
         rs.synchronizationBarrier('round_' + $scope.currentRound).then(function() {
-            var excessDemandX = 0;
-            var excessDemandY = 0;
+            var excessDemand = 0;
             rs.subjects.filter(function(subject) {
                 return subject.groupForPeriod && subject.groupForPeriod === rs.self.groupForPeriod;
             }).forEach(function(subject) {
                 var selection = subject.get("selection");
-                excessDemandX += selection[0] - $scope.endowment.x;
-                excessDemandY += selection[1] - $scope.endowment.y;
+                excessDemand += selection[0] - $scope.endowment.x;
             });
 
-            // only x needs to be done
-            var newPriceX = priceAdjustmentFunction($scope.prices.x, excessDemandX, $scope.config.Z);
-            var newPriceY = priceAdjustmentFunction($scope.prices.y, excessDemandY, $scope.config.Z);
+            // adjust price
+            var currentPrice = $scope.prices.x/$scope.prices.y;
+            var newPrice = priceAdjustmentFunction(currentPrice, excessDemand, $scope.config.adjustmentRate);
+
+            console.log(newPrice);
+            console.log(excessDemand)
             rs.set("prices", {
-                x: newPriceX,
-                y: newPriceY,
-                deltaX: newPriceX - $scope.prices.x,
-                deltaY: newPriceY - $scope.prices.y
+                x: newPrice,
+                y: 1
             });
             rs.trigger("next_round");
         });
