@@ -105,14 +105,12 @@ Redwood.directive("rpPlot", function() {
 
             function drawText(plot, ctx) {
 
-                function drawTextForPoint(plot, ctx, point) {
+                function offsetForPoint(plot, point) {
                     var offset = plot.pointOffset({x: point[0], y: point[1]});
-
+                    
                     if (point[0] > 75) {
-                        ctx.textAlign = "end";
                         offset.left -= 10;
                     } else {
-                        ctx.textAlign = "start";
                         offset.left += 10;
                     }
 
@@ -122,29 +120,78 @@ Redwood.directive("rpPlot", function() {
                         offset.top -= 10;
                     }
 
-                    var text = "[" + point[0].toFixed(2) + ", " + point[1].toFixed(2) + "]";
-                    ctx.font = "14px sans-serif";
+                    return offset;
+                }
+
+                function textAlignForPoint(point) {
+                    if (point[0] > 75) {
+                        return "end";
+                    } else {
+                        return "start";
+                    }
+                }
+
+                ctx.font = "14px sans-serif";
+
+                // draw current endowment
+                var endowmentPoint = [$scope.endowment.x, $scope.endowment.y];
+                var offset = offsetForPoint(plot, endowmentPoint);
+                ctx.textAlign = textAlignForPoint(endowmentPoint);
+
+                ctx.fillStyle = "grey";
+                var text = "[" + endowmentPoint[0].toFixed(2) + ", " + endowmentPoint[1].toFixed(2) + "]";
+                ctx.fillText(text, offset.left, offset.top);
+
+                // draw current selection values at axes
+                if ($scope.selection) {
+                    var xPoint = [$scope.selection[0], 0];
+                    var yPoint = [0, $scope.selection[1]];
+                    var xOffset = offsetForPoint(plot, xPoint);
+                    var yOffset = offsetForPoint(plot, yPoint);
+                    var xText = $scope.selection[0].toFixed(2);
+                    var yText = $scope.selection[1].toFixed(2);
+                    
+                    ctx.textAlign = textAlignForPoint(xPoint);
+                    ctx.fillStyle = "#d8d8d8";
+                    if (ctx.textAlign === "end") {
+                        ctx.fillRect(xOffset.left, xOffset.top+5, -(xText.length-1)*10, -20)
+                    } else {
+                        ctx.fillRect(xOffset.left, xOffset.top+5, (xText.length-1)*10, -20)
+                    }
+
+                    ctx.fillStyle = "black";
+                    ctx.fillText(xText, xOffset.left, xOffset.top);
+
+                    ctx.textAlign = textAlignForPoint(yPoint);
+                    ctx.fillStyle = "#d8d8d8";
+                    if (ctx.textAlign === "end") {
+                        ctx.fillRect(yOffset.left, yOffset.top+5, -(yText.length-1)*10, -20)
+                    } else {
+                        ctx.fillRect(yOffset.left, yOffset.top+5, (yText.length-1)*10, -20)
+                    }
+
+                    ctx.fillStyle = "black";
+                    ctx.fillText(yText, yOffset.left, yOffset.top);
+                }
+
+                // draw current hover value
+                if ($scope.cursor) {
+                     var offset = offsetForPoint(plot, $scope.cursor);
+                    ctx.textAlign = textAlignForPoint($scope.cursor);
+
+                    ctx.fillStyle = "grey";
+                    var text = "[" + $scope.cursor[0].toFixed(2) + ", " + $scope.cursor[1].toFixed(2) + "]";
                     ctx.fillText(text, offset.left, offset.top);
                 }
 
-                if ($scope.cursor) {
-                    ctx.fillStyle = "grey";
-                    drawTextForPoint(plot, ctx, $scope.cursor);
-                }
-
-                if ($scope.selection) {
-                    ctx.fillStyle = "black";
-                    drawTextForPoint(plot, ctx, $scope.selection);
-                }
-
-                // endowment
-                ctx.fillStyle = "grey";
-                drawTextForPoint(plot, ctx, [$scope.endowment.x, $scope.endowment.y]);
-
                 if ($scope.result) {
                     var resultPoint = $scope.result.chosen === "x" ? [$scope.result.x, 0] : [0, $scope.result.y];
+                    var offset = offsetForPoint(plot, resultPoint);
+                    ctx.textAlign = textAlignForPoint(resultPoint);
+
                     ctx.fillStyle = "#51a351";
-                    drawTextForPoint(plot, ctx, resultPoint);
+                    var text = $scope.result.chosen === "x" ? $scope.result.x.toFixed(2) : $scope.result.y.toFixed(2);
+                    ctx.fillText(text, offset.left, offset.top);
                 }
             }
 
