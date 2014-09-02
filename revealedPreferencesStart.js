@@ -80,8 +80,11 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
 
         // set timeout to automatically confirm after 75 seconds
         // needs a way to stop timer between rounds
+        $scope.timerAdjustment = 0;
         if (!$scope.stopWatch) {
             $scope.timeRemaining = 0;
+            // The round which this timer was started
+            $scope.timerRound = $scope.currentRound;
             $scope.stopWatch = stopWatch.instance()
                 .frequency(1)
                 .duration($scope.config.timeLimit)
@@ -90,6 +93,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
                 })
                 .onComplete(function() {
                     $scope.confirm();
+                    $scope.stopWatch = null;
                 }).start();
         } else {
             $scope.stopWatch.duration($scope.stopWatch.getDurationInTicks() + $scope.config.timeLimit - $scope.timeRemaining)
