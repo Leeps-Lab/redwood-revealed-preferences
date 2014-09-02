@@ -5,13 +5,14 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             return $.isArray(entry) ? entry[userIndex] : entry
         }
 
+        var simplePriceAdjustment = "price + excessDemand * 0.1";
+
         var userIndex = (parseInt(rs.user_id) - 1) % 2;
         $scope.config = {
             Ex                : extractConfigEntry(rs.config.Ex, userIndex),
             Ey                : extractConfigEntry(rs.config.Ey, userIndex),
             Px                : extractConfigEntry(rs.config.Px, userIndex),
             Py                : extractConfigEntry(rs.config.Py, userIndex),
-            adjustmentRate    : extractConfigEntry(rs.config.Z, userIndex),
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
@@ -21,8 +22,10 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             delay             : parseFloat(rs.config.delay) || 5,
             timeLimit         : parseFloat(rs.config.timeLimit) || 75,
             pause             : rs.config.pause,
-            pauseAtEnd        : rs.config.pauseAtEnd == "TRUE" || false
+            pauseAtEnd        : rs.config.pauseAtEnd == "TRUE" || false,
+            adjustPrice       : rs.config.adjustPrice || simplePriceAdjustment
         };
+        $scope.adjustPrice = new Function("price", "excessDemand", "return " + $scope.config.adjustPrice);
 
         $scope.endowment = {
             x: $scope.config.Ex,
@@ -131,7 +134,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
 
             // adjust price
             var currentPrice = $scope.prices.x/$scope.prices.y;
-            var newPrice = priceAdjustmentFunction(currentPrice, excessDemand, $scope.config.adjustmentRate);
+            var newPrice = $scope.adjustPrice(currentPrice, excessDemand);
 
             console.log(newPrice);
             console.log(excessDemand)
@@ -150,10 +153,6 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
     $scope.confirm = function() {
         $scope.inputEnabled = false;
         rs.trigger("confirm", { x: $scope.selection[0], y: $scope.selection[1] });
-    };
-
-    function priceAdjustmentFunction(price, excessDemand, adjustmentRate) {
-        return price + excessDemand * adjustmentRate;
     };
 }]);
 
