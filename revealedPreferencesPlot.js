@@ -154,9 +154,9 @@ Redwood.directive("rpPlot", function() {
                     ctx.textAlign = textAlignForPoint(xPoint);
                     ctx.fillStyle = "#d8d8d8";
                     if (ctx.textAlign === "end") {
-                        ctx.fillRect(xOffset.left, xOffset.top+5, -(xText.length-1)*10, -20)
+                        ctx.fillRect(xOffset.left+2, xOffset.top+5, -(xText.length-1)*10, -20)
                     } else {
-                        ctx.fillRect(xOffset.left, xOffset.top+5, (xText.length-1)*10, -20)
+                        ctx.fillRect(xOffset.left-2, xOffset.top+5, (xText.length-1)*10, -20)
                     }
 
                     ctx.fillStyle = "black";
@@ -165,9 +165,9 @@ Redwood.directive("rpPlot", function() {
                     ctx.textAlign = textAlignForPoint(yPoint);
                     ctx.fillStyle = "#d8d8d8";
                     if (ctx.textAlign === "end") {
-                        ctx.fillRect(yOffset.left, yOffset.top+5, -(yText.length-1)*10, -20)
+                        ctx.fillRect(yOffset.left+2, yOffset.top+5, -(yText.length-1)*10, -20)
                     } else {
-                        ctx.fillRect(yOffset.left, yOffset.top+5, (yText.length-1)*10, -20)
+                        ctx.fillRect(yOffset.left-2, yOffset.top+5, (yText.length-1)*10, -20)
                     }
 
                     ctx.fillStyle = "black";
