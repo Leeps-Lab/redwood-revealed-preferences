@@ -77,10 +77,23 @@
             <div class="span12">
                 <hr>
                 <p>Payoff Controls</p>
-                <label>Period: </label><select class="form-control" ng-model="selectedPeriod" ng-options="period for period in allPeriods"></select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="span6">
+                <label>Period: </label>
+                <select class="form-control" ng-model="selectedPeriod" ng-options="period for period in allPeriods"></select>
                 <button class="btn btn-primary" ng-click="selectPeriod()">Set Payoff Period</button>
             </div>
-         </div>
+            <div class="span6">
+                <label>X or Y: </label>
+                <select class="form-control" ng-model="xOrY">
+                    <option>x</option>
+                    <option>y</option>
+                </select>
+                <button class="btn btn-primary" ng-click="selectXOrY()">Set X or Y</button>
+            </div>
+        </div>
         <div class="row">
             <div class="span12">
                 <hr/>

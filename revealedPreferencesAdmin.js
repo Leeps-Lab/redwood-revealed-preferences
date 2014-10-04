@@ -108,12 +108,18 @@ Redwood.controller("AdminCtrl", ["$rootScope", "$scope", "Admin", function($root
     ra.on_load(function () {
         resetGroups(); //Assign groups to users
         $scope.selectedPeriod = 2;
+        $scope.xOrY = "x";
         $scope.allPeriods = [1];
         $scope.selectPeriod = function() {
             ra.subjects.forEach(function(subject) {
                 ra.sendAsSubject("selected_period", $scope.selectedPeriod, subject.user_id);
             });
-        }
+        };
+        $scope.selectXOrY = function() {
+            ra.subjects.forEach(function(subject) {
+                ra.sendAsSubject("selected_x_or_y", $scope.xOrY, subject.user_id);
+            });
+        };
         $scope.earnings = {};
     });
 
