@@ -46,17 +46,10 @@ Redwood.directive("rpPlot", function() {
                     { // endowment dot
                         data: [[$scope.endowment.x, $scope.endowment.y]],
                         lines: { show: false },
-                        points: { show: true, lineWidth: 4, fill: true, radius: 3 },
-                        color: "grey",
+                        points: { show: true, lineWidth: 5, fill: true, radius: 5 },
+                        color: "#440000",
                         hoverable: false
                     },
-                    { // endowment dot
-                        data: [[$scope.endowment.x, $scope.endowment.y]],
-                        lines: { show: false },
-                        points: { show: true, fill: true, radius: 1 },
-                        color: "grey",
-                        hoverable: false
-                    }
                  ];
                  if ($scope.result) {
                     var resultPoint = $scope.result.chosen === "x" ? [$scope.result.x, 0] : [0, $scope.result.y];
@@ -153,10 +146,13 @@ Redwood.directive("rpPlot", function() {
                     
                     ctx.textAlign = textAlignForPoint(xPoint);
                     ctx.fillStyle = "#d8d8d8";
+                    ctx.strkeStyle = "#000000";
                     if (ctx.textAlign === "end") {
-                        ctx.fillRect(xOffset.left+2, xOffset.top+5, -(xText.length-1)*10, -20)
+                        ctx.fillRect(xOffset.left+2, xOffset.top+5, -(xText.length-1)*10, -20);
+                        ctx.strokeRect(xOffset.left+2, xOffset.top+5, -(xText.length-1)*10, -20);
                     } else {
-                        ctx.fillRect(xOffset.left-2, xOffset.top+5, (xText.length-1)*10, -20)
+                        ctx.fillRect(xOffset.left-2, xOffset.top+5, (xText.length-1)*10, -20);
+                        ctx.strokeRect(xOffset.left-2, xOffset.top+5, (xText.length-1)*10, -20);                        
                     }
 
                     ctx.fillStyle = "black";
@@ -165,9 +161,11 @@ Redwood.directive("rpPlot", function() {
                     ctx.textAlign = textAlignForPoint(yPoint);
                     ctx.fillStyle = "#d8d8d8";
                     if (ctx.textAlign === "end") {
-                        ctx.fillRect(yOffset.left+2, yOffset.top+5, -(yText.length-1)*10, -20)
+                        ctx.fillRect(yOffset.left+2, yOffset.top+5, -(yText.length-1)*10, -20);
+                        ctx.strokeRect(yOffset.left+2, yOffset.top+5, -(yText.length-1)*10, -20);
                     } else {
-                        ctx.fillRect(yOffset.left-2, yOffset.top+5, (yText.length-1)*10, -20)
+                        ctx.fillRect(yOffset.left-2, yOffset.top+5, (yText.length-1)*10, -20);
+                        ctx.strokeRect(yOffset.left-2, yOffset.top+5, (yText.length-1)*10, -20);
                     }
 
                     ctx.fillStyle = "black";
