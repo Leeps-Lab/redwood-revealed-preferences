@@ -207,6 +207,11 @@ Redwood.directive("rpPlot", function() {
                 $scope.$emit("rpPlot.click", $scope.cursor)
             });
 
+            $elem.bind("mouseout", function(event, pos, item) {
+                $scope.cursor = [$scope.endowment.x, $scope.endowment.y];
+                drawPlot();
+            })
+
             $scope.$watch("endowment", drawPlot);
             $scope.$watch("selection", drawPlot);
             $scope.$watch("result", function() {
