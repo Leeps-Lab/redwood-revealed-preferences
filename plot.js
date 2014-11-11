@@ -214,6 +214,7 @@ Redwood.directive("rpPlot", function() {
 
             $scope.$watch("endowment", drawPlot);
             $scope.$watch("selection", drawPlot);
+            $scope.$watchCollection("limits", drawPlot);
             $scope.$watch("result", function() {
                 if ($scope.endowment) {
                     // don't draw unless the config has loaded

@@ -1,11 +1,14 @@
-Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "SynchronizedStopWatch", function($scope, rs, stopWatch) {
-    rs.on_load(function() {
+Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "SynchronizedStopWatch", function ($scope, rs, stopWatch) {
+
+    function tatonnement(price, excessDemand, subjectCount, weight) {
+        return Math.tan(Math.atan(price) + weight / subjectCount * excessDemand);
+    }
+
+    rs.on_load(function () {
 
         function extractConfigEntry(entry, index) {
             return $.isArray(entry) ? entry[userIndex] : entry
         }
-
-        var simplePriceAdjustment = "price + excessDemand * 0.1";
 
         var userIndex = (parseInt(rs.user_id) - 1) % 2;
         $scope.config = {
@@ -15,38 +18,41 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             Py                : extractConfigEntry(rs.config.Py, userIndex),
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
+            animateLimits     : extractConfigEntry(rs.config.animateLimits, userIndex) || true,
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
             rounds            : rs.config.rounds || 1,
-            priceThreshold    : rs.config.x_over_y_threshold,
+            epsilon           : rs.config.epsilon,
             delay             : parseFloat(rs.config.delay) || 5,
             timeLimit         : parseFloat(rs.config.timeLimit) || 75,
             pause             : rs.config.pause,
             pauseAtEnd        : rs.config.pauseAtEnd == "TRUE" || false,
-            adjustPrice       : rs.config.adjustPrice || simplePriceAdjustment
+            weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109]
         };
-        $scope.adjustPrice = new Function("price", "excessDemand", "return " + $scope.config.adjustPrice);
 
         $scope.endowment = {
             x: $scope.config.Ex,
             y: $scope.config.Ey
         }
 
+        $scope.weightIndex = 0;
+        $scope.excessDemands = [];
         $scope.currentRound = 0;
         $scope.inputEnabled = false
 
         rs.trigger("next_round");
     });
 
-    rs.on("next_round", function() {
+    rs.on("next_round", function () {
         if ($scope.currentRound >= $scope.config.rounds) {
-            rs.trigger("next_period");
+            rs.trigger("perform_allocation");
             return;
         }
 
         // Begin next round
         $scope.currentRound++;
         $scope.cursor = undefined;
+        $scope.selection = [$scope.endowment.x, $scope.endowment.y];
         rs.trigger("selection", [$scope.endowment.x, $scope.endowment.y])
 
         // set initial price
@@ -66,12 +72,22 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.limits = {}
         $scope.limits.x = $scope.config.XLimit ? $scope.config.XLimit : $scope.intercepts.x;
         $scope.limits.y = $scope.config.YLimit ? $scope.config.YLimit : $scope.intercepts.y;
+        if ($scope.config.animateLimits) {
+            var larger = $scope.intercepts.x > $scope.intercepts.y
+                ? $scope.intercepts.x
+                : $scope.intercepts.y;
+
+            $($scope.limits).animate({x: larger, y: larger}, {
+                duration: 1000,
+                easing: "easeInOutCubic"
+            });
+        }
 
         // set budget functions
-        $scope.budgetFunction = function(x) {
+        $scope.budgetFunction = function (x) {
             return ($scope.budget - x * $scope.prices.x) / $scope.prices.y;
         }
-        $scope.inverseBudgetFunction = function(y) {
+        $scope.inverseBudgetFunction = function (y) {
             return ($scope.budget - y * $scope.prices.y) / $scope.prices.x;
         }
 
@@ -88,10 +104,10 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             $scope.stopWatch = stopWatch.instance()
                 .frequency(1)
                 .duration($scope.config.timeLimit)
-                .onTick(function(tick, t) {
+                .onTick(function (tick, t) {
                     $scope.timeRemaining = $scope.timeTotal - t;
                 })
-                .onComplete(function() {
+                .onComplete(function () {
                     $scope.confirm();
                     $scope.stopWatch = null;
                 }).start();
@@ -102,7 +118,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.timeTotal = $scope.stopWatch.getDurationInTicks();
     });
 
-    rs.on("next_period", function() {
+    rs.on("perform_allocation", function () {
         var finalResult = $scope.results[$scope.results.length - 1];
         finalResult.period = rs.period;
         rs.set("results", finalResult);
@@ -114,34 +130,61 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         }
     });
 
-    rs.on("selection", function(selection) {
+    rs.on("selection", function (selection) {
         $scope.selection = selection;
     })
 
-    rs.on("confirm", function(position) {
+    rs.on("confirm", function (position) {
         $scope.inputEnabled = false; // for recovery
     });
 
-    // recieve round result from the admin
-    rs.on("result", function(value) {
+    // Recieve round result from the admin RERPEPREP ADMIN SHOULD NOT SEND UNTIL END OF PERIOD/ALLOCATION STEP
+    rs.on("result", function (value) {
         $scope.results = $scope.results || [];
         $scope.results.push(value);
 
-        rs.synchronizationBarrier('round_' + $scope.currentRound).then(function() {
+        rs.synchronizationBarrier('round_' + $scope.currentRound).then(function () {
+            // Calculate excess demand
             var excessDemand = 0;
-            rs.subjects.filter(function(subject) {
+            rs.subjects.filter(function (subject) {
                 return subject.groupForPeriod && subject.groupForPeriod === rs.self.groupForPeriod;
-            }).forEach(function(subject) {
+            }).forEach(function (subject) {
                 var selection = subject.get("selection");
                 excessDemand += selection[0] - $scope.endowment.x;
             });
 
-            // adjust price
-            var currentPrice = $scope.prices.x/$scope.prices.y;
-            var newPrice = $scope.adjustPrice(currentPrice, excessDemand);
+            $scope.excessDemands.push(excessDemand);
 
-            console.log(newPrice);
-            console.log(excessDemand)
+            // If demand is under threshold, stop tatonnement
+            if (Math.abs(excessDemand) < $scope.config.epsilon) {
+                rs.trigger("perform_allocation");
+                return;
+            }
+
+            // Adjust weight index if excessDemand sign changes
+            if ($scope.excessDemands.length > 1) {
+                if (excessDemand * $scope.excessDemands[$scope.excessDemands.length - 2] < 0) {
+                    $scope.weightIndex += 1;
+                }
+            }
+
+            // Adjust price
+            var currentPrice = $scope.prices.x/$scope.prices.y;
+
+            var newPrice;
+            if ($scope.weightIndex < $scope.config.weightVector.length) {
+                newPrice = tatonnement(
+                    currentPrice,
+                    excessDemand,
+                    rs.subjects.length,
+                    $scope.config.weightVector[$scope.weightIndex]
+                );
+            } else {
+                newPrice = price * (excessDemand > 0 ? 0.01 : -0.01);
+            }
+
+            console.log("newPrice: " + newPrice);
+            console.log("excessDemand: " + excessDemand);
             rs.set("prices", {
                 x: newPrice,
                 y: 1
@@ -150,11 +193,11 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         });
     });
 
-    $scope.$on("rpPlot.click", function(event, selection) {
+    $scope.$on("rpPlot.click", function (event, selection) {
         rs.trigger("selection", selection);
     });
 
-    $scope.confirm = function() {
+    $scope.confirm = function () {
         $scope.inputEnabled = false;
         rs.trigger("confirm", { x: $scope.selection[0], y: $scope.selection[1] });
     };
