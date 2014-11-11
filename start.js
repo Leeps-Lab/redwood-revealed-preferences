@@ -153,7 +153,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             // Adjust price
             var currentPrice = $scope.prices.x/$scope.prices.y;
             var newPrice;
-            
+
             if ($scope.weightIndex < $scope.config.weightVector.length) {
                 newPrice = tatonnement(
                     currentPrice,
