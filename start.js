@@ -45,7 +45,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
 
     rs.on("next_round", function () {
         if ($scope.currentRound >= $scope.config.rounds) {
-            rs.trigger("perform_allocation");
+            rs.trigger("perform_allocation", { x: $scope.selection[0], y: $scope.selection[1] });
             return;
         }
 
@@ -118,30 +118,12 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.timeTotal = $scope.stopWatch.getDurationInTicks();
     });
 
-    rs.on("perform_allocation", function () {
-        var finalResult = $scope.results[$scope.results.length - 1];
-        finalResult.period = rs.period;
-        rs.set("results", finalResult);
-        if($scope.config.plotResult) {
-            $scope.finalResult = finalResult;
-            rs.next_period($scope.config.delay);
-        } else {
-            rs.next_period();
-        }
-    });
-
     rs.on("selection", function (selection) {
         $scope.selection = selection;
     })
 
     rs.on("confirm", function (position) {
         $scope.inputEnabled = false; // for recovery
-    });
-
-    // Recieve round result from the admin RERPEPREP ADMIN SHOULD NOT SEND UNTIL END OF PERIOD/ALLOCATION STEP
-    rs.on("result", function (value) {
-        $scope.results = $scope.results || [];
-        $scope.results.push(value);
 
         rs.synchronizationBarrier('round_' + $scope.currentRound).then(function () {
             // Calculate excess demand
@@ -157,7 +139,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
 
             // If demand is under threshold, stop tatonnement
             if (Math.abs(excessDemand) < $scope.config.epsilon) {
-                rs.trigger("perform_allocation");
+                rs.trigger("perform_allocation", { x: $scope.selection[0], y: $scope.selection[1] });
                 return;
             }
 
@@ -170,8 +152,8 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
 
             // Adjust price
             var currentPrice = $scope.prices.x/$scope.prices.y;
-
             var newPrice;
+            
             if ($scope.weightIndex < $scope.config.weightVector.length) {
                 newPrice = tatonnement(
                     currentPrice,
@@ -183,14 +165,23 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
                 newPrice = price * (excessDemand > 0 ? 0.01 : -0.01);
             }
 
-            console.log("newPrice: " + newPrice);
-            console.log("excessDemand: " + excessDemand);
-            rs.set("prices", {
-                x: newPrice,
-                y: 1
-            });
+            rs.set("prices", {x: newPrice, y: 1});
             rs.trigger("next_round");
         });
+    });
+
+    // Recieve result (whether X or Y was chosen) from admin. This result
+    // is really only used for practice rounds.
+    rs.on("result", function (result) {
+        result.period = rs.period;
+        rs.set("results", result);
+
+        if($scope.config.plotResult) {
+            $scope.finalResult = result;
+            rs.next_period($scope.config.delay);
+        } else {
+            rs.next_period();
+        }
     });
 
     $scope.$on("rpPlot.click", function (event, selection) {

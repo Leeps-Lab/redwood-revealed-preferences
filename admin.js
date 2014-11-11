@@ -140,13 +140,13 @@ Redwood.controller("AdminCtrl", ["$rootScope", "$scope", "Admin", function($root
         }
     })
 
-    ra.recv("confirm", function(sender, message) {
+    ra.recv("perform_allocation", function(sender, allocation) {
         // if an outcome has not yet been determined for this round, do it here
         if (!outcome) {
             outcome = Math.random() < ra.get_config().ProbX ? "x" : "y";
         }
         // send as the subject who sent the confirm message
-        ra.sendAsSubject("result", {x: message.x, y: message.y, chosen: outcome}, sender);
+        ra.sendAsSubject("result", {x: allocation.x, y: allocation.y, chosen: outcome}, sender);
     });
 
     ra.recv("earnings", function(sender, message) {
