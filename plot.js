@@ -101,13 +101,13 @@ Redwood.directive("rpPlot", function() {
                 function offsetForPoint(plot, point) {
                     var offset = plot.pointOffset({x: point[0], y: point[1]});
                     
-                    if (point[0] > 75) {
+                    if (point[0] > $scope.limits.x - 25) {
                         offset.left -= 10;
                     } else {
                         offset.left += 10;
                     }
 
-                    if (point[1] > 85) {
+                    if (point[1] > $scope.limits.y - 15) {
                         offset.top += 15;
                     } else {
                         offset.top -= 10;
