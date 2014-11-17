@@ -76,10 +76,18 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             var larger = $scope.intercepts.x > $scope.intercepts.y
                 ? $scope.intercepts.x
                 : $scope.intercepts.y;
-
-            $($scope.limits).animate({x: larger, y: larger}, {
+            $({x: $scope.limits.x, y: $scope.limits.y}).animate({x: larger, y: larger}, {
                 duration: 1000,
-                easing: "easeInOutCubic"
+                easing: "easeInOutCubic",
+                step: function(now, fx) {
+                    if (!$scope.$$phase) {
+                        $scope.$apply(function() {
+                            $scope.limits[fx.prop] = now;
+                        })
+                    } else {
+                        $scope.limits[fx.prop] = now;
+                    }
+                }
             });
         }
 
