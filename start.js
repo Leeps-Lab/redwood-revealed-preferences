@@ -1,42 +1,100 @@
-Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "SynchronizedStopWatch", function ($scope, rs, stopWatch) {
+Redwood.factory("Tatonnement", function () {
+    var tatonnement = {};
 
-    // pure
+    // provided
+    var _price;
+    var _subjects;
+    var _endowment;
+    var _selection;
+
+    // computed and reused a lot
+    var _excessDemand = 0;
+    var _excessDemandPerCapita = 0;
+
     function sign (value) {
         return value < 0 ? -1 : 1;
     }
 
-    // pure
-    function adjustPriceWithWeight (price, excessDemand, subjectCount, weight) {
-        //return Math.tan(Math.atan(price) + weight / subjectCount * excessDemand);
-        var excessDemandSign = sign(excessDemand);
+    tatonnement.initialize = function (price, subjects, endowment, selection) {
+        // set internal variables
+        _price = price;
+        _subjects = subjects;
+        _endowment = endowment;
+        _selection = selection;
+
+        // compute excessDemand
+        _excessDemand = _subjects.reduce(function(sum, subject) {
+            return sum + (subject.get("selection")[0] - _endowment.x);
+        }, 0);
+        _excessDemandPerCapita = _excessDemand / _subjects.length;        
+    }
+
+    tatonnement.adjustedPriceWithWeight = function (weight) {
+        var excessDemandSign = sign(_excessDemand);
 
         // make sure angular difference is no more than 15 degrees
-        var angularDiff = weight * excessDemand / subjectCount;
+        var angularDiff = weight * _excessDemand / _subjects.length;
         var maxAngularDiff = 0.26175 * excessDemandSign;
         var constrainedAngularDiff = Math.min(angularDiff, maxAngularDiff) * excessDemandSign;
         
-        var newPrice = Math.atan(price) + constrainedAngularDiff;
+        var newPrice = Math.atan(_price) + constrainedAngularDiff;
 
         // make sure that 0.01 <= price <= 100
         if (constrainedAngularDiff > 0) {
             return Math.tan(Math.max(newPrice, 0.01));
         } else {
-            return Math.tan(Math.min(newPrice, 1.5609));
+            return Math.tan(Math.min(newPrice, 1.5608));
         }
     }
 
-    // pure
-    function adjustPriceWithoutWeight (price, excessDemand) {
-        // needs to round to nearest hundreth
-        return price * 0.01 * sign(excessDemand);
+    tatonnement.adjustedPriceWithoutWeight = function () {
+        return _price * 0.01 * sign(_excessDemand);
     }
 
-    // pure
-    function calculateExcessDemand (subjects, endowment) {
-        return subjects.reduce(function(sum, subject) {
-            return sum + (subject.get("selection")[0] - endowment);
-        }, 0);
+    // Accessors
+
+    tatonnement.excessDemand = function () {
+        return _excessDemand;
+    };
+
+    tatonnement.excessDemandPerCapita = function () {
+        return _excessDemandPerCapita;
     }
+
+    tatonnement.allocation = function (marketMaker) {
+        var allocation = {}
+        
+        var netBuyers = _subjects.filter(function(subject) {
+            return subject.get("selection")[0] > _endowment.x;
+        }).length;
+        var netSellers = _subjects.filter(function(subject) {
+            return subject.get("selection")[0] < _endowment.x;
+        }).length;
+        
+        if (marketMaker) {
+            allocation.x = _selection[0];
+            allocation.y = _selection[1];
+        } else {
+            if (_selection[0] > _endowment.x) { // net buyer
+                var halfExcessPerBuyer = _excessDemand / (2 * netBuyers);
+                allocation.x = _selection[0] - halfExcessPerBuyer;
+                allocation.y = _selection[1] + _price * halfExcessPerBuyer;
+            } else if (_selection[0] < _endowment.x) { // net seller
+                var halfExcessPerSeller = _excessDemand / (2 * netSellers);
+                allocation.x = _selection[0] + halfExcessPerSeller;
+                allocation.y = _selection[1] - _price * halfExcessPerSeller;
+            } else { // chooses endowment
+                allocation.x = _selection[0];
+                allocation.y = _selection[1];
+            }
+        }
+        return allocation;
+    }
+
+    return tatonnement;
+});
+
+Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "SynchronizedStopWatch", "Tatonnement", function ($scope, rs, stopWatch, ta) {
 
     // pure
     function snapPriceToGrid (price, gridSpacing) {
@@ -51,36 +109,6 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         }
     }
 
-    // pure
-    function calculateAllocation (selectionX, selectionY, endowmentX, price, excessDemand, subjects) {
-        var allocationX, allocationY;
-        var netBuyers = subjects.filter(function(subject) {
-            return subject.get("selection")[0] > endowmentX;
-        }).length;
-        var netSellers = subjects.filter(function(subject) {
-            return subject.get("selection")[0] < endowmentX;
-        }).length;
-        
-        if ($scope.config.marketMaker) {
-            allocationX = selectionX;
-            allocationY = selectionY;
-        } else {
-            if (selectionX > endowmentX) { // net buyer
-                var halfExcessPerBuyer = excessDemand / (2 * netBuyers);
-                allocationX = selectionX - halfExcessPerBuyer;
-                allocationY = selectionY + price * halfExcessPerBuyer;
-            } else if (selectionX < endowmentX) { // net seller
-                var halfExcessPerSeller = excessDemand / (2 * netSellers);
-                allocationX = selectionX + halfExcessPerSeller;
-                allocationY = selectionY - price * halfExcessPerSeller;
-            } else { // chooses endowment
-                allocationX = selectionX;
-                allocationY = selectionY;
-            }
-        }
-        return { x: allocationX, y: allocationY };
-    }
-
     rs.on_load(function () {
 
         function extractConfigEntry (entry, index) {
@@ -93,7 +121,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             Ey                : extractConfigEntry(rs.config.Ey, userIndex) || 0,
             Px                : extractConfigEntry(rs.config.Px, userIndex) || 100,
             Py                : extractConfigEntry(rs.config.Py, userIndex) || 157,
-            epsilon           : rs.config.epsilon || 0.02,
+            epsilon           : rs.config.epsilon || 1,
             expectedExcess    : rs.config.expectedExcess || 20,
             marketMaker       : rs.config.marketMaker || false,
             snapPriceToGrid   : rs.config.snapPriceToGrid || false,
@@ -222,46 +250,33 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
                     && subject.groupForPeriod === rs.self.groupForPeriod;
             });
 
-            // Calculate excess demand
-            var excessDemand = calculateExcessDemand(subjectsInGroup, $scope.endowment.x);
-            var excessDemandPerCapita = excessDemand / subjectsInGroup.length;
+            // Initialize Tatonnement service
+            ta.initialize(currentPrice, subjectsInGroup, $scope.endowment, $scope.selection);
 
-            // If demand is under threshold, stop tatonnement
-            if (Math.abs(excessDemandPerCapita) < $scope.config.epsilon) {
-                var allocation = calculateAllocation(
-                    $scope.selection[0],
-                    $scope.selection[1],
-                    $scope.endowment.x,
-                    currentPrice,
-                    excessDemand,
-                    subjectsInGroup
-                );
-                rs.trigger("perform_allocation", allocation);
+            // If demand is under threshold or max round has been reached, stop tatonnement
+            if (Math.abs(ta.excessDemandPerCapita()) < $scope.config.epsilon
+                ||              $scope.currentRound >= $scope.config.rounds) {
+
+                rs.trigger("perform_allocation", ta.allocation($scope.config.marketMaker));
                 return;
             }
 
             // Increment weight index if excessDemand sign changes
             if ($scope.excessDemands.length > 1) {
                 var previousDemand = $scope.excessDemands[$scope.excessDemands.length - 1];
-                if (excessDemand * previousDemand < 0) {
+                if (ta.excessDemand() * previousDemand < 0) {
                     $scope.weightIndex += 1;
                 }
             }
-            $scope.excessDemands.push(excessDemand);
+            $scope.excessDemands.push(ta.excessDemand());
 
             // Adjust price
             var newPrice;
             if ($scope.weightIndex < $scope.config.weightVector.length) {
-                // adjust with weight vector value
-                newPrice = adjustPriceWithWeight(
-                    currentPrice,
-                    excessDemand,
-                    subjectsInGroup.length,
-                    $scope.config.weightVector[$scope.weightIndex]
-                );
+                var weight = $scope.config.weightVector[$scope.weightIndex];
+                newPrice = ta.adjustedPriceWithWeight(weight);
             } else {
-                // adjust without weight vector
-                newPrice = adjustPriceWithoutWeight(currentPrice, excessDemand);
+               newPrice = ta.adjustedPriceWithoutWeight();
             }
 
             // Snap to grid if necessary
@@ -273,22 +288,9 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
                 }
             }
 
+            // Proceed to next round
             rs.set("prices", {x: newPrice, y: 1});
-
-            // Proceed to next round, or perform allocation and finish period.
-            if ($scope.currentRound >= $scope.config.rounds) {
-                var allocation = calculateAllocation(
-                    $scope.selection[0],
-                    $scope.selection[1],
-                    $scope.endowment.x,
-                    currentPrice,
-                    excessDemand,
-                    subjectsInGroup
-                );
-                rs.trigger("perform_allocation", allocation);
-            } else {
-                rs.trigger("next_round");
-            }
+            rs.trigger("next_round");
         });
     });
 
