@@ -13,18 +13,37 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         var maxAngularDiff = 0.26175 * excessDemandSign;
         var constrainedAngularDiff = Math.min(angularDiff, maxAngularDiff) * excessDemandSign;
         
-        // make sure that 0.01 <= price <= 100
         var newPrice = Math.atan(price) + constrainedAngularDiff;
-        var constrainedNewPrice = constrainedAngularDiff > 0 ?
-                                  Math.max(newPrice, 0.01)
-                                : Math.min(newPrice, 1.5609);
 
-        return Math.tan(constrainedNewPrice);
+        // make sure that 0.01 <= price <= 100
+        if (constrainedAngularDiff > 0) {
+            return Math.tan(Math.max(newPrice, 0.01));
+        } else {
+            return Math.tan(Math.min(newPrice, 1.5609));
+        }
     }
 
     function adjustPriceWithoutWeight(price, excessDemand) {
         // needs to round to nearest hundreth
         return price * 0.01 * sign(excessDemand);
+    }
+
+    function calculateExcessDemand(subjects, endowment) {
+        return subjects.reduce(function(sum, subject) {
+            return sum + (subject.get("selection")[0] - endowment);
+        }, 0);
+    }
+
+    function snapPriceToGrid(price, gridSpacing) {
+        var upperSnapPoint = gridSpacing * Math.ceil(price / gridSpacing);
+        var lowerSnapPoint = gridSpacing * Math.floor(price / gridSpacing);
+        console.log("upperSnapPoint: " + upperSnapPoint);
+        console.log("lowerSnapPoint: " + lowerSnapPoint);
+        if (upperSnapPoint - price < price - lowerSnapPoint) {
+            return upperSnapPoint;
+        } else {
+            return lowerSnapPoint;
+        }
     }
 
     rs.on_load(function () {
@@ -42,7 +61,8 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             epsilon           : rs.config.epsilon || 0.02,
             expectedExcess    : rs.config.expectedExcess || 20,
             marketMaker       : rs.config.marketMaker || true,
-            snapPriceToGrid   : rs.config.snapPriceToGrid || false,
+            snapPriceToGrid   : rs.config.snapPriceToGrid || true,
+            priceGridSpacing  : rs.config.priceGridSpacing || 0.2,
             weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
@@ -170,9 +190,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             });
 
             // Calculate excess demand
-            var excessDemand = subjectsInGroup.reduce(function(sum, subject) {
-                return sum + (subject.get("selection")[0] - $scope.endowment.x);
-            }, 0);
+            var excessDemand = calculateExcessDemand(subjectsInGroup, $scope.endowment.x)
             var excessDemandPerCapita = excessDemand / subjectsInGroup.length;
 
             console.log("subjectsInGroup: " + subjectsInGroup);
@@ -201,7 +219,6 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             // Adjust price
             var currentPrice = $scope.prices.x/$scope.prices.y;
             var newPrice;
-
             if ($scope.weightIndex < $scope.config.weightVector.length) {
                 // adjust with weight vector value
                 newPrice = adjustPriceWithWeight(
@@ -214,6 +231,20 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
                 // adjust without weight vector
                 newPrice = adjustPriceWithoutWeight(currentPrice, excessDemand);
             }
+
+            // Snap to grid if necessary
+            if ($scope.config.snapPriceToGrid) {
+                var prevNewPrice = newPrice; // yeah I know, terrible naming
+                newPrice = snapPriceToGrid(newPrice, $scope.config.priceGridSpacing);
+                if (newPrice == prevNewPrice) {
+                    $scope.config.snapPriceToGrid = false;
+                    console.log("No longer snapping price to grid");
+                }
+                console.log("Snapped price from " + prevNewPrice + " to " + newPrice);
+            }
+
+            console.log("oldPrice: " + currentPrice);
+            console.log("newPrice: " + newPrice);
 
             rs.set("prices", {x: newPrice, y: 1});
             rs.trigger("next_round");
