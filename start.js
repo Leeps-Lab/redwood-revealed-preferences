@@ -16,18 +16,21 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             Ey                : extractConfigEntry(rs.config.Ey, userIndex),
             Px                : extractConfigEntry(rs.config.Px, userIndex),
             Py                : extractConfigEntry(rs.config.Py, userIndex),
+            epsilon           : rs.config.epsilon || 0.02,
+            expectedExcess    : rs.config.expectedExcess || 20,
+            marketMaker       : rs.config.marketMaker || true,
+            snapPriceToGrid   : rs.config.snapPriceToGrid || false,
+            weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
             animateLimits     : extractConfigEntry(rs.config.animateLimits, userIndex) || true,
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
             rounds            : rs.config.rounds || 1,
-            epsilon           : rs.config.epsilon,
             delay             : parseFloat(rs.config.delay) || 5,
             timeLimit         : parseFloat(rs.config.timeLimit) || 75,
             pause             : rs.config.pause,
             pauseAtEnd        : rs.config.pauseAtEnd == "TRUE" || false,
-            weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109]
         };
 
         $scope.endowment = {
