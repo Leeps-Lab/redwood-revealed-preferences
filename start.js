@@ -2,6 +2,7 @@ Redwood.factory("Tatonnement", function () {
     var tatonnement = {};
 
     // provided
+    var _weightVector;
     var _price;
     var _subjects;
     var _endowment;
@@ -11,11 +12,21 @@ Redwood.factory("Tatonnement", function () {
     var _excessDemand = 0;
     var _excessDemandPerCapita = 0;
 
+    // per period state
+    var _weightIndex;
+    var _excessDemandHistory = [];
+
     function sign (value) {
         return value < 0 ? -1 : 1;
     }
 
-    tatonnement.initialize = function (price, subjects, endowment, selection) {
+    tatonnement.initializePeriod = function (weightVector) {
+        _weightVector = weightVector;
+        _weightIndex = 0;
+        _excessDemandHistory = [];
+    }
+
+    tatonnement.initializeRound = function (price, subjects, endowment, selection) {
         // set internal variables
         _price = price;
         _subjects = subjects;
@@ -26,39 +37,40 @@ Redwood.factory("Tatonnement", function () {
         _excessDemand = _subjects.reduce(function(sum, subject) {
             return sum + (subject.get("selection")[0] - _endowment.x);
         }, 0);
-        _excessDemandPerCapita = _excessDemand / _subjects.length;        
-    }
+        _excessDemandPerCapita = _excessDemand / _subjects.length;
 
-    tatonnement.adjustedPriceWithWeight = function (weight) {
-        var excessDemandSign = sign(_excessDemand);
-
-        // make sure angular difference is no more than 15 degrees
-        var angularDiff = weight * _excessDemand / _subjects.length;
-        var maxAngularDiff = 0.26175 * excessDemandSign;
-        var constrainedAngularDiff = Math.min(angularDiff, maxAngularDiff) * excessDemandSign;
-        
-        var newPrice = Math.atan(_price) + constrainedAngularDiff;
-
-        // make sure that 0.01 <= price <= 100
-        if (constrainedAngularDiff > 0) {
-            return Math.tan(Math.max(newPrice, 0.01));
-        } else {
-            return Math.tan(Math.min(newPrice, 1.5608));
+        // increment weight index if necessary
+        if (_excessDemandHistory.length > 1) {
+            var previousDemand = _excessDemandHistory[_excessDemandHistory.length - 1];
+            if (_excessDemand * previousDemand < 0) {
+                _weightIndex += 1;
+            }
         }
+        _excessDemandHistory.push(_excessDemand);
     }
 
-    tatonnement.adjustedPriceWithoutWeight = function () {
-        return _price * 0.01 * sign(_excessDemand);
-    }
+    tatonnement.adjustedPrice = function () {
+        if (_weightIndex < _weightVector.length) {
 
-    // Accessors
+            var weight = _weightVector[_weightIndex];
+            var excessDemandSign = sign(_excessDemand);
+            
+            // make sure angular difference is no more than 15 degrees
+            var angularDiff = weight * _excessDemand / _subjects.length;
+            var maxAngularDiff = 0.26175 * excessDemandSign;
+            var constrainedAngularDiff = Math.min(angularDiff, maxAngularDiff) * excessDemandSign;
+            
+            var newPrice = Math.atan(_price) + constrainedAngularDiff;
 
-    tatonnement.excessDemand = function () {
-        return _excessDemand;
-    };
-
-    tatonnement.excessDemandPerCapita = function () {
-        return _excessDemandPerCapita;
+            // make sure that 0.01 <= price <= 100
+            if (constrainedAngularDiff > 0) {
+                return Math.tan(Math.max(newPrice, 0.01));
+            } else {
+                return Math.tan(Math.min(newPrice, 1.5608));
+            }
+        } else {
+            return _price * 0.01 * sign(_excessDemand);
+        }
     }
 
     tatonnement.allocation = function (marketMaker) {
@@ -89,6 +101,16 @@ Redwood.factory("Tatonnement", function () {
             }
         }
         return allocation;
+    }
+
+    // Accessors
+
+    tatonnement.excessDemand = function () {
+        return _excessDemand;
+    };
+
+    tatonnement.excessDemandPerCapita = function () {
+        return _excessDemandPerCapita;
     }
 
     return tatonnement;
@@ -144,10 +166,10 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             y: $scope.config.Ey
         }
 
-        $scope.weightIndex = 0;
-        $scope.excessDemands = [];
         $scope.currentRound = 0;
         $scope.inputEnabled = false;
+
+        ta.initializePeriod($scope.config.weightVector);
 
         rs.trigger("next_round");
     });
@@ -251,7 +273,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             });
 
             // Initialize Tatonnement service
-            ta.initialize(currentPrice, subjectsInGroup, $scope.endowment, $scope.selection);
+            ta.initializeRound(currentPrice, subjectsInGroup, $scope.endowment, $scope.selection);
 
             // If demand is under threshold or max round has been reached, stop tatonnement
             if (Math.abs(ta.excessDemandPerCapita()) < $scope.config.epsilon
@@ -261,23 +283,8 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
                 return;
             }
 
-            // Increment weight index if excessDemand sign changes
-            if ($scope.excessDemands.length > 1) {
-                var previousDemand = $scope.excessDemands[$scope.excessDemands.length - 1];
-                if (ta.excessDemand() * previousDemand < 0) {
-                    $scope.weightIndex += 1;
-                }
-            }
-            $scope.excessDemands.push(ta.excessDemand());
-
-            // Adjust price
-            var newPrice;
-            if ($scope.weightIndex < $scope.config.weightVector.length) {
-                var weight = $scope.config.weightVector[$scope.weightIndex];
-                newPrice = ta.adjustedPriceWithWeight(weight);
-            } else {
-               newPrice = ta.adjustedPriceWithoutWeight();
-            }
+            // Get adjusted price
+            var newPrice = ta.adjustedPrice();
 
             // Snap to grid if necessary
             if ($scope.config.snapPriceToGrid) {
