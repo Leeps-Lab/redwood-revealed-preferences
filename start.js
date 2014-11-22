@@ -202,6 +202,7 @@ Redwood.controller("SubjectController", ["$scope",
 
         ta.initializePeriod($scope.config.weightVector);
 
+        rs.trigger("configuration", $scope.config);
         rs.trigger("next_round");
     });
 
