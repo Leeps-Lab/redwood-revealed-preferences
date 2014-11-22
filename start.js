@@ -1,7 +1,30 @@
 Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "SynchronizedStopWatch", function ($scope, rs, stopWatch) {
 
-    function tatonnement(price, excessDemand, subjectCount, weight) {
-        return Math.tan(Math.atan(price) + weight / subjectCount * excessDemand);
+    function sign(value) {
+        return value < 0 ? -1 : 1;
+    }
+
+    function adjustPriceWithWeight(price, excessDemand, subjectCount, weight) {
+        //return Math.tan(Math.atan(price) + weight / subjectCount * excessDemand);
+        var excessDemandSign = sign(excessDemand);
+
+        // make sure angular difference is no more than 15 degrees
+        var angularDiff = weight * excessDemand / subjectCount;
+        var maxAngularDiff = 0.26175 * excessDemandSign;
+        var constrainedAngularDiff = Math.min(angularDiff, maxAngularDiff) * excessDemandSign;
+        
+        // make sure that 0.01 <= price <= 100
+        var newPrice = Math.atan(price) + constrainedAngularDiff;
+        var constrainedNewPrice = constrainedAngularDiff > 0 ?
+                                  Math.max(newPrice, 0.01)
+                                : Math.min(newPrice, 1.5609);
+
+        return Math.tan(constrainedNewPrice);
+    }
+
+    function adjustPriceWithoutWeight(price, excessDemand) {
+        // needs to round to nearest hundreth
+        return price * 0.01 * sign(excessDemand);
     }
 
     rs.on_load(function () {
@@ -82,9 +105,9 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             $({x: $scope.limits.x, y: $scope.limits.y}).animate({x: larger, y: larger}, {
                 duration: 1000,
                 easing: "easeInOutCubic",
-                step: function(now, fx) {
+                step: function (now, fx) {
                     if (!$scope.$$phase) {
-                        $scope.$apply(function() {
+                        $scope.$apply(function () {
                             $scope.limits[fx.prop] = now;
                         })
                     } else {
@@ -102,7 +125,10 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             return ($scope.budget - y * $scope.prices.y) / $scope.prices.x;
         }
 
-        rs.trigger("round_started", {endowment: $scope.endowment, price: $scope.prices.y / $scope.prices.x});
+        rs.trigger("round_started", {
+            endowment: $scope.endowment,
+            price: $scope.prices.y / $scope.prices.x
+        });
         $scope.inputEnabled = true;
 
         // set timeout to automatically confirm after 75 seconds
@@ -137,43 +163,56 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.inputEnabled = false; // for recovery
 
         rs.synchronizationBarrier('round_' + $scope.currentRound).then(function () {
-            // Calculate excess demand
-            var excessDemand = 0;
-            rs.subjects.filter(function (subject) {
-                return subject.groupForPeriod && subject.groupForPeriod === rs.self.groupForPeriod;
-            }).forEach(function (subject) {
-                var selection = subject.get("selection");
-                excessDemand += selection[0] - $scope.endowment.x;
+            // Get subjects in the same group
+            var subjectsInGroup = rs.subjects.filter(function (subject) {
+                return subject.groupForPeriod
+                    && subject.groupForPeriod === rs.self.groupForPeriod;
             });
 
-            $scope.excessDemands.push(excessDemand);
+            // Calculate excess demand
+            var excessDemand = subjectsInGroup.reduce(function(sum, subject) {
+                return sum + (subject.get("selection")[0] - $scope.endowment.x);
+            }, 0);
+            var excessDemandPerCapita = excessDemand / subjectsInGroup.length;
+
+            console.log("subjectsInGroup: " + subjectsInGroup);
+            console.log("excessDemand: " + excessDemand);
+            console.log("excessDemandPerCapita: " + excessDemandPerCapita);
 
             // If demand is under threshold, stop tatonnement
-            if (Math.abs(excessDemand) < $scope.config.epsilon) {
-                rs.trigger("perform_allocation", { x: $scope.selection[0], y: $scope.selection[1] });
+            if (Math.abs(excessDemandPerCapita) < $scope.config.epsilon) {
+                console.log("excessDemandPerCapita < epsilon: " + $scope.config.epsilon)
+                rs.trigger("perform_allocation", {
+                    x: $scope.selection[0],
+                    y: $scope.selection[1]
+                });
                 return;
             }
 
-            // Adjust weight index if excessDemand sign changes
+            // Increment weight index if excessDemand sign changes
             if ($scope.excessDemands.length > 1) {
-                if (excessDemand * $scope.excessDemands[$scope.excessDemands.length - 2] < 0) {
+                var previousDemand = $scope.excessDemands[$scope.excessDemands.length - 1];
+                if (excessDemand * previousDemand < 0) {
                     $scope.weightIndex += 1;
                 }
             }
+            $scope.excessDemands.push(excessDemand);
 
             // Adjust price
             var currentPrice = $scope.prices.x/$scope.prices.y;
             var newPrice;
 
             if ($scope.weightIndex < $scope.config.weightVector.length) {
-                newPrice = tatonnement(
+                // adjust with weight vector value
+                newPrice = adjustPriceWithWeight(
                     currentPrice,
                     excessDemand,
-                    rs.subjects.length,
+                    subjectsInGroup.length,
                     $scope.config.weightVector[$scope.weightIndex]
                 );
             } else {
-                newPrice = price * (excessDemand > 0 ? 0.01 : -0.01);
+                // adjust without weight vector
+                newPrice = adjustPriceWithoutWeight(currentPrice, excessDemand);
             }
 
             rs.set("prices", {x: newPrice, y: 1});
