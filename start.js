@@ -1,10 +1,12 @@
 Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "SynchronizedStopWatch", function ($scope, rs, stopWatch) {
 
-    function sign(value) {
+    // pure
+    function sign (value) {
         return value < 0 ? -1 : 1;
     }
 
-    function adjustPriceWithWeight(price, excessDemand, subjectCount, weight) {
+    // pure
+    function adjustPriceWithWeight (price, excessDemand, subjectCount, weight) {
         //return Math.tan(Math.atan(price) + weight / subjectCount * excessDemand);
         var excessDemandSign = sign(excessDemand);
 
@@ -23,18 +25,21 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         }
     }
 
-    function adjustPriceWithoutWeight(price, excessDemand) {
+    // pure
+    function adjustPriceWithoutWeight (price, excessDemand) {
         // needs to round to nearest hundreth
         return price * 0.01 * sign(excessDemand);
     }
 
-    function calculateExcessDemand(subjects, endowment) {
+    // pure
+    function calculateExcessDemand (subjects, endowment) {
         return subjects.reduce(function(sum, subject) {
             return sum + (subject.get("selection")[0] - endowment);
         }, 0);
     }
 
-    function snapPriceToGrid(price, gridSpacing) {
+    // pure
+    function snapPriceToGrid (price, gridSpacing) {
         var upperSnapPoint = gridSpacing * Math.ceil(price / gridSpacing);
         var lowerSnapPoint = gridSpacing * Math.floor(price / gridSpacing);
         console.log("upperSnapPoint: " + upperSnapPoint);
@@ -46,22 +51,32 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         }
     }
 
+    // impure
+    function performAllocation (x, y) {
+        if ($scope.config.marketMaker) {
+            rs.trigger("perform_allocation", { "x": x, "y": y });
+        } else {
+
+            rs.trigger("perform_allocation", { "x": x, "y": y });
+        }
+    }
+
     rs.on_load(function () {
 
-        function extractConfigEntry(entry, index) {
+        function extractConfigEntry (entry, index) {
             return $.isArray(entry) ? entry[userIndex] : entry
         }
 
         var userIndex = (parseInt(rs.user_id) - 1) % 2;
         $scope.config = {
-            Ex                : extractConfigEntry(rs.config.Ex, userIndex),
-            Ey                : extractConfigEntry(rs.config.Ey, userIndex),
-            Px                : extractConfigEntry(rs.config.Px, userIndex),
-            Py                : extractConfigEntry(rs.config.Py, userIndex),
+            Ex                : extractConfigEntry(rs.config.Ex, userIndex) || 0,
+            Ey                : extractConfigEntry(rs.config.Ey, userIndex) || 0,
+            Px                : extractConfigEntry(rs.config.Px, userIndex) || 100,
+            Py                : extractConfigEntry(rs.config.Py, userIndex) || 157,
             epsilon           : rs.config.epsilon || 0.02,
             expectedExcess    : rs.config.expectedExcess || 20,
             marketMaker       : rs.config.marketMaker || true,
-            snapPriceToGrid   : rs.config.snapPriceToGrid || true,
+            snapPriceToGrid   : rs.config.snapPriceToGrid || false,
             priceGridSpacing  : rs.config.priceGridSpacing || 0.2,
             weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
@@ -72,7 +87,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             rounds            : rs.config.rounds || 1,
             delay             : parseFloat(rs.config.delay) || 5,
             timeLimit         : parseFloat(rs.config.timeLimit) || 75,
-            pause             : rs.config.pause,
+            pause             : rs.config.pause || false,
             pauseAtEnd        : rs.config.pauseAtEnd == "TRUE" || false,
         };
 
@@ -84,17 +99,12 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.weightIndex = 0;
         $scope.excessDemands = [];
         $scope.currentRound = 0;
-        $scope.inputEnabled = false
+        $scope.inputEnabled = false;
 
         rs.trigger("next_round");
     });
 
     rs.on("next_round", function () {
-        if ($scope.currentRound >= $scope.config.rounds) {
-            rs.trigger("perform_allocation", { x: $scope.selection[0], y: $scope.selection[1] });
-            return;
-        }
-
         // Begin next round
         $scope.currentRound++;
         $scope.cursor = undefined;
@@ -193,17 +203,9 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             var excessDemand = calculateExcessDemand(subjectsInGroup, $scope.endowment.x)
             var excessDemandPerCapita = excessDemand / subjectsInGroup.length;
 
-            console.log("subjectsInGroup: " + subjectsInGroup);
-            console.log("excessDemand: " + excessDemand);
-            console.log("excessDemandPerCapita: " + excessDemandPerCapita);
-
             // If demand is under threshold, stop tatonnement
             if (Math.abs(excessDemandPerCapita) < $scope.config.epsilon) {
-                console.log("excessDemandPerCapita < epsilon: " + $scope.config.epsilon)
-                rs.trigger("perform_allocation", {
-                    x: $scope.selection[0],
-                    y: $scope.selection[1]
-                });
+                performAllocation($scope.selection[0], $scope.selection[1]);
                 return;
             }
 
@@ -238,16 +240,17 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
                 newPrice = snapPriceToGrid(newPrice, $scope.config.priceGridSpacing);
                 if (newPrice == prevNewPrice) {
                     $scope.config.snapPriceToGrid = false;
-                    console.log("No longer snapping price to grid");
                 }
-                console.log("Snapped price from " + prevNewPrice + " to " + newPrice);
             }
 
-            console.log("oldPrice: " + currentPrice);
-            console.log("newPrice: " + newPrice);
-
             rs.set("prices", {x: newPrice, y: 1});
-            rs.trigger("next_round");
+
+            // Proceed to next round, or perform allocation and finish period.
+            if ($scope.currentRound >= $scope.config.rounds) {
+                performAllocation($scope.selection[0], $scope.selection[1]);
+            } else {
+                rs.trigger("next_round");
+            }
         });
     });
 
