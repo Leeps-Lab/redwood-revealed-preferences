@@ -51,14 +51,34 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         }
     }
 
-    // impure
-    function performAllocation (x, y) {
+    // pure
+    function calculateAllocation (selectionX, selectionY, endowmentX, price, excessDemand, subjects) {
+        var allocationX, allocationY;
+        var netBuyers = subjects.filter(function(subject) {
+            return subject.get("selection")[0] > endowmentX;
+        }).length;
+        var netSellers = subjects.filter(function(subject) {
+            return subject.get("selection")[0] < endowmentX;
+        }).length;
+        
         if ($scope.config.marketMaker) {
-            rs.trigger("perform_allocation", { "x": x, "y": y });
+            allocationX = selectionX;
+            allocationY = selectionY;
         } else {
-
-            rs.trigger("perform_allocation", { "x": x, "y": y });
+            if (selectionX > endowmentX) { // net buyer
+                var halfExcessPerBuyer = excessDemand / (2 * netBuyers);
+                allocationX = selectionX - halfExcessPerBuyer;
+                allocationY = selectionY + price * halfExcessPerBuyer;
+            } else if (selectionX < endowmentX) { // net seller
+                var halfExcessPerSeller = excessDemand / (2 * netSellers);
+                allocationX = selectionX + halfExcessPerSeller;
+                allocationY = selectionY - price * halfExcessPerSeller;
+            } else { // chooses endowment
+                allocationX = selectionX;
+                allocationY = selectionY;
+            }
         }
+        return { x: allocationX, y: allocationY };
     }
 
     rs.on_load(function () {
@@ -75,7 +95,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             Py                : extractConfigEntry(rs.config.Py, userIndex) || 157,
             epsilon           : rs.config.epsilon || 0.02,
             expectedExcess    : rs.config.expectedExcess || 20,
-            marketMaker       : rs.config.marketMaker || true,
+            marketMaker       : rs.config.marketMaker || false,
             snapPriceToGrid   : rs.config.snapPriceToGrid || false,
             priceGridSpacing  : rs.config.priceGridSpacing || 0.2,
             weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
@@ -193,6 +213,9 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.inputEnabled = false; // for recovery
 
         rs.synchronizationBarrier('round_' + $scope.currentRound).then(function () {
+            // Calculate current price
+            var currentPrice = $scope.prices.x/$scope.prices.y;
+
             // Get subjects in the same group
             var subjectsInGroup = rs.subjects.filter(function (subject) {
                 return subject.groupForPeriod
@@ -200,12 +223,20 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             });
 
             // Calculate excess demand
-            var excessDemand = calculateExcessDemand(subjectsInGroup, $scope.endowment.x)
+            var excessDemand = calculateExcessDemand(subjectsInGroup, $scope.endowment.x);
             var excessDemandPerCapita = excessDemand / subjectsInGroup.length;
 
             // If demand is under threshold, stop tatonnement
             if (Math.abs(excessDemandPerCapita) < $scope.config.epsilon) {
-                performAllocation($scope.selection[0], $scope.selection[1]);
+                var allocation = calculateAllocation(
+                    $scope.selection[0],
+                    $scope.selection[1],
+                    $scope.endowment.x,
+                    currentPrice,
+                    excessDemand,
+                    subjectsInGroup
+                );
+                rs.trigger("perform_allocation", allocation);
                 return;
             }
 
@@ -219,7 +250,6 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             $scope.excessDemands.push(excessDemand);
 
             // Adjust price
-            var currentPrice = $scope.prices.x/$scope.prices.y;
             var newPrice;
             if ($scope.weightIndex < $scope.config.weightVector.length) {
                 // adjust with weight vector value
@@ -247,7 +277,15 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
 
             // Proceed to next round, or perform allocation and finish period.
             if ($scope.currentRound >= $scope.config.rounds) {
-                performAllocation($scope.selection[0], $scope.selection[1]);
+                var allocation = calculateAllocation(
+                    $scope.selection[0],
+                    $scope.selection[1],
+                    $scope.endowment.x,
+                    currentPrice,
+                    excessDemand,
+                    subjectsInGroup
+                );
+                rs.trigger("perform_allocation", allocation);
             } else {
                 rs.trigger("next_round");
             }
@@ -277,4 +315,3 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         rs.trigger("confirm", { x: $scope.selection[0], y: $scope.selection[1] });
     };
 }]);
-
