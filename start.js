@@ -116,7 +116,11 @@ Redwood.factory("Tatonnement", function () {
     return tatonnement;
 });
 
-Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "SynchronizedStopWatch", "Tatonnement", function ($scope, rs, stopWatch, ta) {
+Redwood.controller("SubjectController", ["$scope",
+                                         "RedwoodSubject",
+                                         "SynchronizedStopWatch",
+                                         "Tatonnement",
+                                         function ($scope, rs, stopWatch, ta) {
 
     // pure
     function snapPriceToGrid (price, gridSpacing) {
@@ -129,6 +133,25 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         } else {
             return lowerSnapPoint;
         }
+    }
+
+    function animateLimits () {
+        var larger = $scope.intercepts.x > $scope.intercepts.y
+            ? $scope.intercepts.x
+            : $scope.intercepts.y;
+        $({x: $scope.limits.x, y: $scope.limits.y}).animate({x: larger, y: larger}, {
+            duration: $scope.config.limitAnimDuration,
+            easing: "easeInOutCubic",
+            step: function (now, fx) {
+                if (!$scope.$$phase) {
+                    $scope.$apply(function () {
+                        $scope.limits[fx.prop] = now;
+                    })
+                } else {
+                    $scope.limits[fx.prop] = now;
+                }
+            }
+        });
     }
 
     rs.on_load(function () {
@@ -151,7 +174,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
             weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
-            animateLimits     : extractConfigEntry(rs.config.animateLimits, userIndex) || true,
+            limitAnimDuration : rs.config.limitAnimDuration || 1000,
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
             rounds            : rs.config.rounds || 1,
@@ -198,24 +221,7 @@ Redwood.controller("SubjectController", ["$scope", "RedwoodSubject", "Synchroniz
         $scope.limits = {}
         $scope.limits.x = $scope.config.XLimit ? $scope.config.XLimit : $scope.intercepts.x;
         $scope.limits.y = $scope.config.YLimit ? $scope.config.YLimit : $scope.intercepts.y;
-        if ($scope.config.animateLimits) {
-            var larger = $scope.intercepts.x > $scope.intercepts.y
-                ? $scope.intercepts.x
-                : $scope.intercepts.y;
-            $({x: $scope.limits.x, y: $scope.limits.y}).animate({x: larger, y: larger}, {
-                duration: 1000,
-                easing: "easeInOutCubic",
-                step: function (now, fx) {
-                    if (!$scope.$$phase) {
-                        $scope.$apply(function () {
-                            $scope.limits[fx.prop] = now;
-                        })
-                    } else {
-                        $scope.limits[fx.prop] = now;
-                    }
-                }
-            });
-        }
+        animateLimits();
 
         // set budget functions
         $scope.budgetFunction = function (x) {
