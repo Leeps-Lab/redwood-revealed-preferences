@@ -139,7 +139,13 @@ Redwood.controller("SubjectController", ["$scope",
         var larger = $scope.intercepts.x > $scope.intercepts.y
             ? $scope.intercepts.x
             : $scope.intercepts.y;
-        $({x: $scope.limits.x, y: $scope.limits.y}).animate({x: larger, y: larger}, {
+
+        var lastLimits = rs.self.get("last_limits");
+        var baseLimits = {};
+        baseLimits.x = $scope.currentRound > 1 ? lastLimits.x : $scope.limits.x;
+        baseLimits.y = $scope.currentRound > 1 ? lastLimits.y : $scope.limits.y;
+
+        $(baseLimits).animate({x: larger, y: larger}, {
             duration: $scope.config.limitAnimDuration,
             easing: "easeInOutCubic",
             step: function (now, fx) {
@@ -152,6 +158,8 @@ Redwood.controller("SubjectController", ["$scope",
                 }
             }
         });
+
+        rs.set("last_limits", {x: larger, y: larger});
     }
 
     rs.on_load(function () {
