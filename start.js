@@ -182,12 +182,12 @@ Redwood.controller("SubjectController", ["$scope",
             weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
             XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
-            limitAnimDuration : rs.config.limitAnimDuration || 1000,
+            limitAnimDuration : rs.config.limitAnimDuration || 0,
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
             rounds            : rs.config.rounds || 1,
             delay             : parseFloat(rs.config.delay) || 5,
-            timeLimit         : parseFloat(rs.config.timeLimit) || 75,
+            timeLimit         : parseFloat(rs.config.timeLimit) || 0,
             pause             : rs.config.pause || false,
             pauseAtEnd        : rs.config.pauseAtEnd == "TRUE" || false,
         };
@@ -245,28 +245,29 @@ Redwood.controller("SubjectController", ["$scope",
         });
         $scope.inputEnabled = true;
 
-        // set timeout to automatically confirm after 75 seconds
-        // needs a way to stop timer between rounds
-        $scope.timerAdjustment = 0;
-        if (!$scope.stopWatch) {
-            $scope.timeRemaining = 0;
-            // The round which this timer was started
-            $scope.timerRound = $scope.currentRound;
-            $scope.stopWatch = stopWatch.instance()
-                .frequency(1)
-                .duration($scope.config.timeLimit)
-                .onTick(function (tick, t) {
-                    $scope.timeRemaining = $scope.timeTotal - t;
-                })
-                .onComplete(function () {
-                    $scope.confirm();
-                    $scope.stopWatch = null;
-                }).start();
-        } else {
-            $scope.stopWatch.duration($scope.stopWatch.getDurationInTicks() + $scope.config.timeLimit - $scope.timeRemaining)
-        }
+        // setup timer
+        
+        if ($scope.config.timeLimit > 0) {
+            if (!$scope.stopWatch) {
+                $scope.timeRemaining = 0;
+                // The round which this timer was started
+                $scope.timerRound = $scope.currentRound;
+                $scope.stopWatch = stopWatch.instance()
+                    .frequency(1)
+                    .duration($scope.config.timeLimit)
+                    .onTick(function (tick, t) {
+                        $scope.timeRemaining = $scope.timeTotal - t;
+                    })
+                    .onComplete(function () {
+                        $scope.confirm();
+                        $scope.stopWatch = null;
+                    }).start();
+            } else {
+                $scope.stopWatch.duration($scope.stopWatch.getDurationInTicks() + $scope.config.timeLimit - $scope.timeRemaining)
+            }
 
-        $scope.timeTotal = $scope.stopWatch.getDurationInTicks();
+            $scope.timeTotal = $scope.stopWatch.getDurationInTicks();
+        }
     });
 
     rs.on("selection", function (selection) {
