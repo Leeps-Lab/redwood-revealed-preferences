@@ -19,6 +19,9 @@ Redwood.directive("rpPlot", function() {
             var drawPlot = function() {
 
                 // should defer until config is loaded
+                if (!$scope.budgetFunc) {
+                    return;
+                }
 
                 if (!$scope.cursor) {
                     $scope.cursor = [-100, -100]
@@ -215,12 +218,7 @@ Redwood.directive("rpPlot", function() {
             $scope.$watch("endowment", drawPlot);
             $scope.$watch("selection", drawPlot);
             $scope.$watchCollection("limits", drawPlot);
-            $scope.$watch("result", function() {
-                if ($scope.endowment) {
-                    // don't draw unless the config has loaded
-                    drawPlot();
-                }
-            });
+            $scope.$watch("result", drawPlot);
         }
     }
 });
