@@ -1,3 +1,48 @@
+Redwood.directive("rpPie", function() {
+    return {
+        restrict: "A",
+        scope: {
+            percentage: "=",
+            radius: "=?",
+        },
+        template: '\
+            <svg width="{{radius*2}}" height="{{radius*2}}">\
+                <path d="{{path}}" fill="red"/>\
+                <path d="{{otherPath}}" fill="blue"/>\
+            </svg>',
+        controller: function($scope) {
+            $scope.radius = $scope.radius || 50;
+        },
+        link: function($scope, $elem, $attr) {
+            var makePieArc = function(cx, cy, radius, startAngle, endAngle) {
+                var startx = cx + Math.cos(startAngle) * radius;
+                var starty = cy + Math.sin(startAngle) * radius;
+                var endx = cx + Math.cos(endAngle) * radius;
+                var endy = cy + Math.sin(endAngle) * radius;
+                var largeArcFlag = (endAngle - startAngle) > Math.PI ? 1 : 0;
+
+                var path = "M" + startx + " " + starty;
+                path += "A" + radius + " " + radius;
+                path += " 0 " + largeArcFlag + " 1 " + endx + " " + endy;
+                path += "L" + cx + " " + cy + "Z";
+
+                return path;
+            }
+
+            var redraw = function() {
+                var cx = $scope.radius;
+                var cy = $scope.radius;
+                var startAngle = 0;
+                var endAngle = $scope.percentage * (2 * Math.PI);
+                $scope.path = makePieArc(cx, cy, $scope.radius, startAngle, endAngle);
+                $scope.otherPath = makePieArc(cx, cy, $scope.radius, endAngle, Math.PI * 2);
+            }
+
+            $scope.$watch("percentage", redraw);
+            $scope.$watch("radius", redraw);
+        }
+    }
+});
 
 Redwood.directive("rpPlot", function() {
     return {
