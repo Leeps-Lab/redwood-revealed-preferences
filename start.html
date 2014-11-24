@@ -3,13 +3,15 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-offset-2 col-lg-1">
+      <div rp-pie percentage="config.ProbX" radius="25"></div>
         <div style="display: table-cell; height: 540px; vertical-align: middle;">
           <div class="rotate90" style="max-width:60px;">
-             <div style="display: inline-block; text-align: center; white-space: nowrap;">Number of Y<br/>[Probability of Y: <span>{{1 - config.ProbX}}</span>]</div>
+            <div style="display: inline-block; text-align: center; white-space: nowrap;">
+              Number of Y<br/>[Probability of Y: <span>{{1 - config.ProbX}}</span>]
+            </div>
           </div>
         </div>
       </div>
-      <div rp-pie percentage="config.ProbX" radius="25"></div>
       <div class="col-lg-7">
         <div
           rp-plot
@@ -26,10 +28,15 @@
     </div>
     <div class="row">
       <div class="col-lg-offset-2 col-lg-8">
-        <div style="text-align: center;"><div>Number of X<br/>[Probability of X: <span>{{config.ProbX}}</span>]</div></div>
+        <div style="text-align: center;">
+          <div>
+            Number of X<br/>[Probability of X: <span>{{config.ProbX}}</span>]
+          </div>
+          <div rp-pie percentage="config.ProbY" radius="25" style="float: right; margin-right: 100px; margin-top: -50px;"></div>
+        </div>
       </div>
     </div>
-    <div class="row" style="margin-top: 40px">
+    <div class="row" style="margin-top: 30px">
       <div class="col-lg-offset-3 col-lg-6">
           <button class="btn btn-success btn-lg btn-block" ng-click="confirm()" ng-disabled="!inputEnabled">Confirm Selection</button>
       </div>
