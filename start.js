@@ -63,13 +63,13 @@ Redwood.factory("Tatonnement", function () {
             var newPrice = Math.atan(_price) + constrainedAngularDiff;
 
             // make sure that 0.01 <= price <= 100
-            if (constrainedAngularDiff > 0) {
+            if (constrainedAngularDiff < 0) {
                 return Math.tan(Math.max(newPrice, 0.01));
             } else {
                 return Math.tan(Math.min(newPrice, 1.5608));
             }
         } else {
-            return _price * 0.01 * sign(_excessDemand);
+            return _price + 0.01 * sign(_excessDemand);
         }
     }
 
@@ -218,6 +218,8 @@ Redwood.controller("SubjectController", ["$scope",
         $scope.prices = {}
         $scope.prices.x = $scope.currentRound > 1 ? prices.x : $scope.config.Px;
         $scope.prices.y = $scope.currentRound > 1 ? prices.y : $scope.config.Py;
+        console.log("prices: " + $scope.prices.y + ", " + $scope.prices.x);
+        console.log("price: " + ($scope.prices.y/$scope.prices.x));
 
         // find axis intersections
         $scope.budget = ($scope.endowment.x * $scope.prices.x) + ($scope.endowment.y * $scope.prices.y);
