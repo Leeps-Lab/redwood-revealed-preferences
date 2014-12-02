@@ -3,6 +3,8 @@ Redwood.factory("Tatonnement", function () {
 
     // provided
     var _weightVector;
+    var _priceLowerBound;
+    var _priceUpperBound;
     var _price;
     var _subjects;
     var _endowment;
@@ -20,8 +22,10 @@ Redwood.factory("Tatonnement", function () {
         return value < 0 ? -1 : 1;
     }
 
-    tatonnement.initializePeriod = function (weightVector) {
+    tatonnement.initializePeriod = function (weightVector, priceLowerBound, priceUpperBound) {
         _weightVector = weightVector;
+        _priceLowerBound = priceLowerBound;
+        _priceUpperBound = priceUpperBound;
         _weightIndex = 0;
         _excessDemandHistory = [];
     }
@@ -60,13 +64,15 @@ Redwood.factory("Tatonnement", function () {
             var maxAngularDiff = 0.26175 * excessDemandSign;
             var constrainedAngularDiff = Math.min(Math.abs(angularDiff), Math.abs(maxAngularDiff)) * excessDemandSign;
             
-            var newPrice = Math.atan(_price) + constrainedAngularDiff;
+            var newPriceAngle = Math.atan(_price) + constrainedAngularDiff;
 
             // make sure that 0.01 <= price <= 100
+            var priceLowerBoundAngle = Math.atan(_priceLowerBound);
+            var priceUpperBoundAngle = Math.atan(_priceUpperBound);
             if (constrainedAngularDiff < 0) {
-                return Math.tan(Math.max(newPrice, 0.01));
+                return Math.tan(Math.max(newPriceAngle, priceLowerBoundAngle));
             } else {
-                return Math.tan(Math.min(newPrice, 1.5608));
+                return Math.tan(Math.min(newPriceAngle, priceUpperBoundAngle));
             }
         } else {
             return _price + 0.01 * sign(_excessDemand);
@@ -176,6 +182,8 @@ Redwood.controller("SubjectController", ["$scope",
             Py                : extractConfigEntry(rs.config.Py, userIndex) || 157,
             epsilon           : rs.config.epsilon || 1,
             expectedExcess    : rs.config.expectedExcess || 20,
+            priceLowerBound   : rs.config.priceLowerBound || 0.1,
+            priceUpperBound   : rs.config.priceUpperBound || 100.0,
             marketMaker       : rs.config.marketMaker || true,
             snapPriceToGrid   : rs.config.snapPriceToGrid || false,
             priceGridSpacing  : rs.config.priceGridSpacing || 0.2,
@@ -200,7 +208,10 @@ Redwood.controller("SubjectController", ["$scope",
         $scope.currentRound = 0;
         $scope.inputEnabled = false;
 
-        ta.initializePeriod($scope.config.weightVector);
+        ta.initializePeriod(
+            $scope.config.weightVector, 
+            $scope.config.priceLowerBound, 
+            $scope.config.priceUpperBound);
 
         rs.trigger("configuration", $scope.config);
         rs.trigger("next_round");
