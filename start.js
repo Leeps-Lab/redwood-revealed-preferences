@@ -5,6 +5,7 @@ Redwood.factory("Tatonnement", function () {
     var _weightVector;
     var _priceLowerBound;
     var _priceUpperBound;
+    var _maxAngularDiff;
     var _price;
     var _subjects;
     var _endowment;
@@ -22,10 +23,11 @@ Redwood.factory("Tatonnement", function () {
         return value < 0 ? -1 : 1;
     }
 
-    tatonnement.initializePeriod = function (weightVector, priceLowerBound, priceUpperBound) {
+    tatonnement.initializePeriod = function (weightVector, priceLowerBound, priceUpperBound, maxAngularDiff) {
         _weightVector = weightVector;
         _priceLowerBound = priceLowerBound;
         _priceUpperBound = priceUpperBound;
+        _maxAngularDiff = maxAngularDiff;
         _weightIndex = 0;
         _excessDemandHistory = [];
     }
@@ -61,7 +63,7 @@ Redwood.factory("Tatonnement", function () {
             
             // make sure angular difference is no more than 15 degrees
             var angularDiff = weight * _excessDemand / _subjects.length;
-            var maxAngularDiff = 0.26175 * excessDemandSign;
+            var maxAngularDiff = _maxAngularDiff * excessDemandSign;
             var constrainedAngularDiff = Math.min(Math.abs(angularDiff), Math.abs(maxAngularDiff)) * excessDemandSign;
             
             var newPriceAngle = Math.atan(_price) + constrainedAngularDiff;
@@ -184,6 +186,7 @@ Redwood.controller("SubjectController", ["$scope",
             expectedExcess    : rs.config.expectedExcess || 20,
             priceLowerBound   : rs.config.priceLowerBound || 0.1,
             priceUpperBound   : rs.config.priceUpperBound || 100.0,
+            maxAngularDiff    : rs.config.maxAngularDiff || 0.26175,
             marketMaker       : rs.config.marketMaker || true,
             snapPriceToGrid   : rs.config.snapPriceToGrid || false,
             priceGridSpacing  : rs.config.priceGridSpacing || 0.2,
@@ -211,7 +214,8 @@ Redwood.controller("SubjectController", ["$scope",
         ta.initializePeriod(
             $scope.config.weightVector, 
             $scope.config.priceLowerBound, 
-            $scope.config.priceUpperBound);
+            $scope.config.priceUpperBound,
+            $scope.config.maxAngularDiff);
 
         rs.trigger("configuration", $scope.config);
         rs.trigger("next_round");
