@@ -58,7 +58,7 @@ Redwood.factory("Tatonnement", function () {
             // make sure angular difference is no more than 15 degrees
             var angularDiff = weight * _excessDemand / _subjects.length;
             var maxAngularDiff = 0.26175 * excessDemandSign;
-            var constrainedAngularDiff = Math.min(angularDiff, maxAngularDiff) * excessDemandSign;
+            var constrainedAngularDiff = Math.min(Math.abs(angularDiff), Math.abs(maxAngularDiff)) * excessDemandSign;
             
             var newPrice = Math.atan(_price) + constrainedAngularDiff;
 
