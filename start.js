@@ -311,8 +311,34 @@ Redwood.controller("SubjectController", ["$scope",
             // If demand is under threshold or max round has been reached, stop tatonnement
             if (Math.abs(ta.excessDemandPerCapita()) < $scope.config.epsilon
                 ||              $scope.currentRound >= $scope.config.rounds) {
-
-                rs.trigger("perform_allocation", ta.allocation($scope.config.marketMaker));
+                var actualAllocation = ta.allocation($scope.config.marketMaker);
+                //$scope.selection = [actualAllocation.x, actualAllocation.y];
+                var baseSelection = {
+                    x: $scope.selection[0],
+                    y: $scope.selection[1]
+                }
+                $(baseSelection).animate({x: actualAllocation.x, y: actualAllocation.y}, {
+                    duration: $scope.config.limitAnimDuration,
+                    easing: "easeInOutCubic",
+                    step: function (now, fx) {
+                        if (!$scope.$$phase) {
+                            $scope.$apply(function () {
+                                if (fx.prop == "x") {
+                                    $scope.selection[0] = now;
+                                } else {
+                                    $scope.selection[1] = now;
+                                }
+                            })
+                        } else {
+                            if (fx.prop == "x") {
+                                $scope.selection[0] = now;
+                            } else {
+                                $scope.selection[1] = now;
+                            }
+                        }
+                    }
+                });
+                rs.trigger("perform_allocation", actualAllocation);
                 return;
             }
 
