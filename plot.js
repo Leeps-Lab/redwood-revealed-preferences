@@ -1,5 +1,4 @@
-
-Redwood.directive("rpPlot", function() {
+Redwood.directive("rpPlot", function ($compile) {
     return {
         restrict: "A",
         scope: {
@@ -10,215 +9,346 @@ Redwood.directive("rpPlot", function() {
             limits: "=",
             inputEnabled: "=",
             result: "=",
+            width: "=",
+            height: "=",
          },
-         link: function($scope, $elem, attr) {
+         template: '<svg width="{{width}}" height="{{height}}"></svg>',
+         link: function ($scope, $elem, attr) {
+                        console.log("$#@$@#$@$@#$@$@$@#$@")
+            var svg = d3.select($elem[0]).select("svg");
 
-            $scope.cursor = null
-            $scope.selection = null
+            var xOffset = 30;
+            var yOffset = 30;
+            var plotWidth = $scope.width - xOffset;
+            var plotHeight = $scope.height - yOffset;
 
-            var drawPlot = function() {
+            var plot = svg.append("g")
+                .attr("transform", "translate(" + xOffset + ", 0)");
 
-                // should defer until config is loaded
-                if (!$scope.budgetFunc) {
-                    return;
-                }
+            var xScale, yScale;
+            var buildScales = function () {
+                xScale = d3.scale.linear()
+                    .domain([0, $scope.limits.x])
+                    .range([0, plotWidth]);
 
-                if (!$scope.cursor) {
-                    $scope.cursor = [-100, -100]
-                }
-
-                var dataset = [
-                     { // Budget Line
-                        data: [[0, $scope.budgetFunc(0)], [$scope.inverseBudgetFunc(0), 0]],
-                        lines: { show: true, lineWidth: 1.5 },
-                        color: "red"
-                    },
-                    { // Hover dot
-                        data: [$scope.cursor],
-                        lines: { show: false},
-                         points: { show: true, fill: false, radius: 4 },
-                        color: "blue"
-                    },
-                    { // Selection dot
-                        data: [$scope.selection],
-                        lines: { show: false},
-                         points: { show: true, lineWidth: 4, fill: true, radius: 4 },
-                        color: "black",
-                        hoverable: false
-                    },
-                    { // endowment dot
-                        data: [[$scope.endowment.x, $scope.endowment.y]],
-                        lines: { show: false },
-                        points: { show: true, lineWidth: 5, fill: true, radius: 5 },
-                        color: "#440000",
-                        hoverable: false
-                    },
-                 ];
-                 if ($scope.result) {
-                    var resultPoint = $scope.result.chosen === "x" ? [$scope.result.x, 0] : [0, $scope.result.y];
-                    dataset.push(
-                        { // green result dot
-                            data: [resultPoint],
-                            lines: { show: false },
-                            points: { show: true, lineWidth: 4, fill: true, radius: 3 },
-                            color: "green",
-                            hoverable: false
-                        },
-                        { // green result line
-                            data: [resultPoint, $scope.selection],
-                            dashes: { show: true, lineWidth: 1 },
-                            color: "#51a351",
-                            hoverable: false
-                        },
-                        { // green result dot
-                            data: [resultPoint],
-                            lines: { show: false },
-                            points: { show: true, fill: true, radius: 1 },
-                            color: "#51a351",
-                            hoverable: false
-                        }
-                    );
-                 } else {
-                    dataset.push({ // selection dotted line (x)
-                        data: [[0, $scope.selection[1]], $scope.selection, [$scope.selection[0], 0]],
-                        lines: { show: false, lineWidth: 1.5 },
-                        dashes: { show: true, lineWidth: 1 },
-                        color: "black",
-                        hoverable: false
-                    });
-                 }
-
-                var options = {
-                    grid: { clickable: true, hoverable: true },
-                    xaxis: { tickLength: 0, min: 0, max: $scope.limits.x },
-                    yaxis: { tickLength: 0, min: 0, max: $scope.limits.y },
-                    series: { shadowSize: 0 },
-                    hooks: { draw: [drawText] }
-                };
-
-                $.plot($elem, dataset, options);
+                yScale = d3.scale.linear()
+                    .domain([0, $scope.limits.y])
+                    .range([plotHeight, 0]);
             }
 
-            function drawText(plot, ctx) {
+            var xAxis, yAxis;
+            var drawAxes = function () {
+                xAxis = d3.svg.axis()
+                    .ticks(10)
+                    .scale(xScale)
+                    .orient("bottom");
+                yAxis = d3.svg.axis()
+                    .ticks(10)
+                    .scale(yScale)
+                    .orient("left");
 
-                function offsetForPoint(plot, point) {
-                    var offset = plot.pointOffset({x: point[0], y: point[1]});
-                    
-                    if (point[0] > $scope.limits.x - 25) {
-                        offset.left -= 10;
-                    } else {
-                        offset.left += 10;
-                    }
+                svg.select("g.x.axis").remove();
+                svg.select("g.y.axis").remove();
 
-                    if (point[1] > $scope.limits.y - 15) {
-                        offset.top += 15;
-                    } else {
-                        offset.top -= 10;
-                    }
+                svg.append("g")
+                    .classed("x axis", true)
+                    .attr("transform", "translate(" + xOffset + "," + plotHeight + ")")
+                    .call(xAxis);
+                svg.append("g")
+                    .classed("y axis", true)
+                    .attr("transform", "translate(" + xOffset + ", 0)")
+                    .call(yAxis);
+            }
 
-                    return offset;
-                }
+            var drawBudgetLine = function () {
 
-                function textAlignForPoint(point) {
-                    if (point[0] > 75) {
-                        return "end";
-                    } else {
-                        return "start";
-                    }
-                }
+                // plot.append("rect")
+                //     .attr("width", 200)
+                //     .attr("height", 100)
+                //     .attr("x", 20)
+                //     .attr("y", 20);
+                var coordinates = [[0, $scope.budgetFunc(0)], [$scope.inverseBudgetFunc(0), 0]];
 
-                ctx.font = "14px sans-serif";
-
-                // draw current endowment
-                var endowmentPoint = [$scope.endowment.x, $scope.endowment.y];
-                var offset = offsetForPoint(plot, endowmentPoint);
-                ctx.textAlign = textAlignForPoint(endowmentPoint);
-
-                ctx.fillStyle = "grey";
-                var text = "[" + endowmentPoint[0].toFixed(2) + ", " + endowmentPoint[1].toFixed(2) + "]";
-                ctx.fillText(text, offset.left, offset.top);
-
-                // draw current selection values at axes
-                if ($scope.selection) {
-                    var xPoint = [$scope.selection[0], 0];
-                    var yPoint = [0, $scope.selection[1]];
-                    var xOffset = offsetForPoint(plot, xPoint);
-                    var yOffset = offsetForPoint(plot, yPoint);
-                    var xText = $scope.selection[0].toFixed(2);
-                    var yText = $scope.selection[1].toFixed(2);
-                    
-                    ctx.textAlign = textAlignForPoint(xPoint);
-                    ctx.fillStyle = "#d8d8d8";
-                    ctx.strkeStyle = "#000000";
-                    if (ctx.textAlign === "end") {
-                        ctx.fillRect(xOffset.left+2, xOffset.top+5, -(xText.length-1)*10, -20);
-                        ctx.strokeRect(xOffset.left+2, xOffset.top+5, -(xText.length-1)*10, -20);
-                    } else {
-                        ctx.fillRect(xOffset.left-2, xOffset.top+5, (xText.length-1)*10, -20);
-                        ctx.strokeRect(xOffset.left-2, xOffset.top+5, (xText.length-1)*10, -20);                        
-                    }
-
-                    ctx.fillStyle = "black";
-                    ctx.fillText(xText, xOffset.left, xOffset.top);
-
-                    ctx.textAlign = textAlignForPoint(yPoint);
-                    ctx.fillStyle = "#d8d8d8";
-                    if (ctx.textAlign === "end") {
-                        ctx.fillRect(yOffset.left+2, yOffset.top+5, -(yText.length-1)*10, -20);
-                        ctx.strokeRect(yOffset.left+2, yOffset.top+5, -(yText.length-1)*10, -20);
-                    } else {
-                        ctx.fillRect(yOffset.left-2, yOffset.top+5, (yText.length-1)*10, -20);
-                        ctx.strokeRect(yOffset.left-2, yOffset.top+5, (yText.length-1)*10, -20);
-                    }
-
-                    ctx.fillStyle = "black";
-                    ctx.fillText(yText, yOffset.left, yOffset.top);
-                }
-
-                // draw current hover value
-                if ($scope.cursor) {
-                     var offset = offsetForPoint(plot, $scope.cursor);
-                    ctx.textAlign = textAlignForPoint($scope.cursor);
-
-                    ctx.fillStyle = "grey";
-                    var text = "[" + $scope.cursor[0].toFixed(2) + ", " + $scope.cursor[1].toFixed(2) + "]";
-                    ctx.fillText(text, offset.left, offset.top);
-                }
-
-                if ($scope.result) {
-                    var resultPoint = $scope.result.chosen === "x" ? [$scope.result.x, 0] : [0, $scope.result.y];
-                    var offset = offsetForPoint(plot, resultPoint);
-                    ctx.textAlign = textAlignForPoint(resultPoint);
-
-                    ctx.fillStyle = "#51a351";
-                    var text = $scope.result.chosen === "x" ? $scope.result.x.toFixed(2) : $scope.result.y.toFixed(2);
-                    ctx.fillText(text, offset.left, offset.top);
+                var lineFunction = d3.svg.line()
+                    .x(function(d) {
+                        return xScale(d[0])
+                    })
+                    .y(function(d) {
+                        return yScale(d[1])
+                    })
+                    console.log(coordinates)
+                var path = plot.select(".budget-line");
+                if (path.empty()) {
+                    plot.append("path")
+                        .datum(coordinates)
+                        .classed(".budget-line", true)
+                        .style("stroke", "#000000")
+                        .attr("d", lineFunction);
+                } else {
+                    path.datum(coordinates).attr("d", lineFunction);
                 }
             }
 
-            $elem.bind("plothover", function (event, pos, item) {
-                if (!$scope.inputEnabled) return;
-                var xMin = Math.max(0, $scope.inverseBudgetFunc($scope.limits.x));
-                var xMax = Math.min($scope.limits.x, $scope.inverseBudgetFunc(0))
-                var x = Math.min(xMax, Math.max(xMin, pos.x));
-                $scope.cursor = [x, $scope.budgetFunc(x)];
-                drawPlot();
-            });
+            var redraw = function () {
+                if ($scope.limits) {
+                    buildScales();
+                    drawBudgetLine();
+                    drawAxes();
+                }
+            }
 
-            $elem.bind("plotclick", function (event, pos, item) {
-                if (!$scope.inputEnabled) return;
-                $scope.$emit("rpPlot.click", $scope.cursor)
-            });
+            $scope.$watchCollection("limits", redraw);
+            $scope.$watch("endowment", redraw);
 
-            $elem.bind("mouseout", function(event, pos, item) {
-                $scope.cursor = [$scope.endowment.x, $scope.endowment.y];
-                drawPlot();
-            })
+            // $elem.bind("plothover", function (event, pos, item) {
+            //     if (!$scope.inputEnabled) return;
+            //     var xMin = Math.max(0, $scope.inverseBudgetFunc($scope.limits.x));
+            //     var xMax = Math.min($scope.limits.x, $scope.inverseBudgetFunc(0))
+            //     var x = Math.min(xMax, Math.max(xMin, pos.x));
+            //     $scope.cursor = [x, $scope.budgetFunc(x)];
+            //     drawPlot();
+            // });
 
-            $scope.$watch("endowment", drawPlot);
-            $scope.$watch("selection", drawPlot);
-            $scope.$watchCollection("limits", drawPlot);
-            $scope.$watch("result", drawPlot);
+            // $elem.bind("plotclick", function (event, pos, item) {
+            //     if (!$scope.inputEnabled) return;
+            //     $scope.$emit("rpPlot.click", $scope.cursor)
+            // });
+
+            // $elem.bind("mouseout", function(event, pos, item) {
+            //     $scope.cursor = [$scope.endowment.x, $scope.endowment.y];
+            //     drawPlot();
+            // })
+
+            // $scope.$watch("endowment", drawPlot);
+            // $scope.$watch("selection", drawPlot);
+            // $scope.$watchCollection("limits", drawPlot);
+            // $scope.$watch("result", drawPlot);
+                                    console.log("$#@$@#$@$@#$@$@$@#$@")
+
         }
     }
 });
+
+// Redwood.directive("rpPlot", function() {
+//     return {
+//         restrict: "A",
+//         scope: {
+//             budgetFunc: "=",
+//             inverseBudgetFunc: "=",
+//             endowment: "=",
+//             selection: "=",
+//             limits: "=",
+//             inputEnabled: "=",
+//             result: "=",
+//          },
+//          link: function($scope, $elem, attr) {
+
+//             $scope.cursor = null
+//             $scope.selection = null
+
+//             var drawPlot = function() {
+
+//                 // should defer until config is loaded
+//                 if (!$scope.budgetFunc) {
+//                     return;
+//                 }
+
+//                 if (!$scope.cursor) {
+//                     $scope.cursor = [-100, -100]
+//                 }
+
+//                 var dataset = [
+//                      { // Budget Line
+//                         data: [[0, $scope.budgetFunc(0)], [$scope.inverseBudgetFunc(0), 0]],
+//                         lines: { show: true, lineWidth: 1.5 },
+//                         color: "red"
+//                     },
+//                     { // Hover dot
+//                         data: [$scope.cursor],
+//                         lines: { show: false},
+//                          points: { show: true, fill: false, radius: 4 },
+//                         color: "blue"
+//                     },
+//                     { // Selection dot
+//                         data: [$scope.selection],
+//                         lines: { show: false},
+//                          points: { show: true, lineWidth: 4, fill: true, radius: 4 },
+//                         color: "black",
+//                         hoverable: false
+//                     },
+//                     { // endowment dot
+//                         data: [[$scope.endowment.x, $scope.endowment.y]],
+//                         lines: { show: false },
+//                         points: { show: true, lineWidth: 5, fill: true, radius: 5 },
+//                         color: "#440000",
+//                         hoverable: false
+//                     },
+//                  ];
+//                  if ($scope.result) {
+//                     var resultPoint = $scope.result.chosen === "x" ? [$scope.result.x, 0] : [0, $scope.result.y];
+//                     dataset.push(
+//                         { // green result dot
+//                             data: [resultPoint],
+//                             lines: { show: false },
+//                             points: { show: true, lineWidth: 4, fill: true, radius: 3 },
+//                             color: "green",
+//                             hoverable: false
+//                         },
+//                         { // green result line
+//                             data: [resultPoint, $scope.selection],
+//                             dashes: { show: true, lineWidth: 1 },
+//                             color: "#51a351",
+//                             hoverable: false
+//                         },
+//                         { // green result dot
+//                             data: [resultPoint],
+//                             lines: { show: false },
+//                             points: { show: true, fill: true, radius: 1 },
+//                             color: "#51a351",
+//                             hoverable: false
+//                         }
+//                     );
+//                  } else {
+//                     dataset.push({ // selection dotted line (x)
+//                         data: [[0, $scope.selection[1]], $scope.selection, [$scope.selection[0], 0]],
+//                         lines: { show: false, lineWidth: 1.5 },
+//                         dashes: { show: true, lineWidth: 1 },
+//                         color: "black",
+//                         hoverable: false
+//                     });
+//                  }
+
+//                 var options = {
+//                     grid: { clickable: true, hoverable: true },
+//                     xaxis: { tickLength: 0, min: 0, max: $scope.limits.x },
+//                     yaxis: { tickLength: 0, min: 0, max: $scope.limits.y },
+//                     series: { shadowSize: 0 },
+//                     hooks: { draw: [drawText] }
+//                 };
+
+//                 $.plot($elem, dataset, options);
+//             }
+
+//             function drawText(plot, ctx) {
+
+//                 function offsetForPoint(plot, point) {
+//                     var offset = plot.pointOffset({x: point[0], y: point[1]});
+                    
+//                     if (point[0] > $scope.limits.x - 25) {
+//                         offset.left -= 10;
+//                     } else {
+//                         offset.left += 10;
+//                     }
+
+//                     if (point[1] > $scope.limits.y - 15) {
+//                         offset.top += 15;
+//                     } else {
+//                         offset.top -= 10;
+//                     }
+
+//                     return offset;
+//                 }
+
+//                 function textAlignForPoint(point) {
+//                     if (point[0] > 75) {
+//                         return "end";
+//                     } else {
+//                         return "start";
+//                     }
+//                 }
+
+//                 ctx.font = "14px sans-serif";
+
+//                 // draw current endowment
+//                 var endowmentPoint = [$scope.endowment.x, $scope.endowment.y];
+//                 var offset = offsetForPoint(plot, endowmentPoint);
+//                 ctx.textAlign = textAlignForPoint(endowmentPoint);
+
+//                 ctx.fillStyle = "grey";
+//                 var text = "[" + endowmentPoint[0].toFixed(2) + ", " + endowmentPoint[1].toFixed(2) + "]";
+//                 ctx.fillText(text, offset.left, offset.top);
+
+//                 // draw current selection values at axes
+//                 if ($scope.selection) {
+//                     var xPoint = [$scope.selection[0], 0];
+//                     var yPoint = [0, $scope.selection[1]];
+//                     var xOffset = offsetForPoint(plot, xPoint);
+//                     var yOffset = offsetForPoint(plot, yPoint);
+//                     var xText = $scope.selection[0].toFixed(2);
+//                     var yText = $scope.selection[1].toFixed(2);
+                    
+//                     ctx.textAlign = textAlignForPoint(xPoint);
+//                     ctx.fillStyle = "#d8d8d8";
+//                     ctx.strkeStyle = "#000000";
+//                     if (ctx.textAlign === "end") {
+//                         ctx.fillRect(xOffset.left+2, xOffset.top+5, -(xText.length-1)*10, -20);
+//                         ctx.strokeRect(xOffset.left+2, xOffset.top+5, -(xText.length-1)*10, -20);
+//                     } else {
+//                         ctx.fillRect(xOffset.left-2, xOffset.top+5, (xText.length-1)*10, -20);
+//                         ctx.strokeRect(xOffset.left-2, xOffset.top+5, (xText.length-1)*10, -20);                        
+//                     }
+
+//                     ctx.fillStyle = "black";
+//                     ctx.fillText(xText, xOffset.left, xOffset.top);
+
+//                     ctx.textAlign = textAlignForPoint(yPoint);
+//                     ctx.fillStyle = "#d8d8d8";
+//                     if (ctx.textAlign === "end") {
+//                         ctx.fillRect(yOffset.left+2, yOffset.top+5, -(yText.length-1)*10, -20);
+//                         ctx.strokeRect(yOffset.left+2, yOffset.top+5, -(yText.length-1)*10, -20);
+//                     } else {
+//                         ctx.fillRect(yOffset.left-2, yOffset.top+5, (yText.length-1)*10, -20);
+//                         ctx.strokeRect(yOffset.left-2, yOffset.top+5, (yText.length-1)*10, -20);
+//                     }
+
+//                     ctx.fillStyle = "black";
+//                     ctx.fillText(yText, yOffset.left, yOffset.top);
+//                 }
+
+//                 // draw current hover value
+//                 if ($scope.cursor) {
+//                      var offset = offsetForPoint(plot, $scope.cursor);
+//                     ctx.textAlign = textAlignForPoint($scope.cursor);
+
+//                     ctx.fillStyle = "grey";
+//                     var text = "[" + $scope.cursor[0].toFixed(2) + ", " + $scope.cursor[1].toFixed(2) + "]";
+//                     ctx.fillText(text, offset.left, offset.top);
+//                 }
+
+//                 if ($scope.result) {
+//                     var resultPoint = $scope.result.chosen === "x" ? [$scope.result.x, 0] : [0, $scope.result.y];
+//                     var offset = offsetForPoint(plot, resultPoint);
+//                     ctx.textAlign = textAlignForPoint(resultPoint);
+
+//                     ctx.fillStyle = "#51a351";
+//                     var text = $scope.result.chosen === "x" ? $scope.result.x.toFixed(2) : $scope.result.y.toFixed(2);
+//                     ctx.fillText(text, offset.left, offset.top);
+//                 }
+//             }
+
+//             $elem.bind("plothover", function (event, pos, item) {
+//                 if (!$scope.inputEnabled) return;
+//                 var xMin = Math.max(0, $scope.inverseBudgetFunc($scope.limits.x));
+//                 var xMax = Math.min($scope.limits.x, $scope.inverseBudgetFunc(0))
+//                 var x = Math.min(xMax, Math.max(xMin, pos.x));
+//                 $scope.cursor = [x, $scope.budgetFunc(x)];
+//                 drawPlot();
+//             });
+
+//             $elem.bind("plotclick", function (event, pos, item) {
+//                 if (!$scope.inputEnabled) return;
+//                 $scope.$emit("rpPlot.click", $scope.cursor)
+//             });
+
+//             $elem.bind("mouseout", function(event, pos, item) {
+//                 $scope.cursor = [$scope.endowment.x, $scope.endowment.y];
+//                 drawPlot();
+//             })
+
+//             $scope.$watch("endowment", drawPlot);
+//             $scope.$watch("selection", drawPlot);
+//             $scope.$watchCollection("limits", drawPlot);
+//             $scope.$watch("result", drawPlot);
+//         }
+//     }
+// });
