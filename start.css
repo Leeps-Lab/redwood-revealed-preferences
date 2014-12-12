@@ -1,0 +1,48 @@
+.axis {
+    stroke-width: 1;
+    stroke: #00ff00;
+}
+
+/* The axis line itself */
+.axis path {
+    fill: none;
+    stroke-width: 1;
+    stroke: #222222;
+}
+
+/* The axis tick marks */
+.axis line {
+    fill: none;
+    stroke-width: 1;
+    stroke: #666666;
+}
+
+/* The axis tick text */
+.axis text {
+    stroke-width: 0;
+    stroke: #222222;
+}
+
+.budget-line {
+    stroke: red;
+}
+
+.endowment-point {
+    fill: #440000;
+    stroke: #440000;
+}
+
+.selection-point {
+    fill: #000000;
+    stroke: #000000;
+}
+
+.cursor-point {
+    fill: blue;
+    stroke: #000000;
+}
+
+.result-point {
+    fill: #51a351;
+    stroke: #000000;
+}
