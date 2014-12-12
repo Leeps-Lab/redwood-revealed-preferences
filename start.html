@@ -2,14 +2,7 @@
   <div rw-subject-header title="Economics Experiment: RP" round="currentRound" rounds="config.rounds" time-remaining="timeRemaining" time-total="config.timeLimit"></div>
   <div class="container">
     <div class="row">
-      <div class="col-lg-offset-2 col-lg-1">
-        <div style="display: table-cell; height: 540px; vertical-align: middle;">
-          <div class="rotate90" style="max-width:60px;">
-             <div style="display: inline-block; text-align: center; white-space: nowrap;">Number of Y<br/>[Probability of Y: <span>{{1 - config.ProbX | number:2}}</span>]</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-7">
+      <div class="col-lg-12 text-center">
         <div
           rp-plot
           budget-func="budgetFunction"
@@ -19,14 +12,10 @@
           input-enabled="inputEnabled"
           selection="selection"
           result="finalResult"
-          width="540"
-          height="540"
+          prob-x="config.ProbX"
+          width="750"
+          height="600"
         ></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-offset-2 col-lg-8">
-        <div style="text-align: center;"><div>Number of X<br/>[Probability of X: <span>{{config.ProbX | number:2}}</span>]</div></div>
       </div>
     </div>
     <div class="row" style="margin-top: 40px">

@@ -9,6 +9,7 @@ Redwood.directive("rpPlot", function ($compile) {
             limits: "=",
             inputEnabled: "=",
             result: "=",
+            probX: "=",
             width: "=",
             height: "=",
          },
@@ -17,13 +18,20 @@ Redwood.directive("rpPlot", function ($compile) {
 
             var svg = d3.select($elem[0]).select("svg");
 
-            var xOffset = 30;
-            var yOffset = 30;
-            var plotWidth = $scope.width - xOffset;
-            var plotHeight = $scope.height - yOffset;
+            var xOffset = 100;
+            var yOffset = 50;
+            var plotWidth = $scope.width - 2 * xOffset;
+            var plotHeight = $scope.height - 1.5 * yOffset;
+
+            var clipPath = svg.append("clipPath")
+                .attr("id", "clipPath");
+            clipPath.append("rect")
+                .attr("width", plotWidth)
+                .attr("height", plotHeight);
 
             var plot = svg.append("g")
-                .attr("transform", "translate(" + xOffset + ", 0)");
+                .attr("transform", "translate(" + xOffset + "," + (yOffset/2) + ")")
+                .attr("clip-path", "url(#clipPath)");
 
             plot.append("rect")
                 .attr("fill", "#dddddd")
@@ -44,7 +52,7 @@ Redwood.directive("rpPlot", function ($compile) {
             }
 
             var drawAxes = function () {
-                if (!xScale) return;
+                if (!$scope.probX || !xScale) return;
 
                 var xAxis = d3.svg.axis()
                     .ticks(10)
@@ -60,12 +68,23 @@ Redwood.directive("rpPlot", function ($compile) {
 
                 svg.append("g")
                     .classed("x axis", true)
-                    .attr("transform", "translate(" + xOffset + "," + plotHeight + ")")
-                    .call(xAxis);
+                    .attr("transform", "translate(" + xOffset + "," + (plotHeight+yOffset/2) + ")")
+                    .call(xAxis)
+                    .append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("x", plotWidth/2)
+                        .attr("y", yOffset - 5)
+                        .text("Amount of X [Probability of X: " + $scope.probX.toFixed(2) + "]");
                 svg.append("g")
                     .classed("y axis", true)
-                    .attr("transform", "translate(" + xOffset + ", 0)")
-                    .call(yAxis);
+                    .attr("transform", "translate(" + xOffset + "," + (yOffset/2) + ")")
+                    .call(yAxis)
+                    .append("text")
+                        .attr("text-anchor", "middle")
+                        .attr("transform", "rotate(-90)")
+                        .attr("x", -plotHeight/2)
+                        .attr("y", -xOffset + 10)
+                        .text("Amount of Y [Probability of Y: " + (1-$scope.probX).toFixed(2) + "]");
             }
 
             var drawBudgetLine = function () {
@@ -151,6 +170,12 @@ Redwood.directive("rpPlot", function ($compile) {
             $scope.$watch("endowment", drawEndowment);
             $scope.$watch("selection", drawSelection);
             $scope.$watch("result", drawResult);
+
+                $(plot).popover({
+                    trigger: 'hover',
+                    content: '12',
+                    container: 'body'
+                });
 
             plot.on("click", function() {
                 if (!$scope.inputEnabled) return;
