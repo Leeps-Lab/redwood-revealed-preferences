@@ -14,7 +14,7 @@ Redwood.directive("rpPlot", function ($compile) {
          },
          template: '<svg width="{{width}}" height="{{height}}"></svg>',
          link: function ($scope, $elem, attr) {
-                        console.log("$#@$@#$@$@#$@$@$@#$@")
+
             var svg = d3.select($elem[0]).select("svg");
 
             var xOffset = 30;
@@ -25,8 +25,15 @@ Redwood.directive("rpPlot", function ($compile) {
             var plot = svg.append("g")
                 .attr("transform", "translate(" + xOffset + ", 0)");
 
+            plot.append("rect")
+                .attr("fill", "#dddddd")
+                .attr("width", plotWidth)
+                .attr("height", plotHeight);
+
             var xScale, yScale;
             var buildScales = function () {
+                if (!$scope.limits) return;
+
                 xScale = d3.scale.linear()
                     .domain([0, $scope.limits.x])
                     .range([0, plotWidth]);
@@ -36,13 +43,14 @@ Redwood.directive("rpPlot", function ($compile) {
                     .range([plotHeight, 0]);
             }
 
-            var xAxis, yAxis;
             var drawAxes = function () {
-                xAxis = d3.svg.axis()
+                if (!xScale) return;
+
+                var xAxis = d3.svg.axis()
                     .ticks(10)
                     .scale(xScale)
                     .orient("bottom");
-                yAxis = d3.svg.axis()
+                var yAxis = d3.svg.axis()
                     .ticks(10)
                     .scale(yScale)
                     .orient("left");
@@ -61,13 +69,12 @@ Redwood.directive("rpPlot", function ($compile) {
             }
 
             var drawBudgetLine = function () {
+                if (!$scope.budgetFunc) return;
 
-                // plot.append("rect")
-                //     .attr("width", 200)
-                //     .attr("height", 100)
-                //     .attr("x", 20)
-                //     .attr("y", 20);
-                var coordinates = [[0, $scope.budgetFunc(0)], [$scope.inverseBudgetFunc(0), 0]];
+                var coordinates = [
+                    [0, $scope.budgetFunc(0)],
+                    [$scope.inverseBudgetFunc(0), 0]
+                ];
 
                 var lineFunction = d3.svg.line()
                     .x(function(d) {
@@ -76,12 +83,12 @@ Redwood.directive("rpPlot", function ($compile) {
                     .y(function(d) {
                         return yScale(d[1])
                     })
-                    console.log(coordinates)
+                    
                 var path = plot.select(".budget-line");
                 if (path.empty()) {
                     plot.append("path")
                         .datum(coordinates)
-                        .classed(".budget-line", true)
+                        .classed("budget-line", true)
                         .style("stroke", "#000000")
                         .attr("d", lineFunction);
                 } else {
@@ -89,41 +96,104 @@ Redwood.directive("rpPlot", function ($compile) {
                 }
             }
 
-            var redraw = function () {
-                if ($scope.limits) {
-                    buildScales();
-                    drawBudgetLine();
-                    drawAxes();
+            var drawEndowment = function () {
+                if (!$scope.endowment || !xScale) return;
+
+                var dot = plot.select(".endowment-point");
+                if (dot.empty()) {
+                    dot = plot.append("circle");
                 }
+                dot.datum($scope.endowment)
+                    .classed("endowment-point", true)
+                    .attr("r", 5)
+                    .attr("cx", function(d) {
+                        return xScale(d.x);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d.y)
+                    });
+            }
+
+            var drawSelection = function () {
+                if (!$scope.selection || !xScale) return;
+
+                var dot = plot.select(".selection-point");
+                if (dot.empty()) {
+                    dot = plot.append("circle");
+                }
+                dot.datum($scope.selection)
+                    .classed("selection-point", true)
+                    .attr("r", 10)
+                    .attr("cx", function(d) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d[1])
+                    });
+            }
+
+            var drawCursor = function () {
+                if (!$scope.cursor || !xScale) return;
+
+                var dot = plot.select(".cursor-point");
+                if (dot.empty()) {
+                    dot = plot.append("circle");
+                }
+                dot.datum($scope.cursor)
+                    .classed("cursor-point", true)
+                    .attr("r", 10)
+                    .attr("cx", function(d) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d[1])
+                    });
+            }
+
+            var redraw = function () {
+                buildScales();
+                drawBudgetLine();
+                drawEndowment();
+                drawSelection();
+                drawCursor();
+                drawAxes();
             }
 
             $scope.$watchCollection("limits", redraw);
-            $scope.$watch("endowment", redraw);
+            $scope.$watch("endowment", drawEndowment);
+            $scope.$watch("selection", drawSelection);
 
-            // $elem.bind("plothover", function (event, pos, item) {
-            //     if (!$scope.inputEnabled) return;
-            //     var xMin = Math.max(0, $scope.inverseBudgetFunc($scope.limits.x));
-            //     var xMax = Math.min($scope.limits.x, $scope.inverseBudgetFunc(0))
-            //     var x = Math.min(xMax, Math.max(xMin, pos.x));
-            //     $scope.cursor = [x, $scope.budgetFunc(x)];
-            //     drawPlot();
-            // });
+            plot.on("click", function() {
+                if (!$scope.inputEnabled) return;
 
-            // $elem.bind("plotclick", function (event, pos, item) {
-            //     if (!$scope.inputEnabled) return;
-            //     $scope.$emit("rpPlot.click", $scope.cursor)
-            // });
+                var xMouse = xScale.invert(d3.mouse(this)[0]);
+                var xMin = Math.max(0, $scope.inverseBudgetFunc($scope.limits.x));
+                var xMax = Math.min($scope.limits.x, $scope.inverseBudgetFunc(0))
+                var x = Math.min(xMax, Math.max(xMin, xMouse));
 
-            // $elem.bind("mouseout", function(event, pos, item) {
-            //     $scope.cursor = [$scope.endowment.x, $scope.endowment.y];
-            //     drawPlot();
-            // })
+                $scope.cursor = [x, $scope.budgetFunc(x)];
+                $scope.$emit("rpPlot.click", $scope.cursor);
+                drawSelection();
+            });
 
-            // $scope.$watch("endowment", drawPlot);
-            // $scope.$watch("selection", drawPlot);
-            // $scope.$watchCollection("limits", drawPlot);
+            plot.on("mousemove", function() {
+                if (!$scope.inputEnabled) return;
+
+                var xMouse = xScale.invert(d3.mouse(this)[0]);
+                var xMin = Math.max(0, $scope.inverseBudgetFunc($scope.limits.x));
+                var xMax = Math.min($scope.limits.x, $scope.inverseBudgetFunc(0))
+                var x = Math.min(xMax, Math.max(xMin, xMouse));
+
+                $scope.cursor = [x, $scope.budgetFunc(x)];
+                drawCursor();
+            });
+
+            plot.on("mouseout", function() {
+                $scope.cursor = [$scope.endowment.x, $scope.endowment.y];
+                drawCursor();
+            });
+
             // $scope.$watch("result", drawPlot);
-                                    console.log("$#@$@#$@$@#$@$@$@#$@")
 
         }
     }
