@@ -24,20 +24,26 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
         });
     }
 
-    api.getEndowment = function () {
+    api.getEndowment = function (smallEquilibriumPrice) {
+        // setup comparison functions
+        var comparePrice, shouldAssignEndowmentA;
+        if (smallEquilibriumPrice) {
+            comparePrice = function (a, b) { return a.price - b.price };
+            shouldAssignEndowmentA = function (index, threshold) { return index < threshold };
+        } else {
+            comparePrice = function (a, b) { return b.price - a.price };
+            shouldAssignEndowmentA = function (index, threshold) { return index >= threshold };
+        }
+
         // get allocations sorted by price, for each subject
         var subjectAllocations = rs.subjects.map(function (subject) {
             // get allocations
             var aAllocations = subject.get(KEY_A) || [];
             var bAllocations = subject.get(KEY_B) || [];
 
-            // sort saved allocations by price, then throw out price
-            var aSorted = aAllocations.sort(function (a, b) {
-                return a.price - b.price;
-            });
-            var bSorted = bAllocations.sort(function (a, b) {
-                return a.price - b.price;
-            });
+            // sort saved allocations by price
+            var aSorted = aAllocations.sort(comparePrice);
+            var bSorted = bAllocations.sort(comparePrice);
             return {
                 "subjectID": subject.user_id,
                 "aAllocations": aSorted,
@@ -52,7 +58,7 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
         for (var k = 0; k < price_count; k++) {
             var subjects = subjectAllocations.map(function (subject, index) {
                 var allocation, endowment;
-                if (index < subjectAllocations.length/2) {
+                if (shouldAssignEndowmentA(index, subjectAllocations.length/2)) {
                     // subjects with higher diff are assigned endowment A
                     allocation = subject.aAllocations[k].x;
                     endowment = ENDOWMENT_A;
@@ -299,7 +305,8 @@ Redwood.controller("SubjectController", ["$scope",
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
             limitAnimDuration : rs.config.limitAnimDuration || 0,
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
-            computeEndowment : rs.config.computeEndowment || false,
+            computeEndowment  : rs.config.computeEndowment || false,
+            smallEquilibriumPrice : rs.config.smallEquilibriumPrice || false,
             saveAllocation    : rs.config.saveAllocation || false,
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
             rounds            : rs.config.rounds || 1,
@@ -314,7 +321,7 @@ Redwood.controller("SubjectController", ["$scope",
             y: $scope.config.Ey
         }
         if ($scope.config.computeEndowment) {
-            $scope.endowment = ea.getEndowment();
+            $scope.endowment = ea.getEndowment($scope.config.smallEquilibriumPrice);
         }
 
         $scope.currentRound = 0;
@@ -473,8 +480,8 @@ Redwood.controller("SubjectController", ["$scope",
         });
     });
 
-    // Recieve result (whether X or Y was chosen) from admin. This result
-    // is really only used for practice rounds.
+    // Recieve result (whether X or Y was chosen) from admin.
+    // This result is really only used for practice rounds.
     rs.on("result", function (result) {
         result.period = rs.period;
         rs.set("results", result);
