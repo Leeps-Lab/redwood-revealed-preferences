@@ -10,7 +10,6 @@ body {
 /* The axis line itself */
 .axis path {
     fill: none;
-    stroke-width: 1;
     stroke: #222222;
 }
 
@@ -23,8 +22,8 @@ body {
 
 /* The axis tick text */
 .axis text {
-    stroke-width: 0;
-    stroke: #222222;
+    stroke: none;
+    fill: #222222;
 }
 
 .axis-label {
@@ -34,6 +33,7 @@ body {
 .plot-background {
     fill: #f8f8f8;
     stroke: #222222;
+    stroke-width: 1;
 }
 
 .hover-label {
@@ -41,16 +41,15 @@ body {
     text-align: center;
 }
 
-.endowment-label {
-    background: #ffffff;
-    border: 1px solid #222222;
-    opacity: 0.5;
+.transparent {
+    opacity: 0.2;
 }
 
-.selection-label {
+.point-label {
     background: #ffffff;
-    border: 1px solid #222222;
-    opacity: 0.5;
+    padding: 5px 10px;
+    z-index: 10000;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
 }
 
 .budget-line {

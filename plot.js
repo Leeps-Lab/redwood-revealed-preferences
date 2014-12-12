@@ -1,4 +1,9 @@
 Redwood.directive("rpPlot", function ($compile) {
+
+    function toPx(number) {
+        return number.toString() + "px";
+    }
+
     return {
         restrict: "A",
         scope: {
@@ -14,13 +19,20 @@ Redwood.directive("rpPlot", function ($compile) {
             height: "=",
          },
          template: '<svg width="{{width}}" height="{{height}}"></svg>\
-                    <div class="endowment-label">{{endowment.x | number: 2}}, {{endowment.y | number: 2}}</div>\
-                    <div class="selection-label">{{selection[0] | number: 2}}, {{selection[1] | number: 2}}</div>\
+                    <div class="point-label endowment-label">\
+                        Endowment:\
+                        {{endowment.x | number: 2}}, {{endowment.y | number: 2}}\
+                    </div>\
+                    <div class="point-label selection-label">\
+                        Selection:\
+                        {{selection[0] | number: 2}}, {{selection[1] | number: 2}}\
+                    </div>\
                     <div class="hover-label x">{{cursor[0] | number: 2}}</div>\
                     <div class="hover-label y">{{cursor[1] | number: 2}}</div>',
          link: function ($scope, $elem, attr) {
 
-            var svg = d3.select($elem[0]).select("svg");
+            var elem = d3.select($elem[0])
+            var svg = elem.select("svg");
 
             var xOffset = 50;
             var yOffset = 50;
@@ -39,7 +51,7 @@ Redwood.directive("rpPlot", function ($compile) {
                 .attr("transform", "translate(" + xOffset + "," + yOffset + ")")
                 .attr("clip-path", "url(#clipPath)");
 
-            plot.append("rect")
+            var plotBackground = plot.append("rect")
                 .classed("plot-background", true)
                 .attr("width", plotWidth)
                 .attr("height", plotHeight);
@@ -145,14 +157,25 @@ Redwood.directive("rpPlot", function ($compile) {
             var drawEndowment = function () {
                 if (!$scope.endowment) return;
                 drawPoint([$scope.endowment.x, $scope.endowment.y], "endowment-point");
+
+                // draw label
+                var point = elem.select(".endowment-point");
+                var label = elem.select(".endowment-label");
+                var pointRect = point[0][0].getBoundingClientRect();
+                var labelRect = label[0][0].getBoundingClientRect();
+                label.style({
+                    "position": "fixed",
+                    "top": toPx(pointRect.top-labelRect.height),
+                    "left": toPx(pointRect.left+pointRect.width)
+                });
             }
 
             var drawCursor = function () {
                 if (!$scope.cursor) {
-                    d3.select(".cursor-point").remove();
-                    d3.select(".cursor-crosshair-x").remove();
-                    d3.select(".cursor-crosshair-y").remove();
-                    d3.selectAll(".hover-label").style("display", "none");
+                    elem.select(".cursor-point").remove();
+                    elem.select(".cursor-crosshair-x").remove();
+                    elem.select(".cursor-crosshair-y").remove();
+                    elem.selectAll(".hover-label").style("display", "none");
                     return;
                 }
                 drawPoint($scope.cursor, "cursor-point");
@@ -160,28 +183,40 @@ Redwood.directive("rpPlot", function ($compile) {
                 drawLine([$scope.cursor, [0, $scope.cursor[1]]], "cursor-crosshair-y");
 
                 // draw hover labels
-                var plotRect = d3.select(".plot-background")[0][0].getBoundingClientRect();
-                var xLabelRect = d3.select(".hover-label.x")[0][0].getBoundingClientRect();
-                var yLabelRect = d3.select(".hover-label.y")[0][0].getBoundingClientRect();
-                d3.selectAll(".hover-label").style("display", "block");
-                d3.select(".hover-label.x")
-                    .style({
-                        "position": "fixed",
-                        "top": (plotRect.bottom+yOffset).toString() + "px",
-                        "left": (plotRect.left+xScale($scope.cursor[0])-xLabelRect.width/2).toString() + "px"
-                    });
-                d3.select(".hover-label.y")
-                    .style({
-                        "position": "fixed",
-                        "width": "100px",
-                        "top": (plotRect.top+plotHeight-xScale($scope.cursor[1])-yLabelRect.height/2).toString() + "px",
-                        "left": (plotRect.left-xOffset*3).toString() + "px"
-                    });
+                var xHoverLabel = elem.select(".hover-label.x");
+                var yHoverLabel = elem.select(".hover-label.y");
+
+                var plotRect = plotBackground[0][0].getBoundingClientRect();
+                var xLabelRect = xHoverLabel[0][0].getBoundingClientRect();
+                var yLabelRect = yHoverLabel[0][0].getBoundingClientRect();
+
+                elem.selectAll(".hover-label").style("display", "block");
+                xHoverLabel.style({
+                    "position": "fixed",
+                    "top": toPx(plotRect.bottom+yOffset),
+                    "left": toPx(plotRect.left+xScale($scope.cursor[0])-xLabelRect.width/2)
+                });
+                yHoverLabel.style({
+                    "position": "fixed",
+                    "top": toPx(plotRect.top+yScale($scope.cursor[1])-yLabelRect.height/2),
+                    "left": toPx(plotRect.left-xOffset*3)
+                });
             }
 
             var drawSelection = function () {
                 if (!$scope.selection) return;
                 drawPoint($scope.selection, "selection-point");
+
+                // draw label
+                var point = elem.select(".selection-point");
+                var label = elem.select(".selection-label");
+                var pointRect = point[0][0].getBoundingClientRect();
+                var labelRect = label[0][0].getBoundingClientRect();
+                label.style({
+                    "position": "fixed",
+                    "top": toPx(pointRect.top+pointRect.height),
+                    "left": toPx(pointRect.left-labelRect.width)
+                });
             }
 
             var drawResult = function () {
@@ -216,6 +251,7 @@ Redwood.directive("rpPlot", function ($compile) {
 
             svg.on("mousemove", function() {
                 if (!$scope.inputEnabled) return;
+                elem.selectAll(".point-label").classed("transparent", true);
 
                 var xMouse = xScale.invert(d3.mouse(plot[0][0])[0]);
                 var xMin = Math.max(0, $scope.inverseBudgetFunc($scope.limits.x));
@@ -229,6 +265,7 @@ Redwood.directive("rpPlot", function ($compile) {
             });
 
             svg.on("mouseleave", function() {
+                elem.selectAll(".point-label").classed("transparent", false);
                 $scope.cursor = null;
                 drawCursor();
             });
