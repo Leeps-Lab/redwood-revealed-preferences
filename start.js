@@ -1,3 +1,59 @@
+Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
+    /* 
+        This module is incredibly experiment specific
+        and is not meant to be general purpose.
+    */
+    var KEY_A = "x_allocation_100_0";
+    var KEY_B = "x_allocation_0_50";
+    var ENDOWMENT_A = [100, 0];
+    var ENDOWMENT_B = [0, 50];
+    var api = {};
+
+    api.initialize = function () {
+        // register listeners to automatically save allocations
+        rs.on("perform_allocation", function (allocation) {
+            var key = "x_allocation_" + rs.config.Ex + "_" + rs.config.Ey;
+            console.log("saving: " + allocation.x + " at " + key);
+
+            var allocations = rs.self.get(key) || [];
+            allocations.push({
+                price: rs.config.Py / rs.config.Px,
+                x: allocation.x
+            })
+            rs.set(key, allocations);
+        });
+
+        // get choices of each subject
+        var allocations = rs.subjects.map(function (subject) {
+            // get allocations
+            var aAllocations = subject.get(KEY_A) || [];
+            var bAllocations = subject.get(KEY_B) || [];
+
+            // sort saved allocations by price, then throw out price
+            var aSorted = aAllocations.sort(function (a, b) {
+                return a.price - b.price;
+            });
+            var bSorted = bAllocations.sort(function (a, b) {
+                return a.price - b.price;
+            });
+            return {
+                "aAllocations": aSorted,
+                "bAllocations": bSorted
+            }
+        });
+
+        // compute endowment assignment
+        console.log("compute assignment");
+    }
+
+    // returns the endowment assigned to this subject
+    api.assignedEndowment = function () {
+
+    }
+    
+    return api;
+}]);
+
 Redwood.factory("Tatonnement", function () {
     var tatonnement = {};
 
@@ -128,7 +184,8 @@ Redwood.controller("SubjectController", ["$scope",
                                          "RedwoodSubject",
                                          "SynchronizedStopWatch",
                                          "Tatonnement",
-                                         function ($scope, rs, stopWatch, ta) {
+                                         "EndowmentAssignment",
+                                         function ($scope, rs, stopWatch, ta, ea) {
 
     // pure
     function snapPriceToGrid (price, gridSpacing) {
@@ -219,6 +276,8 @@ Redwood.controller("SubjectController", ["$scope",
 
         rs.trigger("configuration", $scope.config);
         rs.trigger("next_round");
+
+        ea.initialize();
     });
 
     rs.on("next_round", function () {
