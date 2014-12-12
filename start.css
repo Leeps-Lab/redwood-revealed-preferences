@@ -1,3 +1,7 @@
+body {
+    margin-top: 20px;
+}
+
 .axis {
     stroke-width: 1;
     stroke: #00ff00;
@@ -23,22 +27,52 @@
     stroke: #222222;
 }
 
+.axis-label {
+    font-weight: bold;
+}
+
+.plot-background {
+    fill: #f8f8f8;
+    stroke: #222222;
+}
+
+.hover-label {
+    font-size: 20px;
+    text-align: center;
+}
+
+.endowment-label {
+    background: #ffffff;
+    border: 1px solid #222222;
+    opacity: 0.5;
+}
+
+.selection-label {
+    background: #ffffff;
+    border: 1px solid #222222;
+    opacity: 0.5;
+}
+
 .budget-line {
     stroke: red;
 }
 
+.cursor-crosshair-x, .cursor-crosshair-y {
+    stroke: #a8a8a8;
+}
+
 .endowment-point {
-    fill: #440000;
+    fill: #ff8888;
     stroke: #440000;
 }
 
 .selection-point {
-    fill: #000000;
-    stroke: #000000;
+    fill: #8888ff;
+    stroke: #000044;
 }
 
 .cursor-point {
-    fill: blue;
+    fill: #dddddd;
     stroke: #000000;
 }
 
