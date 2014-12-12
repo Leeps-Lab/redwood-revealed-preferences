@@ -150,18 +150,42 @@ Redwood.directive("rpPlot", function ($compile) {
                     });
             }
 
+            var drawResult = function () {
+                if (!$scope.result || !xScale) return;
+
+                var resultPoint = $scope.result.chosen === "x" ? 
+                    [$scope.result.x, 0] : [0, $scope.result.y];
+
+
+                var dot = plot.select(".result-point");
+                if (dot.empty()) {
+                    dot = plot.append("circle");
+                }
+                dot.datum(resultPoint)
+                    .classed("result-point", true)
+                    .attr("r", 10)
+                    .attr("cx", function(d) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d[1])
+                    });
+            }
+
             var redraw = function () {
                 buildScales();
                 drawBudgetLine();
                 drawEndowment();
                 drawSelection();
                 drawCursor();
+                drawResult();
                 drawAxes();
             }
 
             $scope.$watchCollection("limits", redraw);
             $scope.$watch("endowment", drawEndowment);
             $scope.$watch("selection", drawSelection);
+            $scope.$watch("result", drawResult);
 
             plot.on("click", function() {
                 if (!$scope.inputEnabled) return;
@@ -192,9 +216,6 @@ Redwood.directive("rpPlot", function ($compile) {
                 $scope.cursor = [$scope.endowment.x, $scope.endowment.y];
                 drawCursor();
             });
-
-            // $scope.$watch("result", drawPlot);
-
         }
     }
 });
