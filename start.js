@@ -5,8 +5,8 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
     */
     var KEY_A = "x_allocation_100_0";
     var KEY_B = "x_allocation_0_50";
-    var ENDOWMENT_A = [100, 0];
-    var ENDOWMENT_B = [0, 50];
+    var ENDOWMENT_A = {x: 100, y: 0};
+    var ENDOWMENT_B = {x: 0, y: 50};
     var api = {};
 
     api.save = function() {
@@ -82,16 +82,20 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
         }
 
         // pick the lowest priced assignment that has a negative excessDemaand
-        var assignmentSubjects = assignments.filter(function (assignment) {
+        var assignment = assignments.filter(function (assignment) {
             return assignment.excessDemand < 0;
-        })[0].subjects || [];
+        })[0] || assignments[0];
+
+        var assignmentSubjects = assignment.subjects || [];
 
         // get endowment for current subject
         // has to be a linear search ._.
         console.log("compute assignment");
-        return assignmentSubjects.filter(function (subject) {
+        var endowment = assignmentSubjects.filter(function (subject) {
             return subject.subjectID == rs.self.user_id;
-        })[0];
+        })[0].endowment;
+
+        return endowment;
     }
     
     return api;
@@ -140,7 +144,7 @@ Redwood.factory("Tatonnement", function () {
 
         // compute excessDemand
         _excessDemand = _subjects.reduce(function(sum, subject) {
-            return sum + (subject.get("selection")[0] - _endowment.x);
+            return sum + (subject.get("selection")[0] - subject.get("endowment").x);
         }, 0);
         _excessDemandPerCapita = _excessDemand / _subjects.length;
 
@@ -184,10 +188,10 @@ Redwood.factory("Tatonnement", function () {
         var allocation = {}
         
         var netBuyers = _subjects.filter(function(subject) {
-            return subject.get("selection")[0] > _endowment.x;
+            return subject.get("selection")[0] > subject.get("endowment").x;
         }).length;
         var netSellers = _subjects.filter(function(subject) {
-            return subject.get("selection")[0] < _endowment.x;
+            return subject.get("selection")[0] < subject.get("endowment").x;
         }).length;
         
         if (marketMaker) {
@@ -295,6 +299,8 @@ Redwood.controller("SubjectController", ["$scope",
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
             limitAnimDuration : rs.config.limitAnimDuration || 0,
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
+            computeEndowment : rs.config.computeEndowment || false,
+            saveAllocation    : rs.config.saveAllocation || false,
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
             rounds            : rs.config.rounds || 1,
             delay             : parseFloat(rs.config.delay) || 5,
@@ -307,6 +313,9 @@ Redwood.controller("SubjectController", ["$scope",
             x: $scope.config.Ex,
             y: $scope.config.Ey
         }
+        if ($scope.config.computeEndowment) {
+            $scope.endowment = ea.getEndowment();
+        }
 
         $scope.currentRound = 0;
         $scope.inputEnabled = false;
@@ -318,9 +327,12 @@ Redwood.controller("SubjectController", ["$scope",
             $scope.config.maxAngularDiff);
 
         rs.trigger("configuration", $scope.config);
+        rs.trigger("endowment", $scope.endowment);
         rs.trigger("next_round");
 
-        ea.save();
+        if ($scope.config.saveAllocation) {
+            ea.save();
+        }
     });
 
     rs.on("next_round", function () {
@@ -366,7 +378,6 @@ Redwood.controller("SubjectController", ["$scope",
         $scope.inputEnabled = true;
 
         // setup timer
-        
         if ($scope.config.timeLimit > 0) {
             if (!$scope.stopWatch) {
                 $scope.timeRemaining = 0;
@@ -478,7 +489,6 @@ Redwood.controller("SubjectController", ["$scope",
 
     $scope.$on("rpPlot.click", function (event, selection) {
         rs.trigger("selection", selection);
-        ea.getEndowment();
     });
 
     $scope.confirm = function () {
