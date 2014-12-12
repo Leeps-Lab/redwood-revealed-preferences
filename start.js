@@ -9,7 +9,7 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
     var ENDOWMENT_B = [0, 50];
     var api = {};
 
-    api.initialize = function () {
+    api.save = function() {
         // register listeners to automatically save allocations
         rs.on("perform_allocation", function (allocation) {
             var key = "x_allocation_" + rs.config.Ex + "_" + rs.config.Ey;
@@ -22,9 +22,11 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
             })
             rs.set(key, allocations);
         });
+    }
 
-        // get choices of each subject
-        var allocations = rs.subjects.map(function (subject) {
+    api.getEndowment = function () {
+        // get allocations sorted by price, for each subject
+        var subjectAllocations = rs.subjects.map(function (subject) {
             // get allocations
             var aAllocations = subject.get(KEY_A) || [];
             var bAllocations = subject.get(KEY_B) || [];
@@ -37,18 +39,59 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
                 return a.price - b.price;
             });
             return {
+                "subjectID": subject.user_id,
                 "aAllocations": aSorted,
                 "bAllocations": bSorted
             }
         });
 
-        // compute endowment assignment
+        // get list of subjects sorted by diff = -A + B and excess demand, for each price
+        // should already be sorted by price from previous step
+        var price_count = subjectAllocations[0].aAllocations.length;
+        var assignments = [];
+        for (var k = 0; k < price_count; k++) {
+            var subjects = subjectAllocations.map(function (subject, index) {
+                var allocation, endowment;
+                if (index < subjectAllocations.length/2) {
+                    // subjects with higher diff are assigned endowment A
+                    allocation = subject.aAllocations[k].x;
+                    endowment = ENDOWMENT_A;
+                } else {
+                    // subjects with lower diff are assigned endowment B
+                    allocation = subject.bAllocations[k].x;
+                    endowment = ENDOWMENT_B;
+                }
+                return {
+                    "subjectID": subject.subjectID,
+                    "diff": subject.bAllocations[k].x - subject.aAllocations[k].x,
+                    "endowment": endowment,
+                    "allocation": allocation
+                }
+            }).sort(function (a, b) {
+                return b.diff - a.diff;
+            });
+
+            var excessDemand = subjects.reduce(function (result, subject) {
+                return result - subject.allocation;
+            }, 50 * subjects.length);
+
+            assignments.push({
+                "subjects": subjects,
+                "excessDemand": excessDemand
+            });
+        }
+
+        // pick the lowest priced assignment that has a negative excessDemaand
+        var assignmentSubjects = assignments.filter(function (assignment) {
+            return assignment.excessDemand < 0;
+        })[0].subjects || [];
+
+        // get endowment for current subject
+        // has to be a linear search ._.
         console.log("compute assignment");
-    }
-
-    // returns the endowment assigned to this subject
-    api.assignedEndowment = function () {
-
+        return assignmentSubjects.filter(function (subject) {
+            return subject.subjectID == rs.self.user_id;
+        })[0];
     }
     
     return api;
@@ -277,7 +320,7 @@ Redwood.controller("SubjectController", ["$scope",
         rs.trigger("configuration", $scope.config);
         rs.trigger("next_round");
 
-        ea.initialize();
+        ea.save();
     });
 
     rs.on("next_round", function () {
@@ -435,6 +478,7 @@ Redwood.controller("SubjectController", ["$scope",
 
     $scope.$on("rpPlot.click", function (event, selection) {
         rs.trigger("selection", selection);
+        ea.getEndowment();
     });
 
     $scope.confirm = function () {
