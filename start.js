@@ -293,6 +293,7 @@ Redwood.controller("SubjectController", ["$scope",
             Px                : extractConfigEntry(rs.config.Px, userIndex) || 100,
             Py                : extractConfigEntry(rs.config.Py, userIndex) || 157,
             epsilon           : rs.config.epsilon || 1,
+            roundsUnderEpsilon: rs.config.roundsUnderEpsilon || 1,
             expectedExcess    : rs.config.expectedExcess || 20,
             priceLowerBound   : rs.config.priceLowerBound || 0.1,
             priceUpperBound   : rs.config.priceUpperBound || 100.0,
@@ -428,9 +429,20 @@ Redwood.controller("SubjectController", ["$scope",
             // Initialize Tatonnement service
             ta.initializeRound(currentPrice, subjectsInGroup, $scope.endowment, $scope.selection);
 
-            // If demand is under threshold or max round has been reached, stop tatonnement
-            if (Math.abs(ta.excessDemandPerCapita()) < $scope.config.epsilon
-                ||              $scope.currentRound >= $scope.config.rounds) {
+            // check if demand is under threshold (epsilon)
+            var roundsUnder = rs.self.get("rounds_under_epsilon");
+            if (Math.abs(ta.excessDemandPerCapita()) < $scope.config.epsilon) {
+                roundsUnder += 1;
+            } else {
+                roundsUnder = 0;
+            }
+            rs.set("rounds_under_epsilon", roundsUnder)
+
+            // If we demand has been under threshold for @roundsUnderEpsilon rounds,
+            // or if the maximum number of rounds have been played,
+            // stop tatonnement
+            if (roundsUnder        >= $scope.config.roundsUnderEpsilon
+            || $scope.currentRound >= $scope.config.rounds) {
                 var actualAllocation = ta.allocation($scope.config.marketMaker);
                 //$scope.selection = [actualAllocation.x, actualAllocation.y];
                 var baseSelection = {
