@@ -52,12 +52,25 @@ body {
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
 }
 
+.result-label {
+    display: none;
+    background: #51a351;
+    color: #ffffff;
+    padding: 5px 10px;
+    z-index: 10000;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
+}
+
 .budget-line {
     stroke: red;
 }
 
 .cursor-crosshair-x, .cursor-crosshair-y {
     stroke: #a8a8a8;
+}
+
+.result-line {
+    stroke: #51a351;
 }
 
 .endowment-point {

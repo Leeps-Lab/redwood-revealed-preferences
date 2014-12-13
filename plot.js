@@ -27,6 +27,17 @@ Redwood.directive("rpPlot", function ($compile) {
                         Selection:\
                         {{selection[0] | number: 2}}, {{selection[1] | number: 2}}\
                     </div>\
+                    <div class="result-label">\
+                        Result:\
+                        <span ng-switch on="resultPoint[1]">\
+                            <span ng-switch-when="0">\
+                                X = {{resultPoint[0] | number: 2}}\
+                            </span>\
+                            <span ng-switch-default>\
+                                Y = {{resultPoint[1] | number: 2}}\
+                            </span>\
+                        </span>\
+                    </div>\
                     <div class="hover-label x">{{cursor[0] | number: 2}}</div>\
                     <div class="hover-label y">{{cursor[1] | number: 2}}</div>',
          link: function ($scope, $elem, attr) {
@@ -222,10 +233,26 @@ Redwood.directive("rpPlot", function ($compile) {
             var drawResult = function () {
                 if (!$scope.result || !xScale) return;
 
-                var resultPoint = $scope.result.chosen === "x" ? 
+                $scope.resultPoint = $scope.result.chosen === "x" ? 
                     [$scope.result.x, 0] : [0, $scope.result.y];
 
-                drawPoint(resultPoint, "result-point");
+                drawPoint($scope.resultPoint, "result-point");
+                drawLine([$scope.selection, $scope.resultPoint], "result-line");
+
+                // hide other labels
+                elem.selectAll(".point-label").classed("transparent", true);
+
+                // draw label
+                var point = elem.select(".result-point");
+                var label = elem.select(".result-label");
+                var pointRect = point[0][0].getBoundingClientRect();
+                var labelRect = label[0][0].getBoundingClientRect();
+                label.style({
+                    "display": "block",
+                    "position": "fixed",
+                    "top": toPx(pointRect.top+pointRect.height),
+                    "left": toPx(pointRect.left-labelRect.width)
+                });
             }
 
             var redraw = function () {
