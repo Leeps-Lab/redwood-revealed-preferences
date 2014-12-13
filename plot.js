@@ -18,7 +18,7 @@ Redwood.directive("rpPlot", function ($compile) {
             width: "=",
             height: "=",
          },
-         template: '<svg width="{{width}}" height="{{height}}"></svg>\
+         template: '<svg width="{{width}}" height="{{height}}" shape-rendering="optimizeSpeed"></svg>\
                     <div class="point-label endowment-label">\
                         Endowment:\
                         {{endowment.x | number: 2}}, {{endowment.y | number: 2}}\
@@ -275,6 +275,23 @@ Redwood.directive("rpPlot", function ($compile) {
                 if (!$scope.inputEnabled) return;
                 $scope.$emit("rpPlot.click", $scope.cursor);
                 drawSelection();
+
+                if (!xScale) return;
+                plot.append("circle")
+                    .datum($scope.cursor)
+                    .classed("selection-ping", true)
+                    .attr("r", 50)
+                    .attr("cx", function(d) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d[1])
+                    })
+                    .transition()
+                        .duration(500)
+                        .ease(d3.ease("cubic-out-in"))
+                        .attr("r", 5)
+                        .remove();
             });
 
             svg.on("mousemove", function() {

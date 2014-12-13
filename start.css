@@ -92,3 +92,9 @@ body {
     fill: #51a351;
     stroke: #000000;
 }
+
+.selection-ping {
+    fill: none;
+    stroke-width: 10;
+    stroke: #8888ff;
+}
