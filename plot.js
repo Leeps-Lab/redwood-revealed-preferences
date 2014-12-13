@@ -239,6 +239,7 @@ Redwood.directive("rpPlot", function ($compile) {
             }
 
             $scope.$watchCollection("limits", redraw);
+            $scope.$watch("budgetFunc", redraw);
             $scope.$watch("endowment", drawEndowment);
             $scope.$watch("selection", drawSelection);
             $scope.$watch("result", drawResult);
