@@ -17,7 +17,7 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
 
             var allocations = rs.self.get(key) || [];
             allocations.push({
-                price: rs.config.Py / rs.config.Px,
+                price: rs.config.Py / rs.config.Px, // this needs to be changed
                 x: allocation.x
             })
             rs.set(key, allocations);
@@ -233,7 +233,7 @@ Redwood.factory("Tatonnement", function () {
     return tatonnement;
 });
 
-Redwood.controller("SubjectController", ["$scope",
+Redwood.controller("RPStartController", ["$scope",
                                          "RedwoodSubject",
                                          "SynchronizedStopWatch",
                                          "Tatonnement",

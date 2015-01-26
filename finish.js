@@ -1,4 +1,4 @@
-Redwood.controller("SubjectCtrl", ["$scope", "RedwoodSubject", function($scope, rs) {
+Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($scope, rs) {
   
     $scope.results = []
     $scope.totalEarnings = 5.0;

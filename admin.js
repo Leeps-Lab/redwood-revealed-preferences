@@ -1,4 +1,4 @@
-Redwood.controller("AdminCtrl", ["$rootScope", "$scope", "Admin", function($rootScope, $scope, ra) {
+Redwood.controller("RPAdminController", ["$rootScope", "$scope", "Admin", function($rootScope, $scope, ra) {
 
   var Display = { //Display controller
 
