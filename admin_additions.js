@@ -2,16 +2,17 @@ Redwood.controller("RPAdminAdditionsController", ["Admin", "$scope", function(ra
     
     // The admin is in charge of deciding results
     var outcome;
-    ra.recv("next_round", function() {
+    ra.recv("rp.next_round", function() {
         outcome = false; // reset outcome
     });
 
-    ra.recv("perform_allocation", function(sender, allocation) {
+    ra.recv("rp.perform_allocation", function(sender, allocation) {
         // if an outcome has not yet been determined for this round, do it here
         if (!outcome) {
-            outcome = Math.random() < ra.get_config().ProbX ? "x" : "y";
+            var period = ra.subject[sender].period;
+            outcome = Math.random() < ra.get_config(period).ProbX ? "x" : "y";
         }
         // send as the subject who sent the confirm message
-        ra.sendAsSubject("result", {x: allocation.x, y: allocation.y, chosen: outcome}, sender);
+        ra.sendAsSubject("rp.result", {x: allocation.x, y: allocation.y, chosen: outcome}, sender);
     });
 }]);

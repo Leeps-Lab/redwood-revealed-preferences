@@ -3,16 +3,16 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
         This module is incredibly experiment specific
         and is not meant to be general purpose.
     */
-    var KEY_A = "x_allocation_100_0";
-    var KEY_B = "x_allocation_0_50";
+    var KEY_A = "rp.x_allocation_100_0";
+    var KEY_B = "rp.x_allocation_0_50";
     var ENDOWMENT_A = {x: 100, y: 0};
     var ENDOWMENT_B = {x: 0, y: 50};
     var api = {};
 
     api.save = function() {
         // register listeners to automatically save allocations
-        rs.on("perform_allocation", function (allocation) {
-            var key = "x_allocation_" + rs.config.Ex + "_" + rs.config.Ey;
+        rs.on("rp.perform_allocation", function (allocation) {
+            var key = "rp.x_allocation_" + rs.config.Ex + "_" + rs.config.Ey;
             console.log("saving: " + allocation.x + " at " + key);
 
             var allocations = rs.self.get(key) || [];
@@ -150,7 +150,7 @@ Redwood.factory("Tatonnement", function () {
 
         // compute excessDemand
         _excessDemand = _subjects.reduce(function(sum, subject) {
-            return sum + (subject.get("selection")[0] - subject.get("endowment").x);
+            return sum + (subject.get("rp.selection")[0] - subject.get("rp.endowment").x);
         }, 0);
         _excessDemandPerCapita = _excessDemand / _subjects.length;
 
@@ -194,10 +194,10 @@ Redwood.factory("Tatonnement", function () {
         var allocation = {}
         
         var netBuyers = _subjects.filter(function(subject) {
-            return subject.get("selection")[0] > subject.get("endowment").x;
+            return subject.get("rp.selection")[0] > subject.get("rp.endowment").x;
         }).length;
         var netSellers = _subjects.filter(function(subject) {
-            return subject.get("selection")[0] < subject.get("endowment").x;
+            return subject.get("rp.selection")[0] < subject.get("rp.endowment").x;
         }).length;
         
         if (marketMaker) {
@@ -258,7 +258,7 @@ Redwood.controller("RPStartController", ["$scope",
             ? $scope.intercepts.x
             : $scope.intercepts.y;
 
-        var lastLimits = rs.self.get("last_limits");
+        var lastLimits = rs.self.get("rp.last_limits");
         var baseLimits = {};
         baseLimits.x = $scope.currentRound > 1 ? lastLimits.x : $scope.limits.x;
         baseLimits.y = $scope.currentRound > 1 ? lastLimits.y : $scope.limits.y;
@@ -334,24 +334,24 @@ Redwood.controller("RPStartController", ["$scope",
             $scope.config.priceUpperBound,
             $scope.config.maxAngularDiff);
 
-        rs.trigger("configuration", $scope.config);
-        rs.trigger("endowment", $scope.endowment);
-        rs.trigger("next_round");
+        rs.trigger("rp.configuration", $scope.config);
+        rs.trigger("rp.endowment", $scope.endowment);
+        rs.trigger("rp.next_round");
 
         if ($scope.config.saveAllocation) {
             ea.save();
         }
     });
 
-    rs.on("next_round", function () {
+    rs.on("rp.next_round", function () {
         // Begin next round
         $scope.currentRound++;
         $scope.cursor = undefined;
         $scope.selection = [$scope.endowment.x, $scope.endowment.y];
-        rs.trigger("selection", [$scope.endowment.x, $scope.endowment.y])
+        rs.trigger("rp.selection", [$scope.endowment.x, $scope.endowment.y])
 
         // set initial price
-        var prices = rs.self.get("prices");
+        var prices = rs.self.get("rp.prices");
         $scope.prices = {}
         $scope.prices.x = $scope.currentRound > 1 ? prices.x : $scope.config.Px;
         $scope.prices.y = $scope.currentRound > 1 ? prices.y : $scope.config.Py;
@@ -379,7 +379,7 @@ Redwood.controller("RPStartController", ["$scope",
             return ($scope.budget - y * $scope.prices.y) / $scope.prices.x;
         }
 
-        rs.trigger("round_started", {
+        rs.trigger("rp.round_started", {
             endowment: $scope.endowment,
             price: $scope.prices.y / $scope.prices.x
         });
@@ -409,14 +409,14 @@ Redwood.controller("RPStartController", ["$scope",
         }
     });
 
-    rs.on("selection", function (selection) {
+    rs.on("rp.selection", function (selection) {
         $scope.selection = selection;
     })
 
-    rs.on("confirm", function (position) {
+    rs.on("rp.confirm", function (position) {
         $scope.inputEnabled = false; // for recovery
 
-        rs.synchronizationBarrier('round_' + $scope.currentRound).then(function () {
+        rs.synchronizationBarrier('rp.round_' + $scope.currentRound).then(function () {
             // Calculate current price
             var currentPrice = $scope.prices.x/$scope.prices.y;
 
@@ -430,13 +430,13 @@ Redwood.controller("RPStartController", ["$scope",
             ta.initializeRound(currentPrice, subjectsInGroup, $scope.endowment, $scope.selection);
 
             // check if demand is under threshold (epsilon)
-            var roundsUnder = rs.self.get("rounds_under_epsilon");
+            var roundsUnder = rs.self.get("rp.rounds_under_epsilon");
             if (Math.abs(ta.excessDemandPerCapita()) < $scope.config.epsilon) {
                 roundsUnder += 1;
             } else {
                 roundsUnder = 0;
             }
-            rs.set("rounds_under_epsilon", roundsUnder)
+            rs.set("rp.rounds_under_epsilon", roundsUnder)
 
             // If we demand has been under threshold for @roundsUnderEpsilon rounds,
             // or if the maximum number of rounds have been played,
@@ -470,7 +470,7 @@ Redwood.controller("RPStartController", ["$scope",
                         }
                     }
                 });
-                rs.trigger("perform_allocation", actualAllocation);
+                rs.trigger("rp.perform_allocation", actualAllocation);
                 return;
             }
 
@@ -487,16 +487,16 @@ Redwood.controller("RPStartController", ["$scope",
             }
 
             // Proceed to next round
-            rs.set("prices", {x: newPrice, y: 1});
-            rs.trigger("next_round");
+            rs.set("rp.prices", {x: newPrice, y: 1});
+            rs.trigger("rp.next_round");
         });
     });
 
     // Recieve result (whether X or Y was chosen) from admin.
     // This result is really only used for practice rounds.
-    rs.on("result", function (result) {
+    rs.on("rp.result", function (result) {
         result.period = rs.period;
-        rs.set("results", result);
+        rs.set("rp.results", result);
 
         if($scope.config.plotResult) {
             $scope.finalResult = result;
@@ -507,11 +507,11 @@ Redwood.controller("RPStartController", ["$scope",
     });
 
     $scope.$on("rpPlot.click", function (event, selection) {
-        rs.trigger("selection", selection);
+        rs.trigger("rp.selection", selection);
     });
 
     $scope.confirm = function () {
         $scope.inputEnabled = false;
-        rs.trigger("confirm", { x: $scope.selection[0], y: $scope.selection[1] });
+        rs.trigger("rp.confirm", { x: $scope.selection[0], y: $scope.selection[1] });
     };
 }]);

@@ -11,12 +11,12 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
             return prev + next.earnings;
         }, 5.0);
 
-        rs.trigger("earnings", $scope.totalEarnings);
+        rs.trigger("rp.earnings", $scope.totalEarnings);
     };
 
     rs.on_load(function() {
 
-        var results = rs.subject[rs.user_id].data["results"];
+        var results = rs.subject[rs.user_id].data["rp.results"];
 
         for (var i = 0; i < results.length; i++) {
             
@@ -37,7 +37,7 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
 
         rs.send("__set_show_up_fee__", {show_up_fee: 5.0});
         rs.send("__set_conversion_rate__", {conversion_rate: 1/3});
-        rs.trigger("earnings", $scope.totalEarnings);
+        rs.trigger("rp.earnings", $scope.totalEarnings);
     });
 
     rs.on("payout_select_period", function(period) {
@@ -47,7 +47,7 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
         $scope.selected_period = period;
 
         rs.send("__mark_paid__", {period: period, paid: result.points})
-        rs.trigger("earnings", $scope.totalEarnings);
+        rs.trigger("rp.earnings", $scope.totalEarnings);
 
         recomputeEarnings();
     });
