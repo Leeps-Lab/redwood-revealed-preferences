@@ -52,7 +52,7 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
         recomputeEarnings();
     });
 
-    rs.on("selected_x_or_y", function(xOrY) {
+    rs.on("rp.selected_x_or_y", function(xOrY) {
         var result = $scope.results[$scope.selected_period-1];
         result.chosen = xOrY;
         result.points = xOrY === "x" ? result.xValue : result.yValue;
