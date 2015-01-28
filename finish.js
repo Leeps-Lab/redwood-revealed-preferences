@@ -40,7 +40,7 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
         rs.trigger("earnings", $scope.totalEarnings);
     });
 
-    rs.on("selected_period", function(period) {
+    rs.on("payout_select_period", function(period) {
         var result = $scope.results[period-1];
         result.selected = !result.selected;
 

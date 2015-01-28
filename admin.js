@@ -56,12 +56,12 @@ Redwood.controller("RPAdminController", ["$rootScope", "$scope", "Admin", functi
                 var status = $("#router-status");
                 if (connected) {
                     status.text("Router Connected");
-                    status.removeClass("badge-important");
-                    status.addClass("badge-success");
+                    status.removeClass("alert-danger");
+                    status.addClass("alert-success");
                 } else {
                     status.text("Router Disconnected");
-                    status.removeClass("badge-success");
-                    status.addClass("badge-important");
+                    status.removeClass("alert-success");
+                    status.addClass("alert-danger");
                 }
             });
 
@@ -107,19 +107,6 @@ Redwood.controller("RPAdminController", ["$rootScope", "$scope", "Admin", functi
 
     ra.on_load(function () {
         resetGroups(); //Assign groups to users
-        $scope.selectedPeriod = 2;
-        $scope.xOrY = "x";
-        $scope.allPeriods = [1];
-        $scope.selectPeriod = function() {
-            ra.subjects.forEach(function(subject) {
-                ra.sendAsSubject("selected_period", $scope.selectedPeriod, subject.user_id);
-            });
-        };
-        $scope.selectXOrY = function() {
-            ra.subjects.forEach(function(subject) {
-                ra.sendAsSubject("selected_x_or_y", $scope.xOrY, subject.user_id);
-            });
-        };
         $scope.earnings = {};
     });
 
@@ -128,17 +115,6 @@ Redwood.controller("RPAdminController", ["$rootScope", "$scope", "Admin", functi
     ra.recv("next_round", function() {
         outcome = false; // reset outcome
     });
-
-    ra.on_set_period(function(user_id, period) {
-        console.log("set the periods thingy: "+period)
-        $scope.allPeriods = [];
-        for (var i = 1; i <= ra.periods[user_id]; i++) {
-            $scope.allPeriods.push(i);
-        }
-        if (!$scope.selectedPeriod) {
-            $scope.selectedPeriod = 1;
-        }
-    })
 
     ra.recv("perform_allocation", function(sender, allocation) {
         // if an outcome has not yet been determined for this round, do it here
