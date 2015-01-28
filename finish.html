@@ -12,42 +12,15 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-12">
-        <table class="table table-bordered table-condensed">
-          <thead>
-            <tr>
-              <th>Period</th>
-              <th>X</th>
-              <th>Y</th>
-              <th>Chosen</th>
-              <th>Earnings</th>
-            </tr>
-          </thead>
-          <tbody id="results">
-            <tr ng-repeat="result in results" ng-class="{warning: result.selected}">
-              <td>{{result.period}}</td>
-              <td>{{result.xValue}}</td>
-              <td>{{result.yValue}}</td>
-              <td>{{result.chosen}}</td>
-              <td style="text-align: right">{{result.earnings | currency}}</td>
-            </tr>
-            <tr class="warning">
-              <td><strong>Show Up Fee</strong></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td style="text-align: right"><strong>$5.00</strong></td>
-            </tr>
-            <tr class="success">
-              <td><strong>Total</strong></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td style="text-align: right">
-                <strong>{{totalEarnings | currency}}</strong>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div rw-payout-table 
+          entries="results" 
+          payout-function="payoutFunction" 
+          fields="[
+            {key: 'period', name: 'Period', isNumber: false},
+            {key: 'X', name: 'X', isNumber: true},
+            {key: 'Y', name: 'Y', isNumber: true},
+            {key: 'chosen', name: 'Chosen', isNumber: false}
+          ]"></div>
       </div>
     </div>
   </div>
