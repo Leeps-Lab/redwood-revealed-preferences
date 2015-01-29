@@ -4,7 +4,7 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
     $scope.selected_period = false;
 
     $scope.payoutFunction = function(entry) {
-        if (entry.selected) {
+        if (entry.selected && entry.chosen != "") {
             if (entry.chosen === "x") {
                 return entry.X / 3;
             } else {
@@ -22,7 +22,7 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
         for (var i = 0; i < results.length; i++) {
             
             var result = results[i];
-            var period = i + 1;
+            var period = result.period;
 
             $scope.results.push({
                 period: period,
@@ -39,23 +39,33 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
     });
 
     rs.on("payout_select_period", function(period) {
-        var result = $scope.results[period-1];
-        result.selected = !result.selected;
+        var result = $scope.results.filter(function(result) {
+            return result.period === period;
+        })[0];
 
-        $scope.selected_period = period;
+        if (result) {
+            result.selected = !result.selected;
 
-        rs.send("__mark_paid__", {
-            period: period, 
-            paid: $scope.payoutFunction(result)
-        })
+            $scope.selected_period = period;
+
+            rs.send("__mark_paid__", {
+                period: period, 
+                paid: $scope.payoutFunction(result)
+            })
+        }
     });
 
     rs.on("rp.selected_x_or_y", function(xOrY) {
-        var result = $scope.results[$scope.selected_period-1];
-        result.chosen = xOrY;
-        rs.send("__set_points__", {
-            period: $scope.selected_period, 
-            points: xOrY === "x" ? result.X : result.Y
-        });
+        var result = $scope.results.filter(function(result) {
+            return result.period === $scope.selected_period;
+        })[0];
+
+        if (result) {
+            result.chosen = xOrY;
+            rs.send("__set_points__", {
+                period: $scope.selected_period, 
+                points: xOrY === "x" ? result.X : result.Y
+            });
+        }
     });
 }]);
