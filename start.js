@@ -314,7 +314,6 @@ Redwood.controller("RPStartController", ["$scope",
             delay             : parseFloat(rs.config.delay) || 5,
             timeLimit         : parseFloat(rs.config.timeLimit) || 0,
             pause             : rs.config.pause || false,
-            pauseAtEnd        : rs.config.pauseAtEnd == "TRUE" || false,
         };
 
         $scope.endowment = {
