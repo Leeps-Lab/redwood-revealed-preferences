@@ -51,17 +51,10 @@ Redwood.directive("rpPlot", function ($compile) {
             var plotWidth = $scope.width - 2 * xOffset;
             var plotHeight = $scope.height - 2 * yOffset;
 
-            svg.append("clipPath")
-                .attr("id", "clipPath")
-                .append("rect")
-                    .attr("width", plotWidth)
-                    .attr("height", plotHeight);
-
             var axes = svg.append("g");
 
             var plot = svg.append("g")
-                .attr("transform", "translate(" + xOffset + "," + yOffset + ")")
-                .attr("clip-path", "url(#clipPath)");
+                .attr("transform", "translate(" + xOffset + "," + yOffset + ")");
 
             var plotBackground = plot.append("rect")
                 .classed("plot-background", true)
@@ -159,10 +152,20 @@ Redwood.directive("rpPlot", function ($compile) {
 
             var drawBudgetLine = function () {
                 if (!$scope.budgetFunc) return;
-                var coordinates = [
-                    [0, $scope.budgetFunc(0)],
-                    [$scope.inverseBudgetFunc(0), 0]
-                ];
+                
+                // constrain line to plot boundaries
+                var pointA = [0, $scope.budgetFunc(0)];
+                if (pointA[1] > $scope.limits.y) {
+                    pointA = [$scope.inverseBudgetFunc($scope.limits.y), $scope.limits.y];
+                }
+
+                var pointB = [$scope.inverseBudgetFunc(0), 0];
+                if (pointB[0] > $scope.limits.y) {
+                    pointB = [$scope.limits.x, $scope.budgetFunc($scope.limits.x)];
+                }
+
+                var coordinates = [pointA, pointB];
+
                 drawLine(coordinates, "budget-line");
             }
 
