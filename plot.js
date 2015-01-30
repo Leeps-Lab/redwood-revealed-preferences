@@ -9,6 +9,7 @@ Redwood.directive("rpPlot", function ($compile) {
         scope: {
             budgetFunc: "=",
             inverseBudgetFunc: "=",
+            constraintsX: "=?",
             endowment: "=",
             selection: "=",
             limits: "=",
@@ -18,7 +19,7 @@ Redwood.directive("rpPlot", function ($compile) {
             width: "=",
             height: "=",
          },
-         template: '<svg width="{{width}}" height="{{height}}" shape-rendering="optimizeSpeed"></svg>\
+         template: '<svg ng-attr-width="{{width}}" ng-attr-height="{{height}}" shape-rendering="optimizeSpeed"></svg>\
                     <div class="point-label endowment-label">\
                         Endowment:\
                         {{endowment.x | number: 2}}, {{endowment.y | number: 2}}\
@@ -230,6 +231,16 @@ Redwood.directive("rpPlot", function ($compile) {
                 });
             }
 
+            var drawConstraintPoints = function() {
+                if ($scope.constraintsX && $scope.budgetFunc) {
+                    $scope.constraintsX.forEach(function(x) {
+                        var point = [x, $scope.budgetFunc(x)];
+                        drawPoint(point, "constraint-point-" + x);
+                        plot.select(".constraint-point-" + x).classed("constraint-point", true)
+                    })
+                }
+            }
+
             var drawResult = function () {
                 if (!$scope.result || !xScale) return;
 
@@ -260,6 +271,7 @@ Redwood.directive("rpPlot", function ($compile) {
                 drawAxes();
                 drawBudgetLine();
                 drawEndowment();
+                drawConstraintPoints();
                 drawSelection();
                 drawCursor();
                 drawResult();
@@ -296,16 +308,40 @@ Redwood.directive("rpPlot", function ($compile) {
 
             svg.on("mousemove", function() {
                 if (!$scope.inputEnabled) return;
+                // fade labels
                 elem.selectAll(".point-label").classed("transparent", true);
 
+                // get mouse x point
                 var xMouse = xScale.invert(d3.mouse(plot[0][0])[0]);
+
+                // constrain x to certain points, if specified
+                if ($scope.constraintsX) {
+                    // linear search to find the closest x
+                    var closest = Infinity;
+                    var closestDistance = Infinity;
+                    for (var i = 0; i < $scope.constraintsX.length; ++i) {
+                        var candidate = $scope.constraintsX[i];
+                        var distance = Math.abs(candidate - xMouse)
+                        if (distance < closestDistance) {
+                            closest = candidate;
+                            closestDistance = distance;
+                        }
+                    }
+                    if (closest != Infinity) {
+                        xMouse = closest;
+                    }
+                }
+
+                // constrain x to boundaries
                 var xMin = Math.max(0, $scope.inverseBudgetFunc($scope.limits.x));
-                var xMax = Math.min($scope.limits.x, $scope.inverseBudgetFunc(0))
+                var xMax = Math.min($scope.limits.x, $scope.inverseBudgetFunc(0));
                 var x = Math.min(xMax, Math.max(xMin, xMouse));
 
+                // set the new cursor point
                 $scope.$apply(function () {
                     $scope.cursor = [x, $scope.budgetFunc(x)];
                 });
+
                 drawCursor();
             });
 

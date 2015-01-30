@@ -93,6 +93,11 @@ body {
     stroke: #000000;
 }
 
+.constraint-point {
+    fill: #ff8888;
+    stroke: #440000;
+}
+
 .selection-ping {
     fill: none;
     stroke-width: 10;

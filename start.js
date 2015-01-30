@@ -288,10 +288,13 @@ Redwood.controller("RPStartController", ["$scope",
 
         var userIndex = (parseInt(rs.user_id) - 1) % 2;
         $scope.config = {
+            // Endowment, Price and Probability Options
             Ex                : extractConfigEntry(rs.config.Ex, userIndex) || 0,
             Ey                : extractConfigEntry(rs.config.Ey, userIndex) || 0,
             Px                : extractConfigEntry(rs.config.Px, userIndex) || 100,
             Py                : extractConfigEntry(rs.config.Py, userIndex) || 157,
+            ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
+            // Tatonnement Options
             epsilon           : rs.config.epsilon || 1,
             roundsUnderEpsilon: rs.config.roundsUnderEpsilon || 1,
             expectedExcess    : rs.config.expectedExcess || 20,
@@ -302,14 +305,18 @@ Redwood.controller("RPStartController", ["$scope",
             snapPriceToGrid   : rs.config.snapPriceToGrid || false,
             priceGridSpacing  : rs.config.priceGridSpacing || 0.2,
             weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
-            XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
-            YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
-            limitAnimDuration : rs.config.limitAnimDuration || 0,
-            ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
+            // Endowment Assignment Options
             computeEndowment  : rs.config.computeEndowment || false,
             smallEquilibriumPrice : rs.config.smallEquilibriumPrice || false,
             saveAllocation    : rs.config.saveAllocation || false,
+            // Visual Options
+            XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
+            YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
+            limitAnimDuration : rs.config.limitAnimDuration || 0,
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
+            // Interface Options
+            constraintsX      : rs.config.constraintsX || false,
+            // Timing Options
             rounds            : rs.config.rounds || 1,
             delay             : parseFloat(rs.config.delay) || 5,
             timeLimit         : parseFloat(rs.config.timeLimit) || 0,
