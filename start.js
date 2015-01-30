@@ -301,7 +301,7 @@ Redwood.controller("RPStartController", ["$scope",
             priceLowerBound   : rs.config.priceLowerBound || 0.1,
             priceUpperBound   : rs.config.priceUpperBound || 100.0,
             maxAngularDiff    : rs.config.maxAngularDiff || 0.26175,
-            marketMaker       : rs.config.marketMaker || true,
+            marketMaker       : rs.config.hasOwnProperty("marketMaker") ? rs.config.marketMaker : true,
             snapPriceToGrid   : rs.config.snapPriceToGrid || false,
             priceGridSpacing  : rs.config.priceGridSpacing || 0.2,
             weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
@@ -314,7 +314,8 @@ Redwood.controller("RPStartController", ["$scope",
             YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
             limitAnimDuration : rs.config.limitAnimDuration || 0,
             plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
-            // Interface Options
+            showEndowment     : rs.config.hasOwnProperty("showEndowment") ? rs.config.showEndowment : true,
+            // Interaction Options
             constraintsX      : rs.config.constraintsX || false,
             // Timing Options
             rounds            : rs.config.rounds || 1,
@@ -329,6 +330,10 @@ Redwood.controller("RPStartController", ["$scope",
         }
         if ($scope.config.computeEndowment) {
             $scope.endowment = ea.getEndowment($scope.config.smallEquilibriumPrice);
+        }
+        console.log($scope.config);
+        if ($scope.config.showEndowment) {
+            $scope.shownEndowment = $scope.endowment;
         }
 
         $scope.currentRound = 0;

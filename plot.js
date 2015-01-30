@@ -10,7 +10,7 @@ Redwood.directive("rpPlot", function ($compile) {
             budgetFunc: "=",
             inverseBudgetFunc: "=",
             constraintsX: "=?",
-            endowment: "=",
+            endowment: "=?",
             selection: "=",
             limits: "=",
             inputEnabled: "=",
@@ -20,7 +20,7 @@ Redwood.directive("rpPlot", function ($compile) {
             height: "=",
          },
          template: '<svg ng-attr-width="{{width}}" ng-attr-height="{{height}}" shape-rendering="optimizeSpeed"></svg>\
-                    <div class="point-label endowment-label">\
+                    <div class="point-label endowment-label" ng-hide="!endowment">\
                         Endowment:\
                         {{endowment.x | number: 2}}, {{endowment.y | number: 2}}\
                     </div>\
