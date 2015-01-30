@@ -19,6 +19,10 @@ Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($
 
         var results = rs.subject[rs.user_id].data["rp.results"];
 
+        if (!results) {
+            return;
+        }
+
         for (var i = 0; i < results.length; i++) {
             
             var result = results[i];
