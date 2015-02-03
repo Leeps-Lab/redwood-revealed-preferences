@@ -238,7 +238,8 @@ Redwood.controller("RPStartController", ["$scope",
                                          "SynchronizedStopWatch",
                                          "Tatonnement",
                                          "EndowmentAssignment",
-                                         function ($scope, rs, stopWatch, ta, ea) {
+                                         "ConfigManager",
+                                         function ($scope, rs, stopWatch, ta, ea, configManager) {
 
     // pure
     function snapPriceToGrid (price, gridSpacing) {
@@ -287,43 +288,37 @@ Redwood.controller("RPStartController", ["$scope",
         }
 
         var userIndex = (parseInt(rs.user_id) - 1) % 2;
-        $scope.config = {
-            // Endowment, Price and Probability Options
-            Ex                : extractConfigEntry(rs.config.Ex, userIndex) || 0,
-            Ey                : extractConfigEntry(rs.config.Ey, userIndex) || 0,
-            Px                : extractConfigEntry(rs.config.Px, userIndex) || 100,
-            Py                : extractConfigEntry(rs.config.Py, userIndex) || 157,
-            ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
-            useDefaultSelection: rs.config.useDefaultSelection || false,
-            // Tatonnement Options
-            epsilon           : rs.config.epsilon || 1,
-            roundsUnderEpsilon: rs.config.roundsUnderEpsilon || 1,
-            expectedExcess    : rs.config.expectedExcess || 20,
-            priceLowerBound   : rs.config.priceLowerBound || 0.1,
-            priceUpperBound   : rs.config.priceUpperBound || 100.0,
-            maxAngularDiff    : rs.config.maxAngularDiff || 0.26175,
-            marketMaker       : rs.config.hasOwnProperty("marketMaker") ? rs.config.marketMaker : true,
-            snapPriceToGrid   : rs.config.snapPriceToGrid || false,
-            priceGridSpacing  : rs.config.priceGridSpacing || 0.2,
-            weightVector      : rs.config.weightVector || [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
-            // Endowment Assignment Options
-            computeEndowment  : rs.config.computeEndowment || false,
-            smallEquilibriumPrice : rs.config.smallEquilibriumPrice || false,
-            saveAllocation    : rs.config.saveAllocation || false,
-            // Visual Options
-            XLimit            : extractConfigEntry(rs.config.XLimit, userIndex),
-            YLimit            : extractConfigEntry(rs.config.YLimit, userIndex),
-            limitAnimDuration : rs.config.limitAnimDuration || 0,
-            plotResult        : extractConfigEntry(rs.config.plotResult, userIndex),
-            showEndowment     : rs.config.hasOwnProperty("showEndowment") ? rs.config.showEndowment : true,
-            // Interaction Options
-            constraintsX      : rs.config.constraintsX || false,
-            // Timing Options
-            rounds            : rs.config.rounds || 1,
-            delay             : parseFloat(rs.config.delay) || 5,
-            timeLimit         : parseFloat(rs.config.timeLimit) || 0,
-            pause             : rs.config.pause || false,
-        };
+        $scope.config = configManager.load(rs, {
+            Ex                   : 0,       // Endowment, Price and Probability Options
+            Ey                   : 0,
+            Px                   : 100,
+            Py                   : 157,
+            ProbX                : 0.5,
+            useDefaultSelection  : false,
+            epsilon              : 1,       // Tatonnement Options
+            roundsUnderEpsilon   : 1,
+            expectedExcess       : 20,
+            priceLowerBound      : 0.1,
+            priceUpperBound      : 100.0,
+            maxAngularDiff       : 0.26175,
+            marketMaker          : true,
+            snapPriceToGrid      : false,
+            priceGridSpacing     : 0.2,
+            weightVector         : [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
+            computeEndowment     : false,   // Endowment Assignment Options
+            smallEquilibriumPrice: false,
+            saveAllocation       : false,
+            XLimit               : 100,     // Visual Options
+            YLimit               : 100,
+            limitAnimDuration    : 0,
+            plotResult           : true,
+            showEndowment        : true,
+            constraintsX         : false,   // Interaction Options
+            rounds               : 1,       // Timing Options
+            delay                : 5,
+            timeLimit            : 0,
+            pause                : false,
+        });
 
         $scope.endowment = {
             x: $scope.config.Ex,
