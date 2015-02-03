@@ -1,4 +1,4 @@
-Redwood.directive("rpPlot", function ($compile) {
+Redwood.directive("rpPlot", function ($window) {
 
     function toPx(number) {
         return number.toString() + "px";
@@ -214,7 +214,7 @@ Redwood.directive("rpPlot", function ($compile) {
                 yHoverLabel.style({
                     "position": "fixed",
                     "top": toPx(plotRect.top+yScale($scope.cursor[1])-yLabelRect.height/2),
-                    "left": toPx(plotRect.left-xOffset*3)
+                    "left": toPx(plotRect.left-xOffset*2.5)
                 });
             }
 
@@ -285,6 +285,19 @@ Redwood.directive("rpPlot", function ($compile) {
             $scope.$watch("endowment", drawEndowment);
             $scope.$watch("selection", drawSelection);
             $scope.$watch("result", drawResult);
+
+            angular.element($window).bind('resize', function() {
+                drawSelection();
+                drawEndowment();
+                drawResult();
+            });
+
+            angular.element($window).bind('scroll', function() {
+                drawSelection();
+                drawEndowment();
+                drawCursor();
+                drawResult();
+            });
 
             svg.on("click", function() {
                 if (!$scope.inputEnabled) return;
