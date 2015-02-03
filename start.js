@@ -294,6 +294,7 @@ Redwood.controller("RPStartController", ["$scope",
             Px                : extractConfigEntry(rs.config.Px, userIndex) || 100,
             Py                : extractConfigEntry(rs.config.Py, userIndex) || 157,
             ProbX             : extractConfigEntry(rs.config.ProbX, userIndex),
+            useDefaultSelection: rs.config.useDefaultSelection || false,
             // Tatonnement Options
             epsilon           : rs.config.epsilon || 1,
             roundsUnderEpsilon: rs.config.roundsUnderEpsilon || 1,
@@ -331,7 +332,7 @@ Redwood.controller("RPStartController", ["$scope",
         if ($scope.config.computeEndowment) {
             $scope.endowment = ea.getEndowment($scope.config.smallEquilibriumPrice);
         }
-        console.log($scope.config);
+
         if ($scope.config.showEndowment) {
             $scope.shownEndowment = $scope.endowment;
         }
@@ -358,8 +359,11 @@ Redwood.controller("RPStartController", ["$scope",
         // Begin next round
         $scope.currentRound++;
         $scope.cursor = undefined;
-        $scope.selection = [$scope.endowment.x, $scope.endowment.y];
-        rs.trigger("rp.selection", [$scope.endowment.x, $scope.endowment.y])
+        $scope.selection = null;
+        if ($scope.config.useDefaultSelection) {
+            $scope.selection = [$scope.endowment.x, $scope.endowment.y];
+        }
+        rs.trigger("rp.selection", $scope.selection)
 
         // set initial price
         var prices = rs.self.get("rp.prices");

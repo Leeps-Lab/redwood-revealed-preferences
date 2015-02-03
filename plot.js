@@ -24,7 +24,7 @@ Redwood.directive("rpPlot", function ($window) {
                         Endowment:\
                         {{endowment.x | number: 2}}, {{endowment.y | number: 2}}\
                     </div>\
-                    <div class="point-label selection-label">\
+                    <div class="point-label selection-label" ng-hide="!selection">\
                         Selection:\
                         {{selection[0] | number: 2}}, {{selection[1] | number: 2}}\
                     </div>\
