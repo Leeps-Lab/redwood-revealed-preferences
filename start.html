@@ -2,7 +2,7 @@
   <div rw-subject-header title="Economics Experiment: RP" round="currentRound" rounds="config.rounds" time-remaining="timeRemaining" time-total="config.timeLimit"></div>
   <div class="container">
     <div class="row">
-      <div class="col-lg-12 text-center">
+      <div class="col-lg-offset-2 col-lg-8 text-center">
         <div
           rp-plot
           budget-func="budgetFunction"
@@ -17,6 +17,28 @@
           width="650"
           height="650"
         ></div>
+      </div>
+      <div class="col-lg-2">
+        <table class="table table-bordered info-table">
+          <tr>
+            <th>Probability X</th>
+            <td>{{config.ProbX | number: 2}}</td>
+          </tr>
+          <tr>
+            <th>Probability Y</th>
+            <td>{{(1.0 - config.ProbX | number: 2)}}</td>
+          </tr>
+        </table>
+        <table class="table table-bordered">
+          <tr>
+            <th>Selected X</th>
+            <td>{{selection[0] | number: 2}}</td>
+          </tr>
+          <tr>
+            <th>Selected Y</th>
+            <td>{{(selection[1] | number: 2)}}</td>
+          </tr>
+        </table>
       </div>
     </div>
     <div class="row" style="margin-top: 40px">

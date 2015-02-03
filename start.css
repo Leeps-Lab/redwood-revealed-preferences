@@ -2,6 +2,10 @@ body {
     margin-top: 20px;
 }
 
+.info-table {
+    margin-top: 240px;
+}
+
 .axis {
     stroke-width: 1;
     stroke: #00ff00;
