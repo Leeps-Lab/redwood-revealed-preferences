@@ -299,30 +299,7 @@ Redwood.directive("rpPlot", function ($window) {
                 drawResult();
             });
 
-            svg.on("click", function() {
-                if (!$scope.inputEnabled) return;
-                $scope.$emit("rpPlot.click", $scope.cursor);
-                drawSelection();
-
-                if (!xScale) return;
-                plot.append("circle")
-                    .datum($scope.cursor)
-                    .classed("selection-ping", true)
-                    .attr("r", 50)
-                    .attr("cx", function(d) {
-                        return xScale(d[0]);
-                    })
-                    .attr("cy", function(d) {
-                        return yScale(d[1])
-                    })
-                    .transition()
-                        .duration(500)
-                        .ease(d3.ease("cubic-out-in"))
-                        .attr("r", 5)
-                        .remove();
-            });
-
-            svg.on("mousemove", function() {
+            var setCursorPosition = function() {
                 if (!$scope.inputEnabled) return;
                 // fade labels
                 elem.selectAll(".point-label").classed("transparent", true);
@@ -359,7 +336,33 @@ Redwood.directive("rpPlot", function ($window) {
                 });
 
                 drawCursor();
+            }
+
+            svg.on("click", function() {
+                if (!$scope.inputEnabled) return;
+                if (!$scope.cursor) setCursorPosition();
+                $scope.$emit("rpPlot.click", $scope.cursor);
+                drawSelection();
+
+                if (!xScale) return;
+                plot.append("circle")
+                    .datum($scope.cursor)
+                    .classed("selection-ping", true)
+                    .attr("r", 50)
+                    .attr("cx", function(d) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d[1])
+                    })
+                    .transition()
+                        .duration(500)
+                        .ease(d3.ease("cubic-out-in"))
+                        .attr("r", 5)
+                        .remove();
             });
+
+            svg.on("mousemove", setCursorPosition);
 
             svg.on("mouseleave", function() {
                 elem.selectAll(".point-label").classed("transparent", false);
