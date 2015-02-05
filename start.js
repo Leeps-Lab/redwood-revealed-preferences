@@ -260,6 +260,8 @@ Redwood.controller("RPStartController", ["$scope",
             : $scope.intercepts.y;
 
         var lastLimits = rs.self.get("rp.last_limits");
+        console.log(lastLimits.x + ", " + lastLimits.y);
+        console.log($scope.limits.x + ", " + $scope.limits.y);
         var baseLimits = {};
         baseLimits.x = $scope.currentRound > 1 ? lastLimits.x : $scope.limits.x;
         baseLimits.y = $scope.currentRound > 1 ? lastLimits.y : $scope.limits.y;
@@ -278,7 +280,7 @@ Redwood.controller("RPStartController", ["$scope",
             }
         });
 
-        rs.set("last_limits", {x: larger, y: larger});
+        rs.set("rp.last_limits", {x: larger, y: larger});
     }
 
     rs.on_load(function () {
