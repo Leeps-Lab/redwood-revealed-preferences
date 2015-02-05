@@ -183,6 +183,12 @@ Redwood.controller("RPStartController", ["$scope",
 
             $scope.timeTotal = $scope.stopWatch.getDurationInTicks();
         }
+
+        // flash the Confirm Selection button to alert the subject that a new round started
+        // ooh the dirty dirty JQuery (.n.)
+        var confirmButton = $("#confirmButton");
+        confirmButton.toggle();
+        confirmButton.toggle("highlight", {color: "#c6feb6"});
     });
 
     rs.on("rp.selection", function (selection) {
