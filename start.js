@@ -260,8 +260,7 @@ Redwood.controller("RPStartController", ["$scope",
             : $scope.intercepts.y;
 
         var lastLimits = rs.self.get("rp.last_limits");
-        console.log(lastLimits.x + ", " + lastLimits.y);
-        console.log($scope.limits.x + ", " + $scope.limits.y);
+
         var baseLimits = {};
         baseLimits.x = $scope.currentRound > 1 ? lastLimits.x : $scope.limits.x;
         baseLimits.y = $scope.currentRound > 1 ? lastLimits.y : $scope.limits.y;
@@ -448,7 +447,7 @@ Redwood.controller("RPStartController", ["$scope",
             } else {
                 roundsUnder = 0;
             }
-            rs.set("rp.rounds_under_epsilon", roundsUnder)
+            rs.set("rp.rounds_under_epsilon", roundsUnder);
 
             // If we demand has been under threshold for @roundsUnderEpsilon rounds,
             // or if the maximum number of rounds have been played,
@@ -482,6 +481,8 @@ Redwood.controller("RPStartController", ["$scope",
                         }
                     }
                 });
+                // reset rounds under epsilon
+                rs.set("rp.rounds_under_epsilon", 0);
                 rs.trigger("rp.perform_allocation", actualAllocation);
                 return;
             }
