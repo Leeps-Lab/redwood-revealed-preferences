@@ -17,7 +17,7 @@ Redwood.factory("EndowmentAssignment", ["RedwoodSubject", function (rs) {
 
             var allocations = rs.self.get(key) || [];
             allocations.push({
-                price: rs.config.Py / rs.config.Px, // this needs to be changed
+                price: rs.config.Px / rs.config.Py, // this needs to be changed
                 x: allocation.x
             })
             rs.set(key, allocations);
@@ -365,8 +365,8 @@ Redwood.controller("RPStartController", ["$scope",
         $scope.prices = {}
         $scope.prices.x = $scope.currentRound > 1 ? prices.x : $scope.config.Px;
         $scope.prices.y = $scope.currentRound > 1 ? prices.y : $scope.config.Py;
-        console.log("prices: " + $scope.prices.y + ", " + $scope.prices.x);
-        console.log("price: " + ($scope.prices.y/$scope.prices.x));
+        console.log("prices: " + $scope.prices.x + ", " + $scope.prices.y);
+        console.log("price: " + ($scope.prices.x/$scope.prices.y));
 
         // find axis intersections
         $scope.budget = ($scope.endowment.x * $scope.prices.x) + ($scope.endowment.y * $scope.prices.y);
@@ -391,7 +391,7 @@ Redwood.controller("RPStartController", ["$scope",
 
         rs.trigger("rp.round_started", {
             endowment: $scope.endowment,
-            price: $scope.prices.y / $scope.prices.x
+            price: $scope.prices.x / $scope.prices.y
         });
         $scope.inputEnabled = true;
 
