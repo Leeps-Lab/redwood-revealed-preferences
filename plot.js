@@ -232,6 +232,14 @@ Redwood.directive("rpPlot", function ($window) {
                     "top": toPx(pointRect.top+pointRect.height),
                     "left": toPx(pointRect.left-labelRect.width)
                 });
+                // hack to make sure that the labelRect has the correct dimensions
+                // when the selection label is just coming out of hiding
+                labelRect = label[0][0].getBoundingClientRect();
+                label.style({
+                    "position": "fixed",
+                    "top": toPx(pointRect.top+pointRect.height),
+                    "left": toPx(pointRect.left-labelRect.width)
+                });
             }
 
             var drawConstraintPoints = function() {
