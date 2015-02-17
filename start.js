@@ -187,8 +187,9 @@ Redwood.controller("RPStartController", ["$scope",
         // flash the Confirm Selection button to alert the subject that a new round started
         // ooh the dirty dirty JQuery (.n.)
         var confirmButton = $("#confirmButton");
-        confirmButton.toggle();
-        confirmButton.toggle("highlight", {color: "#c6feb6"});
+        confirmButton.effect("highlight", {color: "#c6feb6"}, 500, function() {
+            confirmButton.effect("highlight", {color: "#c6feb6"}, 500);
+        });
     });
 
     rs.on("rp.selection", function (selection) {
