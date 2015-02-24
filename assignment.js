@@ -24,6 +24,110 @@ Redwood.factory("RPEndowmentAssignment", ["RedwoodSubject", function (rs) {
         });
     }
 
+    api.getSubjects = function() {
+
+    }
+
+    api.getPrices = function() {
+
+    }
+
+    /*
+        getAssignedEndowment computes and returns the assigned endowment
+        for the given subject.
+
+        @param subjectID: String
+
+        @param subjects: [{
+            "a": [Number],
+            "b": [Number]
+        }]
+            An array containing and object for each subject. Each object has two arrays:
+            one for the subject's n x-selections with endowment A, the other for the
+            subject's n x-selections with endowment B.
+
+        @param prices: [Number]
+            An array containing the price for each of the n preliminary rounds
+
+        n is the number of preliminary rounds
+        m is the number of subjects
+        each round is associated with a unique price.
+
+        @returns The endowment for the given subject
+    */
+    api.getAssignedEndowment = function(minimizeEquilibriumPrice, subjects, prices) {
+        // setup comparison functions
+        var comparePrice, shouldAssignEndowmentA;
+        if (minimizeEquilibriumPrice) {
+            comparePrice = function (a, b) { return a.price - b.price };
+            shouldAssignEndowmentA = function (index, threshold) { return index < threshold };
+        } else {
+            comparePrice = function (a, b) { return b.price - a.price };
+            shouldAssignEndowmentA = function (index, threshold) { return index >= threshold };
+        }
+
+        // transform input into more convenient format
+        // array of length n of array of length m of selection objects:
+        // { "a": [Number, Number], "b": [Number, Number] }
+        // selections[i][j].k is the selection of subject [j] in round[i] with endowment k.
+        var selections = [];
+        for (var i = 0; i < prices.length; ++i) {
+            selections.push([]);
+            for (var j = 0; j < subjects.length; ++j) {
+                selections[i].push({
+                    "id": j,
+                    "a": subjects[j]["a"][i],
+                    "b": subjects[j]["b"][i],
+                });
+            }
+        }
+        console.log(prices);
+
+        // The C vector in the spec
+        // [[Number]] An array with one array for each subject. The inner arrays contain
+        // The diff vector for that subject
+        var diffs = selections.map(function(subjects) {
+            return subjects.map(function(subject) {
+                return -subject.a + subject.b;
+            })
+        });
+
+        console.log(diffs);
+
+        // The S vector in the spec
+        // an array of n possible sortings: one for each of the n preliminary rounds
+        // sorted from greatest to least C value.
+        var sortings = selections.map(function(subjects, round) {
+            return subjects.sort(function(a, b) {
+                return diffs[round][b.id] - diffs[round][a.id];
+            });
+        });
+
+        // The Excess Demand vector
+        var excessDemands = sortings.map(function(subjects) {
+            var firstHalf = subjects.slice(0, subjects.length/2);
+            var secondHalf = subjects.slice(subjects.length/2, subjects.length);
+            console.log(firstHalf.length)
+            console.log(secondHalf.length)
+            console.log(subjects.length);
+            return 50 * subjects.length - firstHalf.reduce(function(sum, subject) {
+                return sum + subject.a;
+            }, 0) - secondHalf.reduce(function(sum, subject) {
+                return sum + subject.b;
+            }, 0);
+        });
+
+        console.log(sortings);
+
+        console.log(sortings[2].map(function(subject, i) {
+            return i < sortings[2].length/2 ? subject.a: subject.b;
+        }));
+
+        console.log(excessDemands);
+
+        return diffs;
+    }
+
     api.getEndowment = function (smallEquilibriumPrice) {
         // setup comparison functions
         var comparePrice, shouldAssignEndowmentA;
