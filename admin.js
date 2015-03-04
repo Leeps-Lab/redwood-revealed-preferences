@@ -1,4 +1,4 @@
-Redwood.controller("RPAdminController", ["$rootScope", "$scope", "Admin", function($rootScope, $scope, ra) {
+angular.module("RedwoodRevealedPreferences").controller("RPAdminController", ["$rootScope", "$scope", "Admin", function($rootScope, $scope, ra) {
 
   var Display = { //Display controller
 
