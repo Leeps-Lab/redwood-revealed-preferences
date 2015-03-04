@@ -132,12 +132,27 @@ describe("Endowment Assignment Algorithm", function() {
         });
     })
 
-    it("should sort correctly", function() {
+    it("should sort correctly when minimizing equilibrium price", function() {
 
-        var sorting = ea.getAssignedEndowment(true, formattedData, prices);
+        var sorting = minimizingAssigner.chosenSorting.map(function(subject) {
+            return parseInt(subject.id) + 1
+        });
 
         expect(sorting).toEqual([
-            8, 9, 12, 23, 11, 14, 20, 15, 21, 3, 16, 7, 19, 4, 10, 22, 6, 24, 2, 13, 18, 17, 1, 5
+            // 8, 9, 12, 23, 11, 14, 20, 15, 21, 3, 16, 7, 19, 4, 10, 22, 6, 24, 2, 13, 18, 17, 1, 5
+            9, 8, 12, 23, 11, 14, 20, 15, 21, 3, 16, 7, 19, 4, 10, 22, 6, 24, 2, 13, 18, 17, 1, 5
+        ]);
+    })
+
+    it("should sort correctly when maximizing equilibrium price", function() {
+
+        var sorting = maximizingAssigner.chosenSorting.map(function(subject) {
+            return parseInt(subject.id) + 1
+        });
+
+        expect(sorting).toEqual([
+            8, 9, 23, 18, 20, 6, 24, 12, 7, 15, 2, 19,
+            16, 22, 21, 4, 1, 13, 17, 10, 11, 3, 14, 5
         ]);
     })
 
