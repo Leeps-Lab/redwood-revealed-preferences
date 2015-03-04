@@ -2,6 +2,10 @@ describe("Endowment Assignment Algorithm", function() {
 
     var ea;
     var formattedData, prices;
+    var minimizingAssigner, maximizingAssigner;
+    var endowment1 = {x: 100, y: 0};
+    var endowment2 = {x: 0, y: 50};
+
     beforeEach(function() {
         // load mock Redwood Module
         angular.module("Redwood", [])
@@ -17,7 +21,7 @@ describe("Endowment Assignment Algorithm", function() {
         prices = null;
         formattedData = [];
         for (var i = 1; i <= 24; i++) {
-            var dataForSubject = testData.filter(function(datum) {
+            var dataForSubject = assignmentTestData.filter(function(datum) {
                 return datum.Sender === i;
             }).sort(function(a, b) {
                 return a.Px / a.Py - b.Px / b.Py;
@@ -48,41 +52,84 @@ describe("Endowment Assignment Algorithm", function() {
                 "b": bSelections
             });
         }
+
+        minimizingAssigner = ea.EndowmentAssigner(formattedData, prices, {
+            endowmentA: endowment1,
+            endowmentB: endowment2,
+            minimizeEquilibriumPrice: true
+        });
+        maximizingAssigner = ea.EndowmentAssigner(formattedData, prices, {
+            endowmentA: endowment1,
+            endowmentB: endowment2,
+            minimizeEquilibriumPrice: false
+        });
     });
 
+    it("should have correctly formatted and sorted input data", function() {
+        var target = [0,0,0,0,0,0,7.403751234,18.262586377,
+            28.134254689,
+            40.967423495,
+            39.980256663, // please excuse this bad formatting
+            45.903257651,
+            49.851924976,
+            54.787759131,
+            75.518262586,
+            80.2566633761,80.2566633761,81.836130306,
+            83.415597236,
+            83.415597236,
+            83.415597236,
+            83.2181638697,83.2181638697,82.4284304047
+        ];
+
+        expect(prices.length).toBe(25)
+        expect(minimizingAssigner.selections.length).toBe(25)
+        minimizingAssigner.selections[24].forEach(function(selection, index) {
+            expect(selection.a).toBeCloseTo(target[index], -1)
+        })
+    })
+
+    it("should assign the correct endowments to subjects when minimizing equilibrium price", function() {
+        var sortings = minimizingAssigner.sortings;
+        sortings.forEach(function(sorting) {
+            sorting.forEach(function(subject, index) {
+                var targetEndowment = index < sorting.length/2 ? endowment1 : endowment2;
+                expect(subject.assignedEndowment).toEqual(targetEndowment);
+            })
+        });
+    })
+
+    it("should assign the correct endowments to subjects when maximizing equilibrium price", function() {
+        var sortings = maximizingAssigner.sortings;
+        sortings.forEach(function(sorting) {
+            sorting.forEach(function(subject, index) {
+                var targetEndowment = index < sorting.length/2 ? endowment2 : endowment1;
+                expect(subject.assignedEndowment).toEqual(targetEndowment);
+            })
+        });
+    })
+
     it("should calculate correct excess demands when minimizing equilibrium price", function() {
-        var selections = ea.getSelections(formattedData, prices);
-        var diffs = ea.getDiffs(selections);
-        var sortings = ea.getSortings(selections, diffs);
-        var excessDemands = ea.getExcessDemands(sortings);
+        var excessDemands = minimizingAssigner.excessDemands;
         var targetDemands = [
             286, 15, -116, -125, -75, -275, -196, -221, -284, -257, -228, -283,
             -357, -484, -433, -459, -553, -489, -488, -643, -589, -697, -656, -784, -940
         ];
 
         excessDemands.forEach(function(excessDemand, i) {
-            expect(excessDemand).toBeCloseTo(targetDemands[i], -1);
+            expect(excessDemand).toBeCloseTo(targetDemands[i], 0);
         });
     })
 
     it("should calculate correct excess demands when maximizing equilibrium price", function() {
-        var selections = ea.getSelections(formattedData, prices);
-        var diffs = ea.getDiffs(selections);
-        var sortings = ea.getSortings(selections, diffs);
-        var excessDemands = ea.getExcessDemands(sortings);
+        var excessDemands = maximizingAssigner.excessDemands;
         var targetDemands = [
-            1565, 728, 455, 114, 132, -12, -4, 17, 32, -38 -21, -7,
+            1565, 728, 455, 114, 132, -12, -4, 17, 32, -38, -21, -7,
             -180, -220, -262, -222, -369, -261, -236, -309, -253, -282, -209, -249, -260
         ];
 
         excessDemands.forEach(function(excessDemand, i) {
-            expect(excessDemand).toBeCloseTo(targetDemands[i], -1);
+            expect(excessDemand).toBeCloseTo(targetDemands[i], 0);
         });
-    })
-
-    it("herp", function() {
-        var y = [1, 2, 3, 4, 5, 6, 7, 8];
-        expect(y.slice(0, y.length/2).length).toEqual(y.slice(y.length/2, y.length).length);
     })
 
     it("should sort correctly", function() {
