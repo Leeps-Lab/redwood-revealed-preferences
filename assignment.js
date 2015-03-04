@@ -19,7 +19,7 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
             }
         }
 
-        var getAssignedEndowment;
+        var getAssignedEndowment, chooseSorting;
         if (options.minimizeEquilibriumPrice) {
             getAssignedEndowment = function(subjectIndex, subjectCount) {
                 if (subjectIndex < subjectCount/2) {
@@ -28,12 +28,38 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
                     return options.endowmentB
                 }
             }
+            chooseSorting = function(sortings, excessDemands, prices) {
+                var onlyNegative = sortings.filter(function(sorting, index) {
+                    return excessDemands[index] < 0;
+                })
+                if (onlyNegative.length > 0) {
+                    return onlyNegative[0];
+                } else {
+                    // if there are no negative excessDemand sortings,
+                    // just return the lowest priced one
+                    return sortings[0];
+                }
+            }
         } else {
             getAssignedEndowment = function(subjectIndex, subjectCount) {
                 if (subjectIndex < subjectCount/2) {
                     return options.endowmentB
                 } else {
                     return options.endowmentA
+                }
+            }
+            chooseSorting = function(sortings, excessDemands) {
+                var onlyPositive = sortings.filter(function(sorting, index) {
+                    console.log(excessDemands[index])
+                    return excessDemands[index] > 0;
+                })
+                if (onlyPositive.length > 0) {
+                    console.log(onlyPositive.length)
+                    return onlyPositive[onlyPositive.length-3];
+                } else {
+                    // if there are no positive excessDemand sortings,
+                    // just return the highest priced one
+                    return sortings[sortings.length-1];
                 }
             }
         }
@@ -87,11 +113,17 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
             }, 0)
         });
 
+        // The optimized sorting
+        // If minimizing equlibrium price: sorting with smallest price and a negative excessDemand
+        // If maximizing equilibrium price: sorting with the largest price and a positive excessDemand
+        var chosenSorting = chooseSorting(sortings, excessDemands, prices);
+
         return {
             "selections": selections,
             "diffs": diffs,
             "excessDemands": excessDemands,
-            "sortings": sortings
+            "sortings": sortings,
+            "chosenSorting": chosenSorting
         };
     }
 
