@@ -5,9 +5,95 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
     */
     var KEY_A = "rp.x_allocation_100_0";
     var KEY_B = "rp.x_allocation_0_50";
-    var ENDOWMENT_A = {x: 100, y: 0};
-    var ENDOWMENT_B = {x: 0, y: 50};
     var api = {};
+
+    api.EndowmentAssigner = function(subjects, prices, options) {
+        var defaults = {
+            endowmentA: {x: 100, y: 0},
+            endowmentB: {x: 0, y: 50},
+            minimizeEquilibriumPrice: true
+        }
+        for (var key in defaults) {
+            if (!(key in options)) {
+                options[key] = defaults[key];
+            }
+        }
+
+        var getAssignedEndowment;
+        if (options.minimizeEquilibriumPrice) {
+            getAssignedEndowment = function(subjectIndex, subjectCount) {
+                if (subjectIndex < subjectCount/2) {
+                    return options.endowmentA
+                } else {
+                    return options.endowmentB
+                }
+            }
+        } else {
+            getAssignedEndowment = function(subjectIndex, subjectCount) {
+                if (subjectIndex < subjectCount/2) {
+                    return options.endowmentB
+                } else {
+                    return options.endowmentA
+                }
+            }
+        }
+
+        // transform input into more convenient format
+        // from subject by price to price by subject
+        // subjects[S][E][P] is the selection of subject S for price P with endowment E
+        // selections[P][S].E is the selection of subject S for price P with endowment E.
+        var selections = [];
+        for (var i = 0; i < prices.length; ++i) {
+            selections.push([]);
+            for (var j = 0; j < subjects.length; ++j) {
+                selections[i].push({
+                    "id": j,
+                    "a": subjects[j]["a"][i],
+                    "b": subjects[j]["b"][i],
+                });
+            }
+        }
+
+        // The C vector in the spec
+        // diffs[P][S] is the X/Y selection diff of subject S for price P
+        var diffs = selections.map(function(subjects) {
+            return subjects.map(function(subject) {
+                return -subject.a + subject.b;
+            })
+        });
+
+        // The S vector in the spec
+        // an array of subject sortings for each price, sorted from greatest to least C value.
+        // sortings[P] is the sorting of subjects for price P
+        var sortings = selections.map(function(subjects, priceIndex) {
+            return subjects.sort(function(a, b) {
+                return diffs[priceIndex][b.id] - diffs[priceIndex][a.id];
+
+            }).map(function(subject, index) {
+                subject.assignedEndowment = getAssignedEndowment(index, subjects.length);
+                return subject;
+            });
+        });
+
+        // An array of excess demands for each subject sorting
+        // excessDemands[P] is the excessDemand to price P
+        var excessDemands = sortings.map(function(subjects) {
+            return subjects.reduce(function(sum, subject) {
+                if (subject.assignedEndowment == options.endowmentA) {
+                    return sum + subject.a - subject.assignedEndowment.x;
+                } else {
+                    return sum + subject.b - subject.assignedEndowment.x;
+                }
+            }, 0)
+        });
+
+        return {
+            "selections": selections,
+            "diffs": diffs,
+            "excessDemands": excessDemands,
+            "sortings": sortings
+        };
+    }
 
     api.save = function() {
         // register listeners to automatically save allocations
@@ -23,203 +109,6 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
             rs.set(key, allocations);
         });
     }
-
-    api.getSubjects = function() {
-
-    }
-
-    api.getPrices = function() {
-
-    }
-
-    api.getAssignedEndowment = function() {
-
-    }
-
-    api.getSelections = function(subjects, prices) {
-        // transform input into more convenient format
-        // from subject x round to round x subject
-        // array of length n of array of length m of selection objects:
-        // { "a": [Number, Number], "b": [Number, Number] }
-        // selections[i][j].k is the selection of subject [j] in round[i] with endowment k.
-        var selections = [];
-        for (var i = 0; i < prices.length; ++i) {
-            selections.push([]);
-            for (var j = 0; j < subjects.length; ++j) {
-                selections[i].push({
-                    "id": j,
-                    "a": subjects[j]["a"][i],
-                    "b": subjects[j]["b"][i],
-                });
-            }
-        }
-
-        return selections;
-    }
-
-    api.getDiffs = function(selections) {
-        // The C vector in the spec
-        // [[Number]] An array with one array for each subject. The inner arrays contain
-        // The diff vector for that subject
-        var diffs = selections.map(function(subjects) {
-            return subjects.map(function(subject) {
-                return -subject.a + subject.b;
-            })
-        });
-
-        return diffs;
-    }
-
-    api.getSortings = function(selections, diffs) {
-        // The S vector in the spec
-        // an array of n possible sortings: one for each of the n preliminary rounds
-        // sorted from greatest to least C value.
-        var sortings = selections.map(function(subjects, round) {
-            return subjects.sort(function(a, b) {
-                return diffs[round][b.id] - diffs[round][a.id];
-            });
-        });
-
-        return sortings;
-    }
-
-    api.getExcessDemands = function(sortings) {
-        var excessDemands = sortings.map(function(subjects) {
-            var firstHalf = subjects.slice(0, subjects.length/2);
-            var secondHalf = subjects.slice(subjects.length/2, subjects.length);
-
-            return -50 * subjects.length + firstHalf.reduce(function(sum, subject) {
-                return sum + subject.a;
-            }, 0) + secondHalf.reduce(function(sum, subject) {
-                return sum + subject.b;
-            }, 0);
-        });
-
-        return excessDemands;
-    }
-
-    /*
-        getAssignedEndowment computes and returns the assigned endowment
-        for the given subject.
-
-        @param subjectID: String
-
-        @param subjects: [{
-            "a": [Number],
-            "b": [Number]
-        }]
-            An array containing and object for each subject. Each object has two arrays:
-            one for the subject's n x-selections with endowment A, the other for the
-            subject's n x-selections with endowment B.
-
-        @param prices: [Number]
-            An array containing the price for each of the n preliminary rounds
-
-        n is the number of preliminary rounds
-        each round is associated with a price.
-
-        @returns The endowment for the given subject
-    */
-    api.getAssignedEndowment = function(minimizeEquilibriumPrice, subjects, prices) {
-        // setup comparison functions
-        var comparePrice, shouldAssignEndowmentA;
-        if (minimizeEquilibriumPrice) {
-            comparePrice = function (a, b) { return a.price - b.price };
-            shouldAssignEndowmentA = function (index, threshold) { return index < threshold };
-        } else {
-            comparePrice = function (a, b) { return b.price - a.price };
-            shouldAssignEndowmentA = function (index, threshold) { return index >= threshold };
-        }
-
-        var selections = api.getSelections(subjects, prices);
-        var diffs = api.getDiffs(selections);
-        var sortings = api.getSortings(selections, diffs);
-        var excessDemands = api.getExcessDemands(sortings);
-
-        return sortings[2].map(function(subject) {
-            return parseInt(subject.id) + 1;
-        });
-    }
-
-    // api.getEndowment = function (smallEquilibriumPrice) {
-    //     // setup comparison functions
-    //     var comparePrice, shouldAssignEndowmentA;
-    //     if (smallEquilibriumPrice) {
-    //         comparePrice = function (a, b) { return a.price - b.price };
-    //         shouldAssignEndowmentA = function (index, threshold) { return index < threshold };
-    //     } else {
-    //         comparePrice = function (a, b) { return b.price - a.price };
-    //         shouldAssignEndowmentA = function (index, threshold) { return index >= threshold };
-    //     }
-
-    //     // get allocations sorted by price, for each subject
-    //     var subjectAllocations = rs.subjects.map(function (subject) {
-    //         // get allocations
-    //         var aAllocations = subject.get(KEY_A) || [];
-    //         var bAllocations = subject.get(KEY_B) || [];
-
-    //         // sort saved allocations by price
-    //         var aSorted = aAllocations.sort(comparePrice);
-    //         var bSorted = bAllocations.sort(comparePrice);
-    //         return {
-    //             "subjectID": subject.user_id,
-    //             "aAllocations": aSorted,
-    //             "bAllocations": bSorted
-    //         }
-    //     });
-
-    //     // get list of subjects sorted by diff = -A + B and excess demand, for each price
-    //     // should already be sorted by price from previous step
-    //     var price_count = subjectAllocations[0].aAllocations.length;
-    //     var assignments = [];
-    //     for (var k = 0; k < price_count; k++) {
-    //         var subjects = subjectAllocations.map(function (subject, index) {
-    //             var allocation, endowment;
-    //             if (shouldAssignEndowmentA(index, subjectAllocations.length/2)) {
-    //                 // subjects with higher diff are assigned endowment A
-    //                 allocation = subject.aAllocations[k].x;
-    //                 endowment = ENDOWMENT_A;
-    //             } else {
-    //                 // subjects with lower diff are assigned endowment B
-    //                 allocation = subject.bAllocations[k].x;
-    //                 endowment = ENDOWMENT_B;
-    //             }
-    //             return {
-    //                 "subjectID": subject.subjectID,
-    //                 "diff": subject.bAllocations[k].x - subject.aAllocations[k].x,
-    //                 "endowment": endowment,
-    //                 "allocation": allocation
-    //             }
-    //         }).sort(function (a, b) {
-    //             return b.diff - a.diff;
-    //         });
-
-    //         var excessDemand = subjects.reduce(function (result, subject) {
-    //             return result - subject.allocation;
-    //         }, 50 * subjects.length);
-
-    //         assignments.push({
-    //             "subjects": subjects,
-    //             "excessDemand": excessDemand
-    //         });
-    //     }
-
-    //     // pick the lowest priced assignment that has a negative excessDemaand
-    //     var assignment = assignments.filter(function (assignment) {
-    //         return assignment.excessDemand < 0;
-    //     })[0] || assignments[0];
-
-    //     var assignmentSubjects = assignment.subjects || [];
-
-    //     // get endowment for current subject
-    //     // has to be a linear search ._.
-    //     console.log("compute assignment");
-    //     var endowment = assignmentSubjects.filter(function (subject) {
-    //         return subject.subjectID == rs.self.user_id;
-    //     })[0].endowment;
-
-    //     return endowment;
-    // }
     
     return api;
 }]);
