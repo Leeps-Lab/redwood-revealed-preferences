@@ -3,8 +3,11 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
         This module is incredibly experiment specific
         and is not meant to be general purpose.
     */
-    var KEY_A = "rp.x_allocation_100_0";
-    var KEY_B = "rp.x_allocation_0_50";
+    //var KEY_A = "rp.x_allocation_100_0";
+    //var KEY_B = "rp.x_allocation_0_50";
+    //var KEY_A = "rp.endowmentAssignment.endowmentA";
+    //var KEY_B = "rp.endowmentAssignment.endowmentB";
+    var KEY_PREFIX = "rp.endowmentAssignment.";
     var api = {};
 
     api.EndowmentAssigner = function(subjects, prices, options) {
@@ -29,16 +32,18 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
                 }
             }
             chooseSorting = function(sortings, excessDemands, prices) {
-                var onlyNegative = sortings.filter(function(sorting, index) {
-                    return excessDemands[index] < 0;
-                })
-                if (onlyNegative.length > 0) {
-                    return onlyNegative[0];
-                } else {
-                    // if there are no negative excessDemand sortings,
-                    // just return the lowest priced one
-                    return sortings[0];
+                // traverse the sortings from last to first and pick the last one
+                // with a negative excess demand before a positive excess demand is seen
+                // If there are none with negative excess demand, pick the first one
+                var last = sortings[sortings.length-1];
+                for (var i = sortings.length-2; i >= 0; i--) {
+                    if (excessDemands[i] >= 0) {
+                        break;
+                    } else {
+                        last = sortings[i];
+                    }
                 }
+                return last;
             }
         } else {
             getAssignedEndowment = function(subjectIndex, subjectCount) {
@@ -49,18 +54,18 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
                 }
             }
             chooseSorting = function(sortings, excessDemands) {
-                var onlyPositive = sortings.filter(function(sorting, index) {
-                    console.log(excessDemands[index])
-                    return excessDemands[index] > 0;
-                })
-                if (onlyPositive.length > 0) {
-                    console.log(onlyPositive.length)
-                    return onlyPositive[onlyPositive.length-3];
-                } else {
-                    // if there are no positive excessDemand sortings,
-                    // just return the highest priced one
-                    return sortings[sortings.length-1];
+                // traverse the sortings from first to last and pick the last one
+                // with a positive excess demand before a negative excess demand is seen
+                // If there are none with positive excess demand, pick the first one
+                var last = sortings[0];
+                for (var i = 1; i < sortings.length; i++) {
+                    if (excessDemands[i] <= 0) {
+                        break;
+                    } else {
+                        last = sortings[i];
+                    }
                 }
+                return last;
             }
         }
 
@@ -118,19 +123,91 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
         // If maximizing equilibrium price: sorting with the largest price and a positive excessDemand
         var chosenSorting = chooseSorting(sortings, excessDemands, prices);
 
+        // A map for quick endowment lookup: SubjectID -> Endowment
+        var assignedEndowmentMap = {};
+        chosenSorting.forEach(function(subject) {
+            assignedEndowmentMap[subject.id] = subject.assignedEndowment;
+        });
+
         return {
             "selections": selections,
             "diffs": diffs,
             "excessDemands": excessDemands,
             "sortings": sortings,
-            "chosenSorting": chosenSorting
+            "chosenSorting": chosenSorting,
+            "getAssignedEndowment": function(subject) {
+                return assignedEndowmentMap[subject];
+            }
         };
     }
 
+    api.getAllocationData = function(endowmentA, endowmentB) {
+        // var prices = null;
+        // var subjectAllocations = [];
+        // for (var i = 1; i <= 24; i++) {
+        //     var dataForSubject = assignmentTestData.filter(function(datum) {
+        //         return datum.Sender === i;
+        //     }).sort(function(a, b) {
+        //         return a.Px / a.Py - b.Px / b.Py;
+        //     });
+
+        //     if (!prices) {
+        //         prices = dataForSubject.filter(function(datum) {
+        //             return datum.Ex === 100 && datum.Ey === 0;
+        //         }).map(function(a) {
+        //             return a.Px / a.Py;
+        //         });
+        //     }
+
+        //     var aSelections = dataForSubject.filter(function(datum) {
+        //         return datum.Ex === 100 && datum.Ey === 0;
+        //     }).map(function(datum) {
+        //         return datum.x;
+        //     });
+
+        //     var bSelections = dataForSubject.filter(function(datum) {
+        //         return datum.Ex === 0 && datum.Ey === 50;
+        //     }).map(function(datum) {
+        //         return datum.x;
+        //     });
+
+        //     subjectAllocations.push({
+        //         "a": aSelections,
+        //         "b": bSelections
+        //     });
+        // }
+
+        return {
+            "subjectAllocations": subjectAllocations,
+            "prices": prices
+        }
+    }
+
+    api.getAssignedEndowment = function(subject, options) {
+        var allocationData = api.getAllocationData(options.endowmentA, options.endowmentB);
+        var subjects = allocationData.subjectAllocations;
+        var prices = allocationData.prices;
+        return api.EndowmentAssigner(subjects, prices, options).getAssignedEndowment(subject);
+    }
+
+    // api.save = function() {
+    //     // register listeners to automatically save allocations
+    //     rs.on("rp.perform_allocation", function (allocation) {
+    //         var key = "rp.x_allocation_" + rs.config.Ex + "_" + rs.config.Ey;
+    //         console.log("saving: " + allocation.x + " at " + key);
+
+    //         var allocations = rs.self.get(key) || [];
+    //         allocations.push({
+    //             price: rs.config.Px / rs.config.Py, // this needs to be changed
+    //             x: allocation.x
+    //         })
+    //         rs.set(key, allocations);
+    //     });
+    // }
     api.save = function() {
-        // register listeners to automatically save allocations
+        // register listeners to automatically save allocations for this round
         rs.on("rp.perform_allocation", function (allocation) {
-            var key = "rp.x_allocation_" + rs.config.Ex + "_" + rs.config.Ey;
+            var key = KEY_PREFIX + rs.config.Ex + "_" + rs.config.Ey;
             console.log("saving: " + allocation.x + " at " + key);
 
             var allocations = rs.self.get(key) || [];

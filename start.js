@@ -1,10 +1,11 @@
-Redwood.controller("RPStartController", ["$scope",
-                                         "RedwoodSubject",
-                                         "SynchronizedStopWatch",
-                                         "RPTatonnement",
-                                         "RPEndowmentAssignment",
-                                         "ConfigManager",
-                                         function ($scope, rs, stopWatch, ta, ea, configManager) {
+Redwood.controller("RPStartController", 
+    ["$scope",
+     "RedwoodSubject",
+     "SynchronizedStopWatch",
+     "RPTatonnement",
+     "RPEndowmentAssignment",
+     "ConfigManager",
+    function ($scope, rs, stopWatch, ta, ea, configManager) {
 
     // pure
     function snapPriceToGrid (price, gridSpacing) {

@@ -65,7 +65,7 @@ describe("Endowment Assignment Algorithm", function() {
         });
     });
 
-    it("should have correctly formatted and sorted input data", function() {
+    it("should correctly format and sort input data", function() {
         var target = [0,0,0,0,0,0,7.403751234,18.262586377,
             28.134254689,
             40.967423495,
@@ -151,9 +151,37 @@ describe("Endowment Assignment Algorithm", function() {
         });
 
         expect(sorting).toEqual([
-            8, 9, 23, 18, 20, 6, 24, 12, 7, 15, 2, 19,
+            23, 9, 8, 18, 20, 6, 24, 12, 7, 15, 2, 19,
             16, 22, 21, 4, 1, 13, 17, 10, 11, 3, 14, 5
         ]);
+    })
+
+    it("should assign first half of subjects in sorting to endowmentA when minimizing equilibrium price", function() {
+        for (var i = 0; i < 12; i++) {
+            var id = minimizingAssigner.chosenSorting[i].id;
+            expect(minimizingAssigner.getAssignedEndowment(id)).toEqual(endowment1);
+        }
+    })
+
+    it("should assign second half of subjects in sorting to endowmentB when minimizing equilibrium price", function() {
+        for (var i = 12; i < 24; i++) {
+            var id = minimizingAssigner.chosenSorting[i].id;
+            expect(minimizingAssigner.getAssignedEndowment(id)).toEqual(endowment2);
+        }
+    })
+
+    it("should assign first half of subjects in sorting to endowmentB when maximizing equilibrium price", function() {
+        for (var i = 0; i < 12; i++) {
+            var id = maximizingAssigner.chosenSorting[i].id;
+            expect(maximizingAssigner.getAssignedEndowment(id)).toEqual(endowment2);
+        }
+    })
+
+    it("should assign second half of subjects in sorting to endowmentA when maximizing equilibrium price", function() {
+        for (var i = 12; i < 24; i++) {
+            var id = maximizingAssigner.chosenSorting[i].id;
+            expect(maximizingAssigner.getAssignedEndowment(id)).toEqual(endowment1);
+        }
     })
 
 })
