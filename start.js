@@ -92,7 +92,12 @@ Redwood.controller("RPStartController",
             y: $scope.config.Ey
         }
         if ($scope.config.computeEndowment) {
-            $scope.endowment = ea.getEndowment($scope.config.smallEquilibriumPrice);
+            console.log(rs.self.user_id)
+            $scope.endowment = ea.getAssignedEndowment(rs.self.user_id, {
+                endowmentA: {x: 100, y: 0},
+                endowmentB: {x: 0, y: 50},
+                minimizeEquilibriumPrice: $scope.config.smallEquilibriumPrice
+            });
         }
 
         if ($scope.config.showEndowment) {

@@ -53,12 +53,12 @@ describe("Endowment Assignment Algorithm", function() {
             });
         }
 
-        minimizingAssigner = ea.EndowmentAssigner(formattedData, prices, {
+        minimizingAssigner = ea.EndowmentAssigner(formattedData, {
             endowmentA: endowment1,
             endowmentB: endowment2,
             minimizeEquilibriumPrice: true
         });
-        maximizingAssigner = ea.EndowmentAssigner(formattedData, prices, {
+        maximizingAssigner = ea.EndowmentAssigner(formattedData, {
             endowmentA: endowment1,
             endowmentB: endowment2,
             minimizeEquilibriumPrice: false
@@ -151,6 +151,8 @@ describe("Endowment Assignment Algorithm", function() {
         });
 
         expect(sorting).toEqual([
+            //8, 9, 23, 18, 20, 6, 24, 12, 7, 15, 2, 19,
+            //16, 22, 21, 4, 1, 13, 17, 10, 11, 3, 14, 5
             23, 9, 8, 18, 20, 6, 24, 12, 7, 15, 2, 19,
             16, 22, 21, 4, 1, 13, 17, 10, 11, 3, 14, 5
         ]);
@@ -158,28 +160,28 @@ describe("Endowment Assignment Algorithm", function() {
 
     it("should assign first half of subjects in sorting to endowmentA when minimizing equilibrium price", function() {
         for (var i = 0; i < 12; i++) {
-            var id = minimizingAssigner.chosenSorting[i].id;
+            var id = minimizingAssigner.chosenSorting[i].id+1;
             expect(minimizingAssigner.getAssignedEndowment(id)).toEqual(endowment1);
         }
     })
 
     it("should assign second half of subjects in sorting to endowmentB when minimizing equilibrium price", function() {
         for (var i = 12; i < 24; i++) {
-            var id = minimizingAssigner.chosenSorting[i].id;
+            var id = minimizingAssigner.chosenSorting[i].id+1;
             expect(minimizingAssigner.getAssignedEndowment(id)).toEqual(endowment2);
         }
     })
 
     it("should assign first half of subjects in sorting to endowmentB when maximizing equilibrium price", function() {
         for (var i = 0; i < 12; i++) {
-            var id = maximizingAssigner.chosenSorting[i].id;
+            var id = maximizingAssigner.chosenSorting[i].id+1;
             expect(maximizingAssigner.getAssignedEndowment(id)).toEqual(endowment2);
         }
     })
 
     it("should assign second half of subjects in sorting to endowmentA when maximizing equilibrium price", function() {
         for (var i = 12; i < 24; i++) {
-            var id = maximizingAssigner.chosenSorting[i].id;
+            var id = maximizingAssigner.chosenSorting[i].id+1;
             expect(maximizingAssigner.getAssignedEndowment(id)).toEqual(endowment1);
         }
     })

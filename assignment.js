@@ -10,7 +10,11 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
     var KEY_PREFIX = "rp.endowmentAssignment.";
     var api = {};
 
-    api.EndowmentAssigner = function(subjects, prices, options) {
+    api.endowmentKey = function(endowment) {
+        return KEY_PREFIX + endowment.x + "_" + endowment.y;
+    }
+
+    api.EndowmentAssigner = function(subjects, options) {
         var defaults = {
             endowmentA: {x: 100, y: 0},
             endowmentB: {x: 0, y: 50},
@@ -31,7 +35,7 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
                     return options.endowmentB
                 }
             }
-            chooseSorting = function(sortings, excessDemands, prices) {
+            chooseSorting = function(sortings, excessDemands) {
                 // traverse the sortings from last to first and pick the last one
                 // with a negative excess demand before a positive excess demand is seen
                 // If there are none with negative excess demand, pick the first one
@@ -74,7 +78,8 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
         // subjects[S][E][P] is the selection of subject S for price P with endowment E
         // selections[P][S].E is the selection of subject S for price P with endowment E.
         var selections = [];
-        for (var i = 0; i < prices.length; ++i) {
+        var priceCount = subjects[0]["a"].length;
+        for (var i = 0; i < priceCount; ++i) {
             selections.push([]);
             for (var j = 0; j < subjects.length; ++j) {
                 selections[i].push({
@@ -121,12 +126,12 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
         // The optimized sorting
         // If minimizing equlibrium price: sorting with smallest price and a negative excessDemand
         // If maximizing equilibrium price: sorting with the largest price and a positive excessDemand
-        var chosenSorting = chooseSorting(sortings, excessDemands, prices);
+        var chosenSorting = chooseSorting(sortings, excessDemands);
 
         // A map for quick endowment lookup: SubjectID -> Endowment
         var assignedEndowmentMap = {};
         chosenSorting.forEach(function(subject) {
-            assignedEndowmentMap[subject.id] = subject.assignedEndowment;
+            assignedEndowmentMap[(parseInt(subject.id)+1).toString()] = subject.assignedEndowment;
         });
 
         return {
@@ -142,77 +147,45 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
     }
 
     api.getAllocationData = function(endowmentA, endowmentB) {
-        // var prices = null;
-        // var subjectAllocations = [];
-        // for (var i = 1; i <= 24; i++) {
-        //     var dataForSubject = assignmentTestData.filter(function(datum) {
-        //         return datum.Sender === i;
-        //     }).sort(function(a, b) {
-        //         return a.Px / a.Py - b.Px / b.Py;
-        //     });
+        var subjectAllocations = rs.subjects.map(function(subject) {
+            var keyA = api.endowmentKey(endowmentA);
+            var keyB = api.endowmentKey(endowmentB);
 
-        //     if (!prices) {
-        //         prices = dataForSubject.filter(function(datum) {
-        //             return datum.Ex === 100 && datum.Ey === 0;
-        //         }).map(function(a) {
-        //             return a.Px / a.Py;
-        //         });
-        //     }
+            var allocationsA = subject.get(keyA).sort(function(a, b) {
+                return a.price - b.price;
+            }).map(function(allocation) {
+                return allocation.x
+            });
 
-        //     var aSelections = dataForSubject.filter(function(datum) {
-        //         return datum.Ex === 100 && datum.Ey === 0;
-        //     }).map(function(datum) {
-        //         return datum.x;
-        //     });
+            var allocationsB = subject.get(keyB).sort(function(a, b) {
+                return a.price - b.price;
+            }).map(function(allocation) {
+                return allocation.x
+            });
 
-        //     var bSelections = dataForSubject.filter(function(datum) {
-        //         return datum.Ex === 0 && datum.Ey === 50;
-        //     }).map(function(datum) {
-        //         return datum.x;
-        //     });
+            return {
+                "a": allocationsA,
+                "b": allocationsB
+            }
+        });
 
-        //     subjectAllocations.push({
-        //         "a": aSelections,
-        //         "b": bSelections
-        //     });
-        // }
-
-        return {
-            "subjectAllocations": subjectAllocations,
-            "prices": prices
-        }
+        return subjectAllocations;
     }
 
     api.getAssignedEndowment = function(subject, options) {
         var allocationData = api.getAllocationData(options.endowmentA, options.endowmentB);
-        var subjects = allocationData.subjectAllocations;
-        var prices = allocationData.prices;
-        return api.EndowmentAssigner(subjects, prices, options).getAssignedEndowment(subject);
+        return api.EndowmentAssigner(allocationData, options).getAssignedEndowment(subject);
     }
 
-    // api.save = function() {
-    //     // register listeners to automatically save allocations
-    //     rs.on("rp.perform_allocation", function (allocation) {
-    //         var key = "rp.x_allocation_" + rs.config.Ex + "_" + rs.config.Ey;
-    //         console.log("saving: " + allocation.x + " at " + key);
-
-    //         var allocations = rs.self.get(key) || [];
-    //         allocations.push({
-    //             price: rs.config.Px / rs.config.Py, // this needs to be changed
-    //             x: allocation.x
-    //         })
-    //         rs.set(key, allocations);
-    //     });
-    // }
     api.save = function() {
         // register listeners to automatically save allocations for this round
         rs.on("rp.perform_allocation", function (allocation) {
-            var key = KEY_PREFIX + rs.config.Ex + "_" + rs.config.Ey;
+            var key = api.endowmentKey({x: rs.config.Ex, y: rs.config.Ey});
             console.log("saving: " + allocation.x + " at " + key);
 
             var allocations = rs.self.get(key) || [];
             allocations.push({
-                price: rs.config.Px / rs.config.Py, // this needs to be changed
+                price: rs.config.Px / rs.config.Py,
                 x: allocation.x
             })
             rs.set(key, allocations);
