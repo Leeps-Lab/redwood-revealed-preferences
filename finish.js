@@ -1,4 +1,4 @@
-Redwood.controller("RPFinishController", ["$scope", "RedwoodSubject", function($scope, rs) {
+RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodSubject", function($scope, rs) {
   
     $scope.results = []
     $scope.selected_period = false;

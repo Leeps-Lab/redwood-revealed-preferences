@@ -1,1 +1,1 @@
-angular.module("RedwoodRevealedPreferences", ["Redwood"]);
+RedwoodRevealedPreferences = angular.module("RedwoodRevealedPreferences", ["Redwood"]);

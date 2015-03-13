@@ -1,4 +1,4 @@
-Redwood.factory("RPTatonnement", function () {
+RedwoodRevealedPreferences.factory("RPTatonnement", function () {
     var tatonnement = {};
 
     // provided

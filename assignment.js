@@ -1,4 +1,4 @@
-angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["RedwoodSubject", function (rs) {
+RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", function (rs) {
     /* 
         This module is incredibly experiment specific
         and is not meant to be general purpose.

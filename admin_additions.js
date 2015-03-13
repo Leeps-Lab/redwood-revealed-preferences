@@ -1,4 +1,4 @@
-Redwood.controller("RPAdminAdditionsController", ["Admin", "$scope", function(ra, $scope) {
+RedwoodRevealedPreferences.controller("RPAdminAdditionsController", ["Admin", "$scope", function(ra, $scope) {
     
     // The admin is in charge of deciding results
     var outcome;
