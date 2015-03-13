@@ -3,6 +3,7 @@ Redwood.factory("RPTatonnement", function () {
 
     // provided
     var _weightVector;
+    var _expectedExcessDemand;
     var _priceLowerBound;
     var _priceUpperBound;
     var _maxAngularDiff;
@@ -23,8 +24,9 @@ Redwood.factory("RPTatonnement", function () {
         return value < 0 ? -1 : 1;
     }
 
-    tatonnement.initializePeriod = function (weightVector, priceLowerBound, priceUpperBound, maxAngularDiff) {
+    tatonnement.initializePeriod = function (weightVector, expectedExcessDemand, priceLowerBound, priceUpperBound, maxAngularDiff) {
         _weightVector = weightVector;
+        _expectedExcessDemand = expectedExcessDemand;
         _priceLowerBound = priceLowerBound;
         _priceUpperBound = priceUpperBound;
         _maxAngularDiff = maxAngularDiff;
@@ -58,7 +60,7 @@ Redwood.factory("RPTatonnement", function () {
     tatonnement.adjustedPrice = function () {
         if (_weightIndex < _weightVector.length) {
 
-            var weight = _weightVector[_weightIndex];
+            var weight = _weightVector[_weightIndex] / _expectedExcessDemand;
             var excessDemandSign = sign(_excessDemand);
             
             // make sure angular difference is no more than 15 degrees
