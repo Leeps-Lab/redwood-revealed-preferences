@@ -3,10 +3,6 @@ angular.module("RedwoodRevealedPreferences").factory("RPEndowmentAssignment", ["
         This module is incredibly experiment specific
         and is not meant to be general purpose.
     */
-    //var KEY_A = "rp.x_allocation_100_0";
-    //var KEY_B = "rp.x_allocation_0_50";
-    //var KEY_A = "rp.endowmentAssignment.endowmentA";
-    //var KEY_B = "rp.endowmentAssignment.endowmentB";
     var KEY_PREFIX = "rp.endowmentAssignment.";
     var api = {};
 

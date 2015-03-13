@@ -108,7 +108,8 @@ Redwood.controller("RPStartController",
         $scope.inputEnabled = false;
 
         ta.initializePeriod(
-            $scope.config.weightVector, 
+            $scope.config.weightVector,
+            $scope.config.expectedExcess,
             $scope.config.priceLowerBound, 
             $scope.config.priceUpperBound,
             $scope.config.maxAngularDiff);
