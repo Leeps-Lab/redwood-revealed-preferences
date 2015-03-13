@@ -7,17 +7,10 @@ Redwood.controller("RPStartController",
      "ConfigManager",
     function ($scope, rs, stopWatch, ta, ea, configManager) {
 
-    // pure
-    function snapPriceToGrid (price, gridSpacing) {
-        var upperSnapPoint = gridSpacing * Math.ceil(price / gridSpacing);
-        var lowerSnapPoint = gridSpacing * Math.floor(price / gridSpacing);
-        console.log("upperSnapPoint: " + upperSnapPoint);
-        console.log("lowerSnapPoint: " + lowerSnapPoint);
-        if (upperSnapPoint - price < price - lowerSnapPoint) {
-            return upperSnapPoint;
-        } else {
-            return lowerSnapPoint;
-        }
+    function snapPriceToGrid (price, priceGrid) {
+        return priceGrid.sort(function(gridPrice1, gridPrice2) {
+            return Math.abs(gridPrice1 - price) - Math.abs(gridPrice2 - price);
+        })[0];
     }
 
     function animateLimits () {
@@ -64,13 +57,16 @@ Redwood.controller("RPStartController",
             useDefaultSelection  : false,
             epsilon              : 1,       // Tatonnement Options
             roundsUnderEpsilon   : 1,
-            expectedExcess       : 20,
+            expectedExcess       : 13.5,
             priceLowerBound      : 0.1,
             priceUpperBound      : 100.0,
             maxAngularDiff       : 0.26175,
             marketMaker          : true,
             snapPriceToGrid      : false,
-            priceGridSpacing     : 0.2,
+            priceGrid            : [0.2, 0.27, 0.34, 0.41, 0.48, 0.55, 0.62, 0.69,
+                                    0.76, 0.82, 0.88, 0.94, 1, 1.063829787, 1.136363636,
+                                    1.219512195, 1.315789474, 1.449275362, 1.612903226, 1.818181818,
+                                    2.083333333, 2.43902439, 2.941176471, 3.703703704, 5],
             weightVector         : [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
             computeEndowment     : false,   // Endowment Assignment Options
             smallEquilibriumPrice: false,
@@ -272,7 +268,7 @@ Redwood.controller("RPStartController",
             // Snap to grid if necessary
             if ($scope.config.snapPriceToGrid) {
                 var prevNewPrice = newPrice; // yeah I know, terrible naming
-                newPrice = snapPriceToGrid(newPrice, $scope.config.priceGridSpacing);
+                newPrice = snapPriceToGrid(newPrice, $scope.config.priceGrid);
                 if (newPrice == prevNewPrice) {
                     $scope.config.snapPriceToGrid = false;
                 }
