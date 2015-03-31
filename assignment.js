@@ -26,9 +26,9 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
         if (options.minimizeEquilibriumPrice) {
             getAssignedEndowment = function(subjectIndex, subjectCount) {
                 if (subjectIndex < subjectCount/2) {
-                    return options.endowmentA
+                    return options.endowmentA;
                 } else {
-                    return options.endowmentB
+                    return options.endowmentB;
                 }
             }
             chooseSorting = function(sortings, excessDemands) {
@@ -48,9 +48,9 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
         } else {
             getAssignedEndowment = function(subjectIndex, subjectCount) {
                 if (subjectIndex < subjectCount/2) {
-                    return options.endowmentB
+                    return options.endowmentB;
                 } else {
-                    return options.endowmentA
+                    return options.endowmentA;
                 }
             }
             chooseSorting = function(sortings, excessDemands) {
@@ -78,8 +78,12 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
         for (var i = 0; i < priceCount; ++i) {
             selections.push([]);
             for (var j = 0; j < subjects.length; ++j) {
+                var subject = subjects[j];
+                var subjectID = subject.hasOwnProperty("id") ?
+                    subject.id : (j+1).toString();
                 selections[i].push({
-                    "id": j,
+                    "index": j,
+                    "id": subjectID,
                     "a": subjects[j]["a"][i],
                     "b": subjects[j]["b"][i],
                 });
@@ -99,7 +103,7 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
         // sortings[P] is the sorting of subjects for price P
         var sortings = selections.map(function(subjects, priceIndex) {
             return subjects.sort(function(a, b) {
-                return diffs[priceIndex][b.id] - diffs[priceIndex][a.id];
+                return diffs[priceIndex][b.index] - diffs[priceIndex][a.index];
 
             }).map(function(subject, index) {
                 subject.assignedEndowment = getAssignedEndowment(index, subjects.length);
@@ -127,7 +131,7 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
         // A map for quick endowment lookup: SubjectID -> Endowment
         var assignedEndowmentMap = {};
         chosenSorting.forEach(function(subject) {
-            assignedEndowmentMap[(parseInt(subject.id)+1).toString()] = subject.assignedEndowment;
+            assignedEndowmentMap[subject.id] = subject.assignedEndowment;
         });
 
         return {
@@ -150,16 +154,17 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
             var allocationsA = subject.get(keyA).sort(function(a, b) {
                 return a.price - b.price;
             }).map(function(allocation) {
-                return allocation.x
+                return allocation.x;
             });
 
             var allocationsB = subject.get(keyB).sort(function(a, b) {
                 return a.price - b.price;
             }).map(function(allocation) {
-                return allocation.x
+                return allocation.x;
             });
 
             return {
+                "id": subject.user_id,
                 "a": allocationsA,
                 "b": allocationsB
             }
