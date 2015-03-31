@@ -268,9 +268,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
             // Snap to grid if necessary
             if ($scope.config.snapPriceToGrid) {
-                var prevNewPrice = newPrice; // yeah I know, terrible naming
                 newPrice = snapPriceToGrid(newPrice, $scope.config.priceGrid);
-                if (newPrice == prevNewPrice) {
+                if (newPrice == currentPrice) {
                     $scope.config.snapPriceToGrid = false;
                 }
             }
