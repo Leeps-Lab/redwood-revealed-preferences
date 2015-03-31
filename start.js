@@ -76,6 +76,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             limitAnimDuration    : 0,
             plotResult           : true,
             showEndowment        : true,
+            showTable            : false,
             constraintsX         : false,   // Interaction Options
             rounds               : 1,       // Timing Options
             delay                : 5,
