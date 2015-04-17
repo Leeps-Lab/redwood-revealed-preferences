@@ -48,7 +48,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
         }
 
         var userIndex = (parseInt(rs.user_id) - 1) % 2;
-        $scope.config = configManager.load(rs, {
+        $scope.config = configManager.loadPerSubject(rs, {
             Ex                   : 0,       // Endowment, Price and Probability Options
             Ey                   : 0,
             Px                   : 100,
