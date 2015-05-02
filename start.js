@@ -49,39 +49,39 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
         var userIndex = (parseInt(rs.user_id) - 1) % 2;
         $scope.config = configManager.loadPerSubject(rs, {
-            Ex                   : 0,       // Endowment, Price and Probability Options
-            Ey                   : 0,
-            Px                   : 100,
-            Py                   : 157,
-            ProbX                : 0.5,
-            useDefaultSelection  : false,
-            epsilon              : 1,       // Tatonnement Options
-            roundsUnderEpsilon   : 1,
-            expectedExcess       : 13.5,
-            priceLowerBound      : 0.1,
-            priceUpperBound      : 100.0,
-            maxAngularDiff       : 0.26175,
-            marketMaker          : true,
-            snapPriceToGrid      : false,
-            priceGrid            : [0.2, 0.27, 0.34, 0.41, 0.48, 0.55, 0.62, 0.69,
-                                    0.76, 0.82, 0.88, 0.94, 1, 1.063829787, 1.136363636,
-                                    1.219512195, 1.315789474, 1.449275362, 1.612903226, 1.818181818,
-                                    2.083333333, 2.43902439, 2.941176471, 3.703703704, 5],
-            weightVector         : [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
-            computeEndowment     : false,   // Endowment Assignment Options
-            smallEquilibriumPrice: false,
-            saveAllocation       : false,
-            XLimit               : 100,     // Visual Options
-            YLimit               : 100,
-            limitAnimDuration    : 0,
-            plotResult           : true,
-            showEndowment        : true,
-            showTable            : false,
-            constraintsX         : false,   // Interaction Options
-            rounds               : 1,       // Timing Options
-            delay                : 5,
-            timeLimit            : 0,
-            pause                : false,
+            Ex                      : 0,       // Endowment, Price and Probability Options
+            Ey                      : 0,
+            Px                      : 100,
+            Py                      : 157,
+            ProbX                   : 0.5,
+            useDefaultSelection     : false,
+            epsilon                 : 1,       // Tatonnement Options
+            roundsUnderEpsilon      : 1,
+            expectedExcess          : 13.5,
+            priceLowerBound         : 0.1,
+            priceUpperBound         : 100.0,
+            maxAngularDiff          : 0.26175,
+            marketMaker             : true,
+            snapPriceToGrid         : false,
+            priceGrid               : [0.2, 0.27, 0.34, 0.41, 0.48, 0.55, 0.62, 0.69,
+                                       0.76, 0.82, 0.88, 0.94, 1, 1.063829787, 1.136363636,
+                                       1.219512195, 1.315789474, 1.449275362, 1.612903226, 1.818181818,
+                                       2.083333333, 2.43902439, 2.941176471, 3.703703704, 5],
+            weightVector            : [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
+            computeEndowment        : false,   // Endowment Assignment Options
+            minimizeEquilibriumPrice: false,
+            saveAllocation          : false,
+            XLimit                  : 100,     // Visual Options
+            YLimit                  : 100,
+            limitAnimDuration       : 0,
+            plotResult              : true,
+            showEndowment           : true,
+            showTable               : false,
+            constraintsX            : false,   // Interaction Options
+            rounds                  : 1,       // Timing Options
+            delay                   : 5,
+            timeLimit               : 0,
+            pause                   : false,
         });
 
         $scope.endowment = {
@@ -93,7 +93,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             $scope.endowment = ea.getAssignedEndowment(rs.self.user_id, {
                 endowmentA: {x: 100, y: 0},
                 endowmentB: {x: 0, y: 50},
-                minimizeEquilibriumPrice: $scope.config.smallEquilibriumPrice
+                minimizeEquilibriumPrice: $scope.config.minimizeEquilibriumPrice
             });
         }
 
@@ -236,6 +236,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
                     x: $scope.selection[0],
                     y: $scope.selection[1]
                 }
+                // kind of a useless animation
                 $(baseSelection).animate({x: actualAllocation.x, y: actualAllocation.y}, {
                     duration: $scope.config.limitAnimDuration,
                     easing: "easeInOutCubic",
