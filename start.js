@@ -207,14 +207,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
             // Calculate current price
             var currentPrice = $scope.prices.x/$scope.prices.y;
 
-            // Get subjects in the same group
-            var subjectsInGroup = rs.subjects.filter(function (subject) {
-                return subject.groupForPeriod
-                    && subject.groupForPeriod === rs.self.groupForPeriod;
-            });
-
             // Initialize Tatonnement service
-            ta.initializeRound(currentPrice, subjectsInGroup, $scope.endowment, $scope.selection);
+            ta.initializeRound(currentPrice, rs.subjects, $scope.endowment, $scope.selection);
 
             // check if demand is under threshold (epsilon)
             var roundsUnder = rs.self.get("rp.rounds_under_epsilon");
@@ -225,9 +219,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
             }
             rs.set("rp.rounds_under_epsilon", roundsUnder);
 
-            // If we demand has been under threshold for @roundsUnderEpsilon rounds,
-            // or if the maximum number of rounds have been played,
-            // stop tatonnement
+            // If demand has been under threshold for @roundsUnderEpsilon rounds,
+            // or if the maximum number of rounds have been played, stop tatonnement
             if (roundsUnder        >= $scope.config.roundsUnderEpsilon
             || $scope.currentRound >= $scope.config.rounds) {
                 var actualAllocation = ta.allocation($scope.config.marketMaker);
