@@ -220,9 +220,12 @@ RedwoodRevealedPreferences.controller("RPStartController",
             rs.set("rp.rounds_under_epsilon", roundsUnder);
 
             // If demand has been under threshold for @roundsUnderEpsilon rounds,
-            // or if the maximum number of rounds have been played, stop tatonnement
+            // or if the maximum number of rounds have been played, 
+            // or if the all of the weightvector weights have been used, stop tatonnement
             if (roundsUnder        >= $scope.config.roundsUnderEpsilon
-            || $scope.currentRound >= $scope.config.rounds) {
+                || $scope.currentRound >= $scope.config.rounds
+                || ta.weightVectorFinished()) {
+
                 var actualAllocation = ta.allocation($scope.config.marketMaker);
                 //$scope.selection = [actualAllocation.x, actualAllocation.y];
                 var baseSelection = {

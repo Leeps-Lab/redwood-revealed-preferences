@@ -47,13 +47,14 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
         }, 0);
         _excessDemandPerCapita = _excessDemand / _subjects.length;
 
-        // increment weight index if necessary
+        // increment weight index if the sign of the excess demand changes
         if (_excessDemandHistory.length > 1) {
             var previousDemand = _excessDemandHistory[_excessDemandHistory.length - 1];
             if (_excessDemand * previousDemand < 0) {
                 _weightIndex += 1;
             }
         }
+
         _excessDemandHistory.push(_excessDemand);
     }
 
@@ -84,7 +85,7 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
     }
 
     tatonnement.allocation = function (marketMaker) {
-        var allocation = {}
+        var allocation = {};
         
         var netBuyers = _subjects.filter(function(subject) {
             return subject.get("rp.selection")[0] > subject.get("rp.endowment").x;
@@ -121,6 +122,10 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
 
     tatonnement.excessDemandPerCapita = function () {
         return _excessDemandPerCapita;
+    }
+
+    tatonnement.weightVectorFinished = function () {
+        return _weightIndex >= _weightVector.length;
     }
 
     return tatonnement;
