@@ -164,8 +164,9 @@ RedwoodRevealedPreferences.controller("RPStartController",
         }
 
         rs.trigger("rp.round_started", {
-            endowment: $scope.endowment,
-            price: $scope.prices.x / $scope.prices.y
+            "round": $scope.currentRound,
+            "endowment": $scope.endowment,
+            "price": $scope.prices.x / $scope.prices.y
         });
         $scope.inputEnabled = true;
 
@@ -229,7 +230,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             // If demand has been under threshold for @roundsUnderEpsilon rounds,
             // or if the maximum number of rounds have been played, 
             // or if the all of the weightvector weights have been used, stop tatonnement
-            if (roundsUnder        >= $scope.config.roundsUnderEpsilon
+            if (roundsUnder            >= $scope.config.roundsUnderEpsilon
                 || $scope.currentRound >= $scope.config.rounds
                 || ta.weightVectorFinished()) {
 
@@ -279,6 +280,10 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
     $scope.confirm = function () {
         $scope.inputEnabled = false;
-        rs.trigger("rp.confirm", { x: $scope.selection[0], y: $scope.selection[1] });
+        rs.trigger("rp.confirm", {
+            "round": $scope.currentRound,
+            "x": $scope.selection[0],
+            "y": $scope.selection[1]
+        });
     };
 }]);
