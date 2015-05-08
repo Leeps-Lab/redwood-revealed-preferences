@@ -234,33 +234,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
                 || ta.weightVectorFinished()) {
 
                 var actualAllocation = ta.allocation($scope.config.marketMaker);
-                //$scope.selection = [actualAllocation.x, actualAllocation.y];
-                var baseSelection = {
-                    x: $scope.selection[0],
-                    y: $scope.selection[1]
-                }
-                // kind of a useless animation
-                $(baseSelection).animate({x: actualAllocation.x, y: actualAllocation.y}, {
-                    duration: $scope.config.limitAnimDuration,
-                    easing: "easeInOutCubic",
-                    step: function (now, fx) {
-                        if (!$scope.$$phase) {
-                            $scope.$apply(function () {
-                                if (fx.prop == "x") {
-                                    $scope.selection[0] = now;
-                                } else {
-                                    $scope.selection[1] = now;
-                                }
-                            })
-                        } else {
-                            if (fx.prop == "x") {
-                                $scope.selection[0] = now;
-                            } else {
-                                $scope.selection[1] = now;
-                            }
-                        }
-                    }
-                });
+                $scope.selection = [actualAllocation.x, actualAllocation.y];
+
                 // reset rounds under epsilon
                 rs.set("rp.rounds_under_epsilon", 0);
                 rs.trigger("rp.perform_allocation", actualAllocation);
