@@ -15,6 +15,7 @@ describe("Tatonnement Algorithm", function() {
         })
 
         // set up mock data
+        roundData = [];
         tatonnementTestData.forEach(function(datum) {
             var index = datum.round - 1;
             if (!roundData[index]) {
@@ -24,58 +25,95 @@ describe("Tatonnement Algorithm", function() {
         });
         
     });
-
+    
     it("should correctly format and sort input data", function() {
         expect(roundData.length).toBe(3);
         roundData.forEach(function(data) {
             expect(data.length).toBe(12);
         })
-    })
+    });
 
     it("should correctly calculate excess demand", function() {
         var excessDemand = ta.excessDemand(roundData[0])
-        expect(excessDemand).toBeCloseTo(-147.876, 1)
+        expect(excessDemand).toBeCloseTo(-73.938, 2)
 
         var excessDemand = ta.excessDemand(roundData[1])
-        expect(excessDemand).toBeCloseTo(10.1818, 1)
-    })
+        expect(excessDemand).toBeCloseTo(5.0909, 2)
+    });
 
-    it("should correctly determine new prices", function() {
-        var priceGrid = [
-            0.2, 0.28, 0.36, 0.43, 0.5, 0.57,
-            0.64, 0.7, 0.76, 0.83, 0.89, 0.94,
-            1, 1.06, 1.13, 1.21, 1.31, 1.43,
-            1.57, 1.75, 2, 2.33, 2.81, 3.57, 5
-        ];
 
-        var weightVector = [
-            0.1745, 0.08725, 0.043625, 0.021813, 0.010906
-        ];
+    it("should correctly determine new prices without snapping", function() {
 
-        var periodContext = ta.PeriodContext(
-            weightVector,
-            13.5,
-            0.1,
-            100.0,
-            0.26175,
-            priceGrid,
-            true);
+        var algorithm = ta.TatonnementAlgorithm({
+            "weightVector": [
+                0.1745, 0.08725, 0.043625, 0.021813, 0.010906
+            ],
+            "expectedExcess": 13.5,
+            "priceLowerBound": 0.1,
+            "priceUpperBound": 100.0,
+            "maxAngularDiff": 0.26175,
+            "priceGrid": [
+                0.2, 0.28, 0.36, 0.43, 0.5, 0.57,
+                0.64, 0.7, 0.76, 0.83, 0.89, 0.94,
+                1, 1.06, 1.13, 1.21, 1.31, 1.43,
+                1.57, 1.75, 2, 2.33, 2.81, 3.57, 5
+            ],
+            "snapPriceToGrid": false
+        });
+
+        // round 1
+        var subjectData = roundData[0];
+        var roundContext = ta.RoundContext(subjectData[0].price, subjectData);
+
+        var newPrice = algorithm.adjustedPrice(roundContext);
+        algorithm.addExcessDemand(roundContext.excessDemand);
+
+        expect(newPrice).toBeCloseTo(0.53018, 3);
+
+        // round 2
+        subjectData = roundData[1];
+        roundContext = ta.RoundContext(subjectData[0].price, subjectData);
+
+        newPrice = algorithm.adjustedPrice(roundContext);
+        algorithm.addExcessDemand(roundContext.excessDemand);
+
+        expect(newPrice).toBeCloseTo(0.50343, 3);
+    });
+
+it("should correctly determine new prices with snapping", function() {
+
+        var algorithm = ta.TatonnementAlgorithm({
+            "weightVector": [
+                0.1745, 0.08725, 0.043625, 0.021813, 0.010906
+            ],
+            "expectedExcess": 13.5,
+            "priceLowerBound": 0.1,
+            "priceUpperBound": 100.0,
+            "maxAngularDiff": 0.26175,
+            "priceGrid": [
+                0.2, 0.28, 0.36, 0.43, 0.5, 0.57,
+                0.64, 0.7, 0.76, 0.83, 0.89, 0.94,
+                1, 1.06, 1.13, 1.21, 1.31, 1.43,
+                1.57, 1.75, 2, 2.33, 2.81, 3.57, 5
+            ],
+            "snapPriceToGrid": true
+        });
 
         var subjectData = roundData[0];
         var roundContext = ta.RoundContext(subjectData[0].price, subjectData);
 
-        var newPrice = ta.adjustedPrice(periodContext, roundContext);
-        expect(newPrice).toBeCloseTo(0.53018, 10);
+        var newPrice = algorithm.adjustedPrice(roundContext);
+        algorithm.addExcessDemand(roundContext.excessDemand);
 
-        periodContext.addExcessDemand(roundContext.excessDemand);
+        expect(newPrice).toBeCloseTo(0.5, 3);
 
-        var subjectData = roundData[1];
-        var roundContext = ta.RoundContext(subjectData[0].price, subjectData);
+        subjectData = roundData[1];
+        roundContext = ta.RoundContext(subjectData[0].price, subjectData);
 
-        var newPrice = ta.adjustedPrice(periodContext, roundContext);
-        expect(newPrice).toBeCloseTo(0.50343, 10);
+        newPrice = algorithm.adjustedPrice(roundContext);
+        algorithm.addExcessDemand(roundContext.excessDemand);
 
-        periodContext.addExcessDemand(roundContext.excessDemand);
-    })
+        expect(newPrice).toBeCloseTo(0.50343, 3);
+    });
 
 })
