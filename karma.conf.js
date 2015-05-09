@@ -24,6 +24,7 @@ module.exports = function(config) {
       {pattern: 'experiments/redwood-revealed-preferences/node_modules/angular-mocks/angular-mocks.js', included: true},
       {pattern: 'experiments/redwood-revealed-preferences/*.js', included: true},
       {pattern: 'experiments/redwood-revealed-preferences/spec/assignment/*.js', included: true},
+      {pattern: 'experiments/redwood-revealed-preferences/spec/tatonnement/*.js', included: true},
     ],
 
 
