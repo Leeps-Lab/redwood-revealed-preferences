@@ -35,56 +35,56 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
 
     api.TatonnementAlgorithm = function(config) {
         var excessDemandHistory = [];
-        var context = {
-            "weightVector":         config.weightVector,
-            "expectedExcess":       config.expectedExcess,
-            "priceLowerBound":      config.priceLowerBound,
-            "priceUpperBound":      config.priceUpperBound,
-            "maxAngularDiff":       config.maxAngularDiff,
-            "priceGrid":            config.priceGrid,
-            "snapPriceToGrid":      config.snapPriceToGrid,
-            "weightIndex":          0,
-            "excessDemandHistory":  excessDemandHistory,
-        };
+        var _weightIndex = 0;
+
+        var _weightVector = config.weightVector;
+        var _expectedExcess = config.expectedExcess;
+        
+        var _priceLowerBound = config.priceLowerBound;
+        var _priceUpperBound = config.priceUpperBound;
+        var _maxAngularDiff = config.maxAngularDiff;
+
+        var _priceGrid = config.priceGrid;
+        var _snapPriceToGrid = config.snapPriceToGrid;
 
         var priceSnappedToGrid = function(price) {
-            return context.priceGrid.sort(function(gridPrice1, gridPrice2) {
+            return _priceGrid.sort(function(gridPrice1, gridPrice2) {
                 return Math.abs(gridPrice1 - price) - Math.abs(gridPrice2 - price);
             })[0];
         }
 
-        context.weightVectorFinished = function() {
-            return context.weightIndex >= context.weightVector.length
+        var weightVectorFinished = function() {
+            return _weightIndex >= _weightVector.length
         }
 
-        context.addExcessDemand = function(excessDemand) {
+        var addExcessDemand = function(excessDemand) {
             // increment weight index if the sign of the excess demand changes
             var previousDemand = excessDemandHistory.length == 0 ? 
                 1 : excessDemandHistory[excessDemandHistory.length - 1];
 
             if (excessDemand * previousDemand < 0) {
-                context.weightIndex += 1;
+                _weightIndex += 1;
             }
             excessDemandHistory.push(excessDemand);
         }
 
-        context.adjustedPrice = function(roundContext) {
+        var adjustedPrice = function(roundContext) {
             var adjustedPrice;
-            if (context.weightIndex < context.weightVector.length) {
+            if (_weightIndex < _weightVector.length) {
 
-                var weight = context.weightVector[context.weightIndex] / context.expectedExcess;
+                var weight = _weightVector[_weightIndex] / _expectedExcess;
                 var excessDemandSign = sign(roundContext.excessDemand);
                 
                 // make sure angular difference is no more than 15 degrees
                 var angularDiff = weight * roundContext.excessDemandPerCapita;
-                var maxAngularDiff = context.maxAngularDiff * excessDemandSign;
+                var maxAngularDiff = _maxAngularDiff * excessDemandSign;
                 var constrainedAngularDiff = Math.min(Math.abs(angularDiff), Math.abs(maxAngularDiff)) * excessDemandSign;
                 
                 var newPriceAngle = Math.atan(roundContext.price) + constrainedAngularDiff;
 
                 // make sure that 0.01 <= price <= 100
-                var priceLowerBoundAngle = Math.atan(context.priceLowerBound);
-                var priceUpperBoundAngle = Math.atan(context.priceUpperBound);
+                var priceLowerBoundAngle = Math.atan(_priceLowerBound);
+                var priceUpperBoundAngle = Math.atan(_priceUpperBound);
                 if (constrainedAngularDiff < 0) {
                     adjustedPrice = Math.tan(Math.max(newPriceAngle, priceLowerBoundAngle));
                 } else {
@@ -94,10 +94,10 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
                 adjustedPrice = roundContext.price + 0.01 * excessDemandSign;
             }
 
-            if (context.snapPriceToGrid) {
+            if (_snapPriceToGrid) {
                 var snappedPrice = priceSnappedToGrid(adjustedPrice);
                 if (snappedPrice == roundContext.price) {
-                    context.snapPriceToGrid = false;
+                    _snapPriceToGrid = false;
                 } else {
                     adjustedPrice = snappedPrice;
                 }
@@ -106,7 +106,7 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
             return adjustedPrice;
         }
 
-        context.adjustedAllocation = function (selection, endowment, roundContext, marketMaker) {
+        var adjustedAllocation = function (selection, endowment, roundContext, marketMaker) {
             var allocation = {};
             
             var netBuyers = roundContext.subjectData.filter(function(subject) {
@@ -137,7 +137,12 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
             return allocation;
         }
 
-        return context;
+        return {
+            "weightVectorFinished": weightVectorFinished,
+            "addExcessDemand": addExcessDemand,
+            "adjustedPrice": adjustedPrice,
+            "adjustedAllocation": adjustedAllocation
+        };
     }
 
     return api;
