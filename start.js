@@ -7,11 +7,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
      "ConfigManager",
     function ($scope, rs, stopWatch, ta, ea, configManager) {
 
-    function snapPriceToGrid (price, priceGrid) {
-        return priceGrid.sort(function(gridPrice1, gridPrice2) {
-            return Math.abs(gridPrice1 - price) - Math.abs(gridPrice2 - price);
-        })[0];
-    }
+    // module private variables
+    var tatonnement;
 
     function animateLimits () {
         var larger = $scope.intercepts.x > $scope.intercepts.y
@@ -104,12 +101,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
         $scope.currentRound = 0;
         $scope.inputEnabled = false;
 
-        ta.initializePeriod(
-            $scope.config.weightVector,
-            $scope.config.expectedExcess,
-            $scope.config.priceLowerBound, 
-            $scope.config.priceUpperBound,
-            $scope.config.maxAngularDiff);
+        tatonnement = ta.TatonnementAlgorithm($scope.config);
 
         rs.trigger("rp.configuration", $scope.config);
         rs.trigger("rp.endowment", $scope.endowment);
@@ -215,12 +207,13 @@ RedwoodRevealedPreferences.controller("RPStartController",
             // Calculate current price
             var currentPrice = $scope.prices.x/$scope.prices.y;
 
-            // Initialize Tatonnement service
-            ta.initializeRound(currentPrice, rs.subjects, $scope.endowment, $scope.selection);
+            // Compute tatonnement data for this round]
+            var subjectData = ta.getSubjectData(rs.subjects);
+            var roundContext = ta.RoundContext(currentPrice, subjectData);
 
             // check if demand is under threshold (epsilon)
             var roundsUnder = rs.self.get("rp.rounds_under_epsilon");
-            if (Math.abs(ta.excessDemandPerCapita()) < $scope.config.epsilon) {
+            if (Math.abs(roundContext.excessDemandPerCapita) < $scope.config.epsilon) {
                 roundsUnder += 1;
             } else {
                 roundsUnder = 0;
@@ -232,9 +225,14 @@ RedwoodRevealedPreferences.controller("RPStartController",
             // or if the all of the weightvector weights have been used, stop tatonnement
             if (roundsUnder            >= $scope.config.roundsUnderEpsilon
                 || $scope.currentRound >= $scope.config.rounds
-                || ta.weightVectorFinished()) {
+                || tatonnement.weightVectorFinished()) {
 
-                var actualAllocation = ta.allocation($scope.config.marketMaker);
+                var actualAllocation = tatonnement.adjustedAllocation(
+                    $scope.selection,
+                    $scope.endowment,
+                    roundContext,
+                    $scope.config.marketMaker);
+
                 $scope.selection = [actualAllocation.x, actualAllocation.y];
 
                 // reset rounds under epsilon
@@ -244,15 +242,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             }
 
             // Get adjusted price
-            var newPrice = ta.adjustedPrice();
-
-            // Snap to grid if necessary
-            if ($scope.config.snapPriceToGrid) {
-                newPrice = snapPriceToGrid(newPrice, $scope.config.priceGrid);
-                if (newPrice == currentPrice) {
-                    $scope.config.snapPriceToGrid = false;
-                }
-            }
+            var newPrice = tatonnement.adjustedPrice(roundContext);
 
             // Proceed to next round
             rs.set("rp.prices", {x: newPrice, y: 1});
