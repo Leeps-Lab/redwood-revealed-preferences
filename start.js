@@ -116,6 +116,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
         //Reset the text on the button to reflect that it is 'active'
         $scope.ButtonText = "Confirm";
+        $scope.waiting = true;
 
         // Begin next round
         $scope.currentRound++;
@@ -202,6 +203,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
         //Switch text on the button so that participant knows button has been pressed
         $scope.ButtonText = "Confirmed";
+        $scope.waiting = false;
+
 
         rs.synchronizationBarrier('rp.round_' + $scope.currentRound).then(function () {
             // Calculate current price

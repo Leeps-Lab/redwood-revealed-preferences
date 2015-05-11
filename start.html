@@ -43,7 +43,9 @@
     </div>
     <div class="row" style="margin-top: 40px">
       <div class="col-lg-offset-3 col-lg-6">
-          <button id="confirmButton" class="btn btn-success btn-lg btn-block" ng-click="confirm()" ng-disabled="!inputEnabled || !selection">{{ButtonText}}</button>
+          <button id="confirmButton" class="btn btn-lg btn-block" 
+          ng-class="{'btn-success': waiting, 'btn-danger': !waiting}"
+          ng-click="confirm()" ng-disabled="!inputEnabled || !selection">{{ButtonText}}</button>
       </div>
     </div>
   </div>
