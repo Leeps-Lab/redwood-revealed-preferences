@@ -1,20 +1,20 @@
 <svg ng-attr-width="{{width}}" ng-attr-height="{{height}}" shape-rendering="optimizeSpeed"></svg>
 <div class="point-label endowment-label" ng-hide="!endowment">
-    Endowment:
-    {{endowment.x | number: 2}}, {{endowment.y | number: 2}}
+    <strong>Endowment:</strong>
+    ({{labelX}}: <strong>{{endowment.x | number: 2}}</strong>, {{labelY}}: <strong>{{endowment.y | number: 2}}</strong>)
 </div>
 <div class="point-label selection-label" ng-hide="!selection">
-    Selection:
-    {{selection[0] | number: 2}}, {{selection[1] | number: 2}}
+    <strong>Selection:</strong>
+    ({{labelX}}: <strong>{{selection[0] | number: 2}}</strong>, {{labelY}}: <strong>{{selection[1] | number: 2}}</strong>)
 </div>
 <div class="result-label">
     Result:
     <span ng-switch on="resultPoint[1]">
         <span ng-switch-when="0">
-            X = {{resultPoint[0] | number: 2}}
+            {{labelX}} = {{resultPoint[0] | number: 2}}
         </span>
         <span ng-switch-default>
-            Y = {{resultPoint[1] | number: 2}}
+            {{labelY}} = {{resultPoint[1] | number: 2}}
         </span>
     </span>
 </div>

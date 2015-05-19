@@ -16,12 +16,14 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             inputEnabled: "=",
             result: "=",
             probX: "=",
+            labelX: "=",
+            labelY: "=",
             width: "=",
             height: "=",
          },
          templateUrl: '/static/experiments/redwood-revealed-preferences/rpPlot.html',
          link: function ($scope, $elem, attr) {
-
+            console.log($scope)
             var elem = d3.select($elem[0])
             var svg = elem.select("svg");
 
@@ -77,7 +79,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                         .attr("text-anchor", "middle")
                         .attr("x", plotWidth/2)
                         .attr("y", yOffset - 5)
-                        .text("Amount of X (Probability: " + $scope.probX.toFixed(2) + ")");
+                        .text($scope.labelX + " (Probability: " + $scope.probX.toFixed(2) + ")");
                 axes.append("g")
                     .classed("y axis", true)
                     .attr("transform", "translate(" + xOffset + "," + yOffset + ")")
@@ -88,7 +90,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                         .attr("transform", "rotate(-90)")
                         .attr("x", -plotHeight/2)
                         .attr("y", -xOffset + 10)
-                        .text("Amount of Y (Probability: " + (1-$scope.probX).toFixed(2) + ")");
+                        .text($scope.labelY + " (Probability: " + (1-$scope.probX).toFixed(2) + ")");
             }
 
             var drawLine = function (coordinates, className) {

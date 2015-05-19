@@ -16,7 +16,6 @@ RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodS
     }
 
     rs.on_load(function() {
-
         var results = rs.subject[rs.user_id].data["rp.results"];
 
         if (!results) {
@@ -33,6 +32,7 @@ RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodS
                 X: result.x,
                 Y: result.y,
                 chosen: "",
+                chosenLabel: "",
                 selected: false
             });
             rs.send("__set_points__", {period: period, points: 0});
@@ -40,6 +40,11 @@ RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodS
 
         rs.send("__set_show_up_fee__", {show_up_fee: 7.0});
         rs.send("__set_conversion_rate__", {conversion_rate: 1/3});
+
+        // hack to set X and Y label names
+        // use labels from the final period
+        $scope.labelX = rs.configs[rs.configs.length - 1].labelX || "X";
+        $scope.labelY = rs.configs[rs.configs.length - 1].labelY || "Y";
     });
 
     rs.on("payout_select_period", function(period) {
@@ -66,6 +71,7 @@ RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodS
 
         if (result) {
             result.chosen = xOrY;
+            result.chosenLabel = xOrY === "x" ? $scope.labelX : $scope.labelY;
             rs.send("__set_points__", {
                 period: $scope.selected_period, 
                 points: xOrY === "x" ? result.X : result.Y

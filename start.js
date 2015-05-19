@@ -70,6 +70,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
             saveAllocation          : false,
             XLimit                  : 100,     // Visual Options
             YLimit                  : 100,
+            labelX                  : "X",
+            labelY                  : "Y",
             limitAnimDuration       : 0,
             plotResult              : true,
             showEndowment           : true,
