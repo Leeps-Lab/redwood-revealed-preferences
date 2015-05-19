@@ -6,6 +6,17 @@ body {
     margin-top: 240px;
 }
 
+/*
+    dirty quicky css to get 
+    messages to line up nicely
+*/
+.max-payouts-message {
+    position: absolute;
+    width: 300px;
+    top: 240px;
+    right: 0;
+}
+
 .axis {
     stroke-width: 1;
     stroke: #00ff00;

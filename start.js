@@ -76,6 +76,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             plotResult              : true,
             showEndowment           : true,
             showTable               : false,
+            showMaxPayouts          : false,
             constraintsX            : false,   // Interaction Options
             rounds                  : 1,       // Timing Options
             delay                   : 5,
