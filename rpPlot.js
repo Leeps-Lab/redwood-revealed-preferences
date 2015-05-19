@@ -19,28 +19,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             width: "=",
             height: "=",
          },
-         template: '<svg ng-attr-width="{{width}}" ng-attr-height="{{height}}" shape-rendering="optimizeSpeed"></svg>\
-                    <div class="point-label endowment-label" ng-hide="!endowment">\
-                        Endowment:\
-                        {{endowment.x | number: 2}}, {{endowment.y | number: 2}}\
-                    </div>\
-                    <div class="point-label selection-label" ng-hide="!selection">\
-                        Selection:\
-                        {{selection[0] | number: 2}}, {{selection[1] | number: 2}}\
-                    </div>\
-                    <div class="result-label">\
-                        Result:\
-                        <span ng-switch on="resultPoint[1]">\
-                            <span ng-switch-when="0">\
-                                X = {{resultPoint[0] | number: 2}}\
-                            </span>\
-                            <span ng-switch-default>\
-                                Y = {{resultPoint[1] | number: 2}}\
-                            </span>\
-                        </span>\
-                    </div>\
-                    <div class="hover-label x">{{cursor[0] | number: 2}}</div>\
-                    <div class="hover-label y">{{cursor[1] | number: 2}}</div>',
+         templateUrl: '/static/experiments/redwood-revealed-preferences/rpPlot.html',
          link: function ($scope, $elem, attr) {
 
             var elem = d3.select($elem[0])
