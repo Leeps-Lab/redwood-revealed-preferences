@@ -155,13 +155,16 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 // draw label
                 var point = elem.select(".endowment-point");
                 var label = elem.select(".endowment-label");
-                var pointRect = point[0][0].getBoundingClientRect();
-                var labelRect = label[0][0].getBoundingClientRect();
-                label.style({
-                    "position": "fixed",
-                    "top": toPx(pointRect.top-labelRect.height),
-                    "left": toPx(pointRect.left+pointRect.width)
-                });
+
+                if (point[0][0]) {
+                    var pointRect = point[0][0].getBoundingClientRect();
+                    var labelRect = label[0][0].getBoundingClientRect();
+                    label.style({
+                        "position": "fixed",
+                        "top": toPx(pointRect.top-labelRect.height),
+                        "left": toPx(pointRect.left+pointRect.width)
+                    });
+                }
             }
 
             var drawCursor = function () {
