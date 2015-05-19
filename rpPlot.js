@@ -267,25 +267,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 drawResult();
             }
 
-            $scope.$watchCollection("limits", redraw);
-            $scope.$watch("budgetFunc", redraw);
-            $scope.$watch("endowment", drawEndowment);
-            $scope.$watch("selection", drawSelection);
-            $scope.$watch("result", drawResult);
-
-            angular.element($window).bind('resize', function() {
-                drawSelection();
-                drawEndowment();
-                drawResult();
-            });
-
-            angular.element($window).bind('scroll', function() {
-                drawSelection();
-                drawEndowment();
-                drawCursor();
-                drawResult();
-            });
-
             var setCursorPosition = function() {
                 if (!$scope.inputEnabled) return;
                 // fade labels
@@ -324,6 +305,27 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
                 drawCursor();
             }
+
+            // Set up watches and event handlers
+
+            $scope.$watchCollection("limits", redraw);
+            $scope.$watch("budgetFunc", redraw);
+            $scope.$watch("endowment", drawEndowment);
+            $scope.$watch("selection", drawSelection);
+            $scope.$watch("result", drawResult);
+
+            angular.element($window).bind('resize', function() {
+                drawSelection();
+                drawEndowment();
+                drawResult();
+            });
+
+            angular.element($window).bind('scroll', function() {
+                drawSelection();
+                drawEndowment();
+                drawCursor();
+                drawResult();
+            });
 
             svg.on("click", function() {
                 if (!$scope.inputEnabled) return;
