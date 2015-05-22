@@ -48,8 +48,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
         $scope.config = configManager.loadPerSubject(rs, {
             Ex                      : 0,       // Endowment, Price and Probability Options
             Ey                      : 0,
-            Px                      : 100,
-            Py                      : 157,
+            Price                   : 1,
             ProbX                   : 0.5,
             useDefaultSelection     : false,
             epsilon                 : 1,       // Tatonnement Options
@@ -131,19 +130,14 @@ RedwoodRevealedPreferences.controller("RPStartController",
         rs.trigger("rp.selection", $scope.selection)
 
         // set initial price
-        var prices = rs.self.get("rp.prices");
-        $scope.prices = {}
-        $scope.prices.x = $scope.currentRound > 1 ? prices.x : $scope.config.Px;
-        $scope.prices.y = $scope.currentRound > 1 ? prices.y : $scope.config.Py;
-        console.log("prices: " + $scope.prices.x + ", " + $scope.prices.y);
-        console.log("price: " + ($scope.prices.x/$scope.prices.y));
+        var price = rs.self.get("rp.price");
+        $scope.price = $scope.currentRound > 1 ? price : $scope.config.Price;
+        console.log("price: " + $scope.price);
 
-        // find axis intersections
-        $scope.budget = ($scope.endowment.x * $scope.prices.x) + ($scope.endowment.y * $scope.prices.y);
-
+        // find x and y intercepts
         $scope.intercepts = {};
-        $scope.intercepts.x = $scope.budget / $scope.prices.x;
-        $scope.intercepts.y = $scope.budget / $scope.prices.y;
+        $scope.intercepts.x = $scope.endowment.x + $scope.endowment.y / $scope.price;
+        $scope.intercepts.y = $scope.endowment.y + $scope.price * $scope.endowment.x;
 
         // set plot limits
         $scope.limits = {}
@@ -153,16 +147,16 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
         // set budget functions
         $scope.budgetFunction = function (x) {
-            return ($scope.budget - x * $scope.prices.x) / $scope.prices.y;
+            return $scope.endowment.y + $scope.price * ($scope.endowment.x - x);
         }
         $scope.inverseBudgetFunction = function (y) {
-            return ($scope.budget - y * $scope.prices.y) / $scope.prices.x;
+            return $scope.endowment.x + ($scope.endowment.y - y) / $scope.price;
         }
 
         rs.trigger("rp.round_started", {
             "round": $scope.currentRound,
             "endowment": $scope.endowment,
-            "price": $scope.prices.x / $scope.prices.y
+            "price": $scope.price
         });
         $scope.inputEnabled = true;
 
@@ -211,7 +205,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
         rs.synchronizationBarrier('rp.round_' + $scope.currentRound).then(function () {
             // Calculate current price
-            var currentPrice = $scope.prices.x/$scope.prices.y;
+            var currentPrice = $scope.price;
 
             // Compute tatonnement data for this round]
             var subjectData = ta.getSubjectData(rs.subjects);
@@ -251,7 +245,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             var newPrice = tatonnement.adjustedPrice(roundContext);
 
             // Proceed to next round
-            rs.set("rp.prices", {x: newPrice, y: 1});
+            rs.set("rp.price", {x: newPrice, y: 1});
             rs.trigger("rp.next_round");
         });
     });
