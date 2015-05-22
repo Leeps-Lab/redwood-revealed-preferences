@@ -245,7 +245,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             var newPrice = tatonnement.adjustedPrice(roundContext);
 
             // Proceed to next round
-            rs.set("rp.price", {x: newPrice, y: 1});
+            rs.set("rp.price", newPrice);
             rs.trigger("rp.next_round");
         });
     });
