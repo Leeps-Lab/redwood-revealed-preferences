@@ -23,6 +23,7 @@ module.exports = function(config) {
       {pattern: 'framework/js/redwoodSubject.js', included: true},
       {pattern: 'experiments/redwood-revealed-preferences/node_modules/angular-mocks/angular-mocks.js', included: true},
       {pattern: 'experiments/redwood-revealed-preferences/*.js', included: true},
+      {pattern: 'experiments/redwood-revealed-preferences/spec/assignment/testdata/*.js', included: true},
       {pattern: 'experiments/redwood-revealed-preferences/spec/assignment/*.js', included: true},
       {pattern: 'experiments/redwood-revealed-preferences/spec/tatonnement/*.js', included: true},
     ],
@@ -64,7 +65,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['Chrome'],
+    browsers: ['PhantomJS'],
 
 
     // Continuous Integration mode
