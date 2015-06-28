@@ -28,10 +28,14 @@ for row in reader:
         round_config = current_round[subject]
         data = json.loads(row['Value'])
         out_data.append({
-            'price': round_config['price'],
-            'endowment': round_config['endowment'],
-            'round': round_config['round'],
-            'selection': [data['x'], data['y']]
+            'Sender': int(subject),
+            'Period': int(period),
+            'Px': round_config['price'],
+            'Py': 1,
+            'Ex': round_config['endowment']['x'],
+            'Ey': round_config['endowment']['y'],
+            'x': data['x'],
+            'y': data['y']
         })
     
 print json.dumps(out_data, indent=2)
