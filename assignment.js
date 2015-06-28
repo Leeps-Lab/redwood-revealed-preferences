@@ -186,7 +186,7 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
 
             var allocations = rs.self.get(key) || [];
             allocations.push({
-                price: rs.config.Px / rs.config.Py,
+                price: rs.config.Price,
                 x: allocation.x
             })
             rs.set(key, allocations);
