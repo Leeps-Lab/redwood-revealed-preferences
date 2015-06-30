@@ -65,6 +65,10 @@ RedwoodRevealedPreferences.controller("RPStartController",
                                        2.083333333, 2.43902439, 2.941176471, 3.703703704, 5],
             weightVector            : [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
             computeEndowment        : false,   // Endowment Assignment Options
+            Ax                      : 100,     // Ax, Ay, Bx, By - Used if computeEndowment is true
+            Ay                      : 0,       // - must be the same values as the two sets of Ex and Ey
+            Bx                      : 0,       // - this is assuming only 2 different sets of endowments are being used.
+            By                      : 50,        
             minimizeEquilibriumPrice: false,
             saveAllocation          : false,
             XLimit                  : 100,     // Visual Options
@@ -90,8 +94,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
         if ($scope.config.computeEndowment) {
             console.log(rs.self.user_id)
             $scope.endowment = ea.getAssignedEndowment(rs.self.user_id, {
-                endowmentA: {x: 100, y: 0},
-                endowmentB: {x: 0, y: 50},
+                endowmentA: {x: $scope.config.Ax, y: $scope.config.Ay},
+                endowmentB: {x: $scope.config.Bx, y: $scope.config.By},
                 minimizeEquilibriumPrice: $scope.config.minimizeEquilibriumPrice
             });
         }
