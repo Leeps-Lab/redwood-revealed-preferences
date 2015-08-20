@@ -51,8 +51,9 @@ RedwoodRevealedPreferences.controller("RPStartController",
             Price                   : 1,
             ProbX                   : 0.5,
             useDefaultSelection     : false,
-            epsilon                 : 1,       // Tatonnement Options
-            roundsUnderEpsilon      : 1,
+            epsilon1                : 1,        // Tatonnement Options
+            epsilon2                : 2,
+            roundsUnderEpsilon      : 2,
             expectedExcess          : 13.5,
             priceLowerBound         : 0.1,
             priceUpperBound         : 100.0,
@@ -210,24 +211,40 @@ RedwoodRevealedPreferences.controller("RPStartController",
         rs.synchronizationBarrier('rp.round_' + $scope.currentRound).then(function () {
             // Calculate current price
             var currentPrice = $scope.price;
+            var inGrid = false;
+            for (var i = 0; i < $scope.config.priceGrid.length; i++){
+                if (currentPrice === $scope.config.priceGrid[i]) {
+                    inGrid = true;
+                }
+            }
 
             // Compute tatonnement data for this round]
             var subjectData = ta.getSubjectData(rs.subjects);
             var roundContext = ta.RoundContext(currentPrice, subjectData);
 
-            // check if demand is under threshold (epsilon)
-            var roundsUnder = rs.self.get("rp.rounds_under_epsilon");
-            if (Math.abs(roundContext.excessDemandPerCapita) < $scope.config.epsilon) {
-                roundsUnder += 1;
+            // check if demand is under either threshold (epsilon1, epsilon2)
+            var roundsUnder1 = rs.self.get("rp.rounds_under_epsilon1");
+            if (Math.abs(roundContext.excessDemandPerCapita) < $scope.config.epsilon1) {
+                roundsUnder1 += 1;
             } else {
-                roundsUnder = 0;
+                roundsUnder1 = 0;
             }
-            rs.set("rp.rounds_under_epsilon", roundsUnder);
+            rs.set("rp.rounds_under_epsilon1", roundsUnder1);
+            // epsilon2 has the added condition that the price not be in the grid
+            var roundsUnder2 = rs.self.get("rp.rounds_under_epsilon2");
+            if (!inGrid && Math.abs(roundContext.excessDemandPerCapita) < $scope.config.epsilon2) {
+                roundsUnder2 += 1;
+            } else {
+                roundsUnder2 = 0;
+            }
+            rs.set("rp.rounds_under_epsilon2", roundsUnder2);
 
             // If demand has been under threshold for @roundsUnderEpsilon rounds,
             // or if the maximum number of rounds have been played, 
             // or if the all of the weightvector weights have been used, stop tatonnement
-            if (roundsUnder            >= $scope.config.roundsUnderEpsilon
+            //if (roundsUnder            >= $scope.config.roundsUnderEpsilon
+            if (   roundsUnder1        >= $scope.config.roundsUnderEpsilon
+                || roundsUnder2        >= $scope.config.roundsUnderEpsilon
                 || $scope.currentRound >= $scope.config.rounds
                 || tatonnement.weightVectorFinished()) {
 
@@ -240,7 +257,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
                 $scope.selection = [actualAllocation.x, actualAllocation.y];
 
                 // reset rounds under epsilon
-                rs.set("rp.rounds_under_epsilon", 0);
+                rs.set("rp.rounds_under_epsilon1", 0);
+                rs.set("rp.rounds_under_epsilon2", 0);
                 rs.trigger("rp.perform_allocation", actualAllocation);
                 return;
             }
