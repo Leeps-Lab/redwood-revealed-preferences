@@ -145,7 +145,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
         $scope.intercepts.y = $scope.endowment.y + $scope.price * $scope.endowment.x;
 
         // set plot limits
-        $scope.limits = {}
+        $scope.limits = {};
         $scope.limits.x = $scope.config.XLimit ? $scope.config.XLimit : $scope.intercepts.x;
         $scope.limits.y = $scope.config.YLimit ? $scope.config.YLimit : $scope.intercepts.y;
         animateLimits();
@@ -218,9 +218,12 @@ RedwoodRevealedPreferences.controller("RPStartController",
                 }
             }
 
-            // Compute tatonnement data for this round]
+            // Compute tatonnement data for this round
             var subjectData = ta.getSubjectData(rs.subjects);
             var roundContext = ta.RoundContext(currentPrice, subjectData);
+
+            // Add excess demand to history
+            tatonnement.addExcessDemand(roundContext.excessDemand);
 
             // check if demand is under either threshold (epsilon1, epsilon2)
             var roundsUnder1 = rs.self.get("rp.rounds_under_epsilon1");
