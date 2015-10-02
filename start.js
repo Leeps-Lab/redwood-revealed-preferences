@@ -55,16 +55,13 @@ RedwoodRevealedPreferences.controller("RPStartController",
             epsilon2                : 2,
             roundsUnderEpsilon      : 2,
             expectedExcess          : 13.5,
-            priceLowerBound         : 0.1,
+            priceLowerBound         : 0.01,
             priceUpperBound         : 100.0,
             maxAngularDiff          : 0.26175,
             marketMaker             : true,
             snapPriceToGrid         : false,
-            priceGrid               : [0.2, 0.27, 0.34, 0.41, 0.48, 0.55, 0.62, 0.69,
-                                       0.76, 0.82, 0.88, 0.94, 1, 1.063829787, 1.136363636,
-                                       1.219512195, 1.315789474, 1.449275362, 1.612903226, 1.818181818,
-                                       2.083333333, 2.43902439, 2.941176471, 3.703703704, 5],
-            weightVector            : [0.001745, 0.000873, 0.000436, 0.000218, 0.000109],
+            priceGrid               : [0.2, 0.28, 0.36, 0.43, 0.5, 0.57, 0.64, 0.7, 0.76, 0.83, 0.89, 0.94, 1, 1.06, 1.13, 1.21, 1.31, 1.43, 1.57, 1.75, 2, 2.33, 2.81, 3.57, 5],
+            weightVector            : [0.1745, 0.08725, 0.043625, 0.021813, 0.010906],
             computeEndowment        : false,   // Endowment Assignment Options
             Ax                      : 100,     // Ax, Ay, Bx, By - Used if computeEndowment is true
             Ay                      : 0,       // - must be the same values as the two sets of Ex and Ey
@@ -211,6 +208,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
         rs.synchronizationBarrier('rp.round_' + $scope.currentRound).then(function () {
             // Calculate current price
             var currentPrice = $scope.price;
+
+            // Check if current price is "in the grid"
             var inGrid = false;
             for (var i = 0; i < $scope.config.priceGrid.length; i++){
                 if (currentPrice === $scope.config.priceGrid[i]) {
@@ -243,13 +242,10 @@ RedwoodRevealedPreferences.controller("RPStartController",
             rs.set("rp.rounds_under_epsilon2", roundsUnder2);
 
             // If demand has been under threshold for @roundsUnderEpsilon rounds,
-            // or if the maximum number of rounds have been played, 
-            // or if the all of the weightvector weights have been used, stop tatonnement
-            //if (roundsUnder            >= $scope.config.roundsUnderEpsilon
+            // or if the maximum number of rounds have been played, stop tatonnement
             if (   roundsUnder1        >= $scope.config.roundsUnderEpsilon
                 || roundsUnder2        >= $scope.config.roundsUnderEpsilon
-                || $scope.currentRound >= $scope.config.rounds
-                || tatonnement.weightVectorFinished()) {
+                || $scope.currentRound >= $scope.config.rounds) {
 
                 var actualAllocation = tatonnement.adjustedAllocation(
                     $scope.selection,

@@ -59,21 +59,23 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
 
         var addExcessDemand = function(excessDemand) {
             // increment weight index if the sign of the excess demand changes
-            var previousDemand = excessDemandHistory.length == 0 ? 
-                1 : excessDemandHistory[excessDemandHistory.length - 1];
+            if (excessDemandHistory.length > 0) {
+                var previousDemand = excessDemandHistory[excessDemandHistory.length - 1];
 
-            if (excessDemand * previousDemand < 0) {
-                _weightIndex += 1;
+                if (excessDemand * previousDemand < 0) {
+                    _weightIndex += 1;
+                }
             }
             excessDemandHistory.push(excessDemand);
         }
 
         var adjustedPrice = function(roundContext) {
             var adjustedPrice;
+            var excessDemandSign = sign(roundContext.excessDemand);
+
             if (_weightIndex < _weightVector.length) {
 
                 var weight = _weightVector[_weightIndex] / _expectedExcess;
-                var excessDemandSign = sign(roundContext.excessDemand);
                 
                 // make sure angular difference is no more than 15 degrees
                 var angularDiff = weight * roundContext.excessDemandPerCapita;
