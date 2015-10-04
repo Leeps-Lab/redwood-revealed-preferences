@@ -96,6 +96,13 @@ RedwoodRevealedPreferences.controller("RPStartController",
                 endowmentB: {x: $scope.config.Bx, y: $scope.config.By},
                 minimizeEquilibriumPrice: $scope.config.minimizeEquilibriumPrice
             });
+// FOR TEST
+// $scope.grouping = ea.getGroupings(rs.self.user_id, {
+//     endowmentA: {x: $scope.config.Ax, y: $scope.config.Ay},
+//     endowmentB: {x: $scope.config.Bx, y: $scope.config.By},
+//     minimizeEquilibriumPrice: $scope.config.minimizeEquilibriumPrice
+// });
+// END FOR TEST
         }
 
         if ($scope.config.showEndowment) {
@@ -162,6 +169,95 @@ RedwoodRevealedPreferences.controller("RPStartController",
         });
         $scope.inputEnabled = true;
 
+        // flash the Confirm Selection button to alert the subject that a new round started
+        // ooh the dirty dirty JQuery (.n.)
+        var confirmButton = $("#confirmButton");
+        confirmButton.effect("highlight", {color: "#c6feb6"}, 500, function() {
+            confirmButton.effect("highlight", {color: "#c6feb6"}, 500);
+        });
+
+
+        /*****************************************
+         * BEGIN TEST
+         * Depends on assignment.js
+         * Test code must be uncommented in start.js and assignment.js
+         * Test will only work when run with 6 subjects
+         *****************************************/
+        // var m = {};
+        // m.x = ($scope.endowment.y + $scope.price * $scope.endowment.x) / (1 + $scope.price);
+        // m.y = m.x;
+
+        // var b = {};
+        // if ($scope.endowment.x != 0) {
+        //     if ($scope.price <= 1) {
+        //         b.x = $scope.endowment.x;
+        //         b.y = $scope.endowment.y;
+        //     } else {
+        //         b.x = 0;
+        //         b.y = ($scope.price * $scope.endowment.x);
+        //     }
+        // } else {
+        //     if ($scope.price >= 1) {
+        //         b.x = $scope.endowment.x;
+        //         b.y = $scope.endowment.y;
+        //     } else {
+        //         b.x = ((1 / $scope.price) * $scope.endowment.y);
+        //         b.y = 0;
+        //     }
+        // }
+
+        // var a = {};
+        // a.x = ((2/3) * m.x) + ((1/3) * b.x);
+        // a.y = ((2/3) * m.y) + ((1/3) * b.y);
+
+        // var c = {};
+        // c.x = ((1/4) * m.x) + ((3/4) * b.x);
+        // c.y = ((1/4) * m.y) + ((3/4) * b.y);
+
+        // var mychoice = {};
+        // if (!$scope.config.computeEndowment) {
+        //     if (rs.self.user_id % 3 == 0) {
+        //         mychoice.x = m.x;
+        //         mychoice.y = m.y;
+        //     } else if (rs.self.user_id % 3 == 1) {
+        //         mychoice.x = a.x;
+        //         mychoice.y = a.y;
+        //     } else {
+        //         mychoice.x = c.x;
+        //         mychoice.y = c.y;
+        //     }
+        // } else {
+        //     if (($scope.grouping / 7) === 1 || ($scope.grouping / 7) === 2 ||
+        //         ($scope.grouping / 7) === 3 || ($scope.grouping / 7) === 4 ||
+        //         ($scope.grouping / 7) === 5 || ($scope.grouping / 7) === 6 ||
+        //         ($scope.grouping / 17) === 1 || ($scope.grouping / 17) === 2 ||
+        //         ($scope.grouping / 17) === 3 || ($scope.grouping / 17) === 4 ||
+        //         ($scope.grouping / 17) === 5 || ($scope.grouping / 17) === 6) {
+
+        //         mychoice.x = m.x;
+        //         mychoice.y = m.y;
+        //     } else if ( ($scope.grouping / 11) === 1 || ($scope.grouping / 11) === 2 ||
+        //                 ($scope.grouping / 11) === 3 || ($scope.grouping / 11) === 4 ||
+        //                 ($scope.grouping / 11) === 5 || ($scope.grouping / 11) === 6 ||
+        //                 ($scope.grouping / 19) === 1 || ($scope.grouping / 19) === 2 ||
+        //                 ($scope.grouping / 19) === 3 || ($scope.grouping / 19) === 4 ||
+        //                 ($scope.grouping / 19) === 5 || ($scope.grouping / 19) === 6) {
+
+        //         mychoice.x = a.x;
+        //         mychoice.y = a.y;
+        //     } else {             
+        //         mychoice.x = c.x;
+        //         mychoice.y = c.y;
+        //     }
+        // }
+        // var selection = [mychoice.x, mychoice.y];
+        // rs.trigger("rp.selection", selection);
+        // $scope.confirm();
+
+        /****************************************
+         * END TEST
+         ****************************************/
+
         // setup timer
         if ($scope.config.timeLimit > 0) {
             if (!$scope.stopWatch) {
@@ -184,13 +280,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
             $scope.timeTotal = $scope.stopWatch.getDurationInTicks();
         }
-
-        // flash the Confirm Selection button to alert the subject that a new round started
-        // ooh the dirty dirty JQuery (.n.)
-        var confirmButton = $("#confirmButton");
-        confirmButton.effect("highlight", {color: "#c6feb6"}, 500, function() {
-            confirmButton.effect("highlight", {color: "#c6feb6"}, 500);
-        });
     });
 
     rs.on("rp.selection", function (selection) {

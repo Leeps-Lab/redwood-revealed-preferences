@@ -124,7 +124,7 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
         });
 
         // The optimized sorting
-        // If minimizing equlibrium price: sorting with smallest price and a negative excessDemand
+        // If minimizing equilibrium price: sorting with smallest price and a negative excessDemand
         // If maximizing equilibrium price: sorting with the largest price and a positive excessDemand
         var chosenSorting = chooseSorting(sortings, excessDemands);
 
@@ -134,6 +134,39 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
             assignedEndowmentMap[subject.id] = subject.assignedEndowment;
         });
 
+
+// FOR TEST
+// var groupings = [];
+// var firstx = false;
+// var secondx = false;
+// var firsty = false;
+// var secondy = false;
+// chosenSorting.forEach(function(subject) {
+//     if (subject.assignedEndowment.x != 0) {
+//         if (firstx == false) {
+//             groupings[subject.id] = subject.id * 7;
+//             firstx = true;
+//         } else if (secondx == false) {
+//             groupings[subject.id] = subject.id * 11;
+//             secondx = true;
+//         } else {
+//             groupings[subject.id] = subject.id * 13;
+//         }
+//     } else {
+//         if (firsty == false) {
+//             groupings[subject.id] = subject.id * 17;
+//             firsty = true;
+//         } else if (secondy == false) {
+//             groupings[subject.id] = subject.id * 19;
+//             secondy = true; 
+//         } else {
+//             groupings[subject.id] = subject.id * 23;
+//         }
+//     }
+// });
+// END FOR TEST
+
+
         return {
             "selections": selections,
             "diffs": diffs,
@@ -142,9 +175,22 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
             "chosenSorting": chosenSorting,
             "getAssignedEndowment": function(subject) {
                 return assignedEndowmentMap[subject];
+// FOR TEST
+// },
+// "getGroupings": function(subject) {
+// console.log("id:" + subject + " this is returned: " + groupings[subject]);
+//     return groupings[subject];
+// END FOR TEST
             }
         };
     }
+
+// FOR TEST
+// api.getGroupings = function(subject, options) {
+//     var allocationData = api.getAllocationData(options.endowmentA, options.endowmentB);
+//     return api.EndowmentAssigner(allocationData, options).getGroupings(subject);
+// }
+// END FOR TEST
 
     api.getAllocationData = function(endowmentA, endowmentB) {
         var subjectAllocations = rs.subjects.map(function(subject) {
