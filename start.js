@@ -136,7 +136,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
         if ($scope.config.useDefaultSelection) {
             $scope.selection = [$scope.endowment.x, $scope.endowment.y];
         }
-        rs.trigger("rp.selection", $scope.selection)
+        rs.trigger("rp.selection", $scope.selection);
 
         // set initial price
         var price = rs.self.get("rp.price");
@@ -250,8 +250,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
         //         mychoice.y = c.y;
         //     }
         // }
-        // var selection = [mychoice.x, mychoice.y];
-        // rs.trigger("rp.selection", selection);
+        // $scope.selection = [mychoice.x, mychoice.y];
+        // rs.trigger("rp.selection", $scope.selection);
         // $scope.confirm();
 
         /****************************************
@@ -292,7 +292,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
         //Switch text on the button so that participant knows button has been pressed
         $scope.ButtonText = "Confirmed";
         $scope.waiting = false;
-
 
         rs.synchronizationBarrier('rp.round_' + $scope.currentRound).then(function () {
             // Calculate current price
@@ -347,6 +346,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
                 // reset rounds under epsilon
                 rs.set("rp.rounds_under_epsilon1", 0);
                 rs.set("rp.rounds_under_epsilon2", 0);
+
                 rs.trigger("rp.perform_allocation", actualAllocation);
                 return;
             }
