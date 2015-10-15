@@ -181,75 +181,105 @@ RedwoodRevealedPreferences.controller("RPStartController",
          * BEGIN TEST
          * Depends on assignment.js
          * Test code must be uncommented in start.js and assignment.js
-         * Test will only work when run with 6 subjects
          *****************************************/
-        // var m = {};
-        // m.x = ($scope.endowment.y + $scope.price * $scope.endowment.x) / (1 + $scope.price);
-        // m.y = m.x;
 
-        // var b = {};
+        // Coordinates where amounts of good x and y are equal
+        // var middle = {};
+        // middle.x = ($scope.endowment.y + $scope.price * $scope.endowment.x) / (1 + $scope.price);
+        // middle.y = middle.x;
+
+        // // Coordinates of max of good with highest endowment
+        // var corner = {};
         // if ($scope.endowment.x != 0) {
         //     if ($scope.price <= 1) {
-        //         b.x = $scope.endowment.x;
-        //         b.y = $scope.endowment.y;
+        //         corner.x = $scope.endowment.x;
+        //         corner.y = $scope.endowment.y;
         //     } else {
-        //         b.x = 0;
-        //         b.y = ($scope.price * $scope.endowment.x);
+        //         corner.x = 0;
+        //         corner.y = ($scope.price * $scope.endowment.x);
         //     }
         // } else {
         //     if ($scope.price >= 1) {
-        //         b.x = $scope.endowment.x;
-        //         b.y = $scope.endowment.y;
+        //         corner.x = $scope.endowment.x;
+        //         corner.y = $scope.endowment.y;
         //     } else {
-        //         b.x = ((1 / $scope.price) * $scope.endowment.y);
-        //         b.y = 0;
+        //         corner.x = ((1 / $scope.price) * $scope.endowment.y);
+        //         corner.y = 0;
         //     }
         // }
 
-        // var a = {};
-        // a.x = ((2/3) * m.x) + ((1/3) * b.x);
-        // a.y = ((2/3) * m.y) + ((1/3) * b.y);
+        // // For use in 3 "type" test
 
-        // var c = {};
-        // c.x = ((1/4) * m.x) + ((3/4) * b.x);
-        // c.y = ((1/4) * m.y) + ((3/4) * b.y);
+        // // Coordinates 1/3 of the way between the middle and corner
+        // var onethird = {};
+        // onethird.x = ((2/3) * middle.x) + ((1/3) * corner.x);
+        // onethird.y = ((2/3) * middle.y) + ((1/3) * corner.y);
+
+        // // Coordinates 3/4 of the way between the middle and corner
+        // var threeforths = {};
+        // threeforths.x = ((1/4) * middle.x) + ((3/4) * corner.x);
+        // threeforths.y = ((1/4) * middle.y) + ((3/4) * corner.y);
+
+        // // For use in 6 "type" test
+
+        // // Coordinates 20% of the way between the middle and corner
+        // var twenty = {};
+        // twenty.x = ((8/10) * middle.x) + ((2/10) * corner.x);
+        // twenty.y = ((8/10) * middle.y) + ((2/10) * corner.y);
+
+        // // Coordinates 40% of the way between the middle and corner
+        // var forty = {};
+        // forty.x = ((6/10) * middle.x) + ((4/10) * corner.x);
+        // forty.y = ((6/10) * middle.y) + ((4/10) * corner.y);
+
+        // // Coordinates 60% of the way between the middle and corner
+        // var sixty = {};
+        // sixty.x = ((4/10) * middle.x) + ((6/10) * corner.x);
+        // sixty.y = ((4/10) * middle.y) + ((6/10) * corner.y);
+
+        // // Coordinates 80% of the way between middle and corner
+        // var eighty = {};
+        // eighty.x = ((2/10) * middle.x) + ((8/10) * corner.x);
+        // eighty.y = ((2/10) * middle.y) + ((8/10) * corner.y);
+
 
         // var mychoice = {};
-        // if (!$scope.config.computeEndowment) {
-        //     if (rs.self.user_id % 3 == 0) {
-        //         mychoice.x = m.x;
-        //         mychoice.y = m.y;
-        //     } else if (rs.self.user_id % 3 == 1) {
-        //         mychoice.x = a.x;
-        //         mychoice.y = a.y;
-        //     } else {
-        //         mychoice.x = c.x;
-        //         mychoice.y = c.y;
-        //     }
+
+        // // EITHER USE THIS OR 6 subject "type" NOT BOTH
+        // // 3 subject "types"
+        // // if (rs.self.user_id % 3 == 0) { 
+        // //     mychoice.x = middle.x;
+        // //     mychoice.y = middle.y;
+        // // } else if (rs.self.user_id % 3 == 1) { 
+        // //     mychoice.x = onethird.x;
+        // //     mychoice.y = onethird.y;
+        // // } else {
+        // //     mychoice.x = threeforths.x;
+        // //     mychoice.y = threeforths.y;
+        // // }
+
+        // // EITHER USE THIS OR 3 subject "type" NOT BOTH
+        // // 6 subject "types"
+        // if (rs.self.user_id % 6 == 0) {
+        //     mychoice.x = middle.x;
+        //     mychoice.y = middle.y;
+        // } else if (rs.self.user_id % 6 == 1) {
+        //     mychoice.x = corner.x;
+        //     mychoice.y = corner.y;
+        // } else if (rs.self.user_id % 6 == 2) {
+        //     mychoice.x = twenty.x;
+        //     mychoice.y = twenty.y;
+        // } else if (rs.self.user_id % 6 == 3) {
+        //     mychoice.x = forty.x;
+        //     mychoice.y = forty.y;
+        // } else if (rs.self.user_id % 6 == 4) {
+        //     mychoice.x = sixty.x;
+        //     mychoice.y = sixty.y;
         // } else {
-        //     if (($scope.grouping / 7) === 1 || ($scope.grouping / 7) === 2 ||
-        //         ($scope.grouping / 7) === 3 || ($scope.grouping / 7) === 4 ||
-        //         ($scope.grouping / 7) === 5 || ($scope.grouping / 7) === 6 ||
-        //         ($scope.grouping / 17) === 1 || ($scope.grouping / 17) === 2 ||
-        //         ($scope.grouping / 17) === 3 || ($scope.grouping / 17) === 4 ||
-        //         ($scope.grouping / 17) === 5 || ($scope.grouping / 17) === 6) {
-
-        //         mychoice.x = m.x;
-        //         mychoice.y = m.y;
-        //     } else if ( ($scope.grouping / 11) === 1 || ($scope.grouping / 11) === 2 ||
-        //                 ($scope.grouping / 11) === 3 || ($scope.grouping / 11) === 4 ||
-        //                 ($scope.grouping / 11) === 5 || ($scope.grouping / 11) === 6 ||
-        //                 ($scope.grouping / 19) === 1 || ($scope.grouping / 19) === 2 ||
-        //                 ($scope.grouping / 19) === 3 || ($scope.grouping / 19) === 4 ||
-        //                 ($scope.grouping / 19) === 5 || ($scope.grouping / 19) === 6) {
-
-        //         mychoice.x = a.x;
-        //         mychoice.y = a.y;
-        //     } else {             
-        //         mychoice.x = c.x;
-        //         mychoice.y = c.y;
-        //     }
+        //     mychoice.x = eighty.x;
+        //     mychoice.y = eighty.y;
         // }
+       
         // $scope.selection = [mychoice.x, mychoice.y];
         // rs.trigger("rp.selection", $scope.selection);
         // $scope.confirm();
