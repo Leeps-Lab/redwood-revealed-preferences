@@ -88,28 +88,83 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
                     "b": subjects[j]["b"][i],
                 });
             }
+        }        
+
+        var sums = [];
+        for (var i = 0; i < priceCount / 2; ++i) {
+            sums.push([]);
+            for (var j = 0; j < subjects.length; ++j) {
+                var subject = subjects[j];
+                var subjectID = subject.hasOwnProperty("id") ?
+                    subject.id : (j+1).toString();
+                sums[i].push({
+                    "index": j,
+                    "id": subjectID,
+                    "a": subjects[j]["a"][i],
+                    "b": subjects[j]["b"][i],
+                });
+            }
         }
 
-        // The C vector in the spec
-        // diffs[P][S] is the X/Y selection diff of subject S for price P
-        var diffs = selections.map(function(subjects) {
+        var priceOrder = options.priceOrder;
+        var gridCount = options.priceOrder.length;
+        for (var i = 0; i < (gridCount / 2); ++i) {
+            for (var j = gridCount / 2; j < gridCount; ++j) {
+                if (priceOrder[i] == priceOrder[j]) {
+/*test*/            console.log("priceOrder[" + i + "] = " + priceOrder[i]);
+/*test*/            console.log("priceOrder[" + j + "] = " + priceOrder[j]);
+                    for (var k = 0; k < subjects.length; ++k) {
+                        sums[i][k].a = selections[i][k].a + selections[j][k].a;
+                        sums[i][k].b = selections[i][k].b + selections[j][k].b;
+
+/*test*/                console.log("selections[" + i + "][" + k + "].a = " + selections[i][k].a);
+/*test*/                console.log("selections[" + j + "][" + k + "].a = " + selections[j][k].a);
+/*test*/                console.log("sums[" + i + "][" + k + "].a = " + sums[i][k].a);
+
+/*test*/                console.log("selections[" + i + "][" + k + "].b = " + selections[i][k].b);
+/*test*/                console.log("selections[" + j + "][" + k + "].b = " + selections[j][k].b);
+/*test*/                console.log("sums[" + i + "][" + k + "].b = " + sums[i][k].b);
+                    }
+                }
+            }
+        }
+
+        //NEW
+        var diffs = sums.map(function(subjects) {
             return subjects.map(function(subject) {
                 return -subject.a + subject.b;
             })
         });
 
-        // The S vector in the spec
-        // an array of subject sortings for each price, sorted from greatest to least C value.
-        // sortings[P] is the sorting of subjects for price P
-        var sortings = selections.map(function(subjects, priceIndex) {
+        var sortings = sums.map(function(subjects, priceIndex) {
             return subjects.sort(function(a, b) {
                 return diffs[priceIndex][b.index] - diffs[priceIndex][a.index];
-
             }).map(function(subject, index) {
                 subject.assignedEndowment = getAssignedEndowment(index, subjects.length);
                 return subject;
             });
         });
+
+
+        // // The C vector in the spec
+        // // diffs[P][S] is the X/Y selection diff of subject S for price P
+        // var diffs = selections.map(function(subjects) {
+        //     return subjects.map(function(subject) {
+        //         return -subject.a + subject.b;
+        //     })
+        // });
+
+        // The S vector in the spec
+        // an array of subject sortings for each price, sorted from greatest to least C value.
+        // sortings[P] is the sorting of subjects for price P
+        // var sortings = selections.map(function(subjects, priceIndex) {
+        //     return subjects.sort(function(a, b) {
+        //         return diffs[priceIndex][b.index] - diffs[priceIndex][a.index];
+        //     }).map(function(subject, index) {
+        //         subject.assignedEndowment = getAssignedEndowment(index, subjects.length);
+        //         return subject;
+        //     });
+        // });
 
         // An array of excess demands for each subject sorting
         // excessDemands[P] is the excessDemand to price P
@@ -134,39 +189,6 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
             assignedEndowmentMap[subject.id] = subject.assignedEndowment;
         });
 
-
-// FOR TEST
-// var groupings = [];
-// var firstx = false;
-// var secondx = false;
-// var firsty = false;
-// var secondy = false;
-// chosenSorting.forEach(function(subject) {
-//     if (subject.assignedEndowment.x != 0) {
-//         if (firstx == false) {
-//             groupings[subject.id] = subject.id * 7;
-//             firstx = true;
-//         } else if (secondx == false) {
-//             groupings[subject.id] = subject.id * 11;
-//             secondx = true;
-//         } else {
-//             groupings[subject.id] = subject.id * 13;
-//         }
-//     } else {
-//         if (firsty == false) {
-//             groupings[subject.id] = subject.id * 17;
-//             firsty = true;
-//         } else if (secondy == false) {
-//             groupings[subject.id] = subject.id * 19;
-//             secondy = true; 
-//         } else {
-//             groupings[subject.id] = subject.id * 23;
-//         }
-//     }
-// });
-// END FOR TEST
-
-
         return {
             "selections": selections,
             "diffs": diffs,
@@ -175,22 +197,9 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
             "chosenSorting": chosenSorting,
             "getAssignedEndowment": function(subject) {
                 return assignedEndowmentMap[subject];
-// FOR TEST
-// },
-// "getGroupings": function(subject) {
-// console.log("id:" + subject + " this is returned: " + groupings[subject]);
-//     return groupings[subject];
-// END FOR TEST
             }
         };
     }
-
-// FOR TEST
-// api.getGroupings = function(subject, options) {
-//     var allocationData = api.getAllocationData(options.endowmentA, options.endowmentB);
-//     return api.EndowmentAssigner(allocationData, options).getGroupings(subject);
-// }
-// END FOR TEST
 
     api.getAllocationData = function(endowmentA, endowmentB) {
         var subjectAllocations = rs.subjects.map(function(subject) {
