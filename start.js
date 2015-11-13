@@ -61,7 +61,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             marketMaker             : true,
             snapPriceToGrid         : false,
             priceGrid               : [0.2, 0.4, 0.5, 0.57, 0.63, 0.69, 0.75, 0.81, 0.87, 0.94, 1, 1.07, 1.17, 1.5],
-            priceOrder              : [0.75, 1.07, 0.81, 0.57, 0.2, 0.69, 1, 0.5, 0.94, 1.5, 0.63, 1.17, 0.87, 0.4, 1.07, 0.63, 0.4, 0.69, 0.94, 0.5, 0.81, 1.17, 0.87, 0.57, 0.2, 0.75, 1, 1.5],
+            priceOrder              : [0.75, 0.40, 1.07, 0.81, 0.57, 0.2, 0.69, 1, 0.5, 1.5, 0.94, 0.63, 1.17, 0.87, 1.07, 0.63, 0.94, 0.69, 0.5, 0.81, 1.17, 0.2, 0.57, 0.87, 0.4, 1, 1.5, 0.75],
             weightVector            : [0.1745, 0.08725, 0.043625, 0.021813, 0.010906],
             computeEndowment        : false,   // Endowment Assignment Options
             Ax                      : 100,     // Ax, Ay, Bx, By - Used if computeEndowment is true
@@ -176,106 +176,106 @@ RedwoodRevealedPreferences.controller("RPStartController",
          * BEGIN TEST
          *****************************************/
 
-        // //Coordinates where amounts of good x and y are equal
-        // var middle = {};
-        // middle.x = ($scope.endowment.y + $scope.price * $scope.endowment.x) / (1 + $scope.price);
-        // middle.y = middle.x;
+        //Coordinates where amounts of good x and y are equal
+        var middle = {};
+        middle.x = ($scope.endowment.y + $scope.price * $scope.endowment.x) / (1 + $scope.price);
+        middle.y = middle.x;
 
-        // // Coordinates of max of good with highest endowment
-        // var corner = {};
-        // if ($scope.endowment.x != 0) {
-        //     if ($scope.price <= 1) {
-        //         corner.x = $scope.endowment.x;
-        //         corner.y = $scope.endowment.y;
-        //     } else {
-        //         corner.x = 0;
-        //         corner.y = ($scope.price * $scope.endowment.x);
-        //     }
-        // } else {
-        //     if ($scope.price >= 1) {
-        //         corner.x = $scope.endowment.x;
-        //         corner.y = $scope.endowment.y;
-        //     } else {
-        //         corner.x = ((1 / $scope.price) * $scope.endowment.y);
-        //         corner.y = 0;
-        //     }
-        // }
+        // Coordinates of max of good with highest endowment
+        var corner = {};
+        if ($scope.endowment.x != 0) {
+            if ($scope.price <= 1) {
+                corner.x = $scope.endowment.x;
+                corner.y = $scope.endowment.y;
+            } else {
+                corner.x = 0;
+                corner.y = ($scope.price * $scope.endowment.x);
+            }
+        } else {
+            if ($scope.price >= 1) {
+                corner.x = $scope.endowment.x;
+                corner.y = $scope.endowment.y;
+            } else {
+                corner.x = ((1 / $scope.price) * $scope.endowment.y);
+                corner.y = 0;
+            }
+        }
 
-        // // For use in 3 "type" test
+        // For use in 3 "type" test
 
-        // // Coordinates 1/3 of the way between the middle and corner
-        // var onethird = {};
-        // onethird.x = ((2/3) * middle.x) + ((1/3) * corner.x);
-        // onethird.y = ((2/3) * middle.y) + ((1/3) * corner.y);
+        // Coordinates 1/3 of the way between the middle and corner
+        var onethird = {};
+        onethird.x = ((2/3) * middle.x) + ((1/3) * corner.x);
+        onethird.y = ((2/3) * middle.y) + ((1/3) * corner.y);
 
-        // // Coordinates 3/4 of the way between the middle and corner
-        // var threeforths = {};
-        // threeforths.x = ((1/4) * middle.x) + ((3/4) * corner.x);
-        // threeforths.y = ((1/4) * middle.y) + ((3/4) * corner.y);
+        // Coordinates 3/4 of the way between the middle and corner
+        var threeforths = {};
+        threeforths.x = ((1/4) * middle.x) + ((3/4) * corner.x);
+        threeforths.y = ((1/4) * middle.y) + ((3/4) * corner.y);
 
-        // // For use in 6 "type" test
+        // For use in 6 "type" test
 
-        // // Coordinates 20% of the way between the middle and corner
-        // var twenty = {};
-        // twenty.x = ((8/10) * middle.x) + ((2/10) * corner.x);
-        // twenty.y = ((8/10) * middle.y) + ((2/10) * corner.y);
+        // Coordinates 20% of the way between the middle and corner
+        var twenty = {};
+        twenty.x = ((8/10) * middle.x) + ((2/10) * corner.x);
+        twenty.y = ((8/10) * middle.y) + ((2/10) * corner.y);
 
-        // // Coordinates 40% of the way between the middle and corner
-        // var forty = {};
-        // forty.x = ((6/10) * middle.x) + ((4/10) * corner.x);
-        // forty.y = ((6/10) * middle.y) + ((4/10) * corner.y);
+        // Coordinates 40% of the way between the middle and corner
+        var forty = {};
+        forty.x = ((6/10) * middle.x) + ((4/10) * corner.x);
+        forty.y = ((6/10) * middle.y) + ((4/10) * corner.y);
 
-        // // Coordinates 60% of the way between the middle and corner
-        // var sixty = {};
-        // sixty.x = ((4/10) * middle.x) + ((6/10) * corner.x);
-        // sixty.y = ((4/10) * middle.y) + ((6/10) * corner.y);
+        // Coordinates 60% of the way between the middle and corner
+        var sixty = {};
+        sixty.x = ((4/10) * middle.x) + ((6/10) * corner.x);
+        sixty.y = ((4/10) * middle.y) + ((6/10) * corner.y);
 
-        // // Coordinates 80% of the way between middle and corner
-        // var eighty = {};
-        // eighty.x = ((2/10) * middle.x) + ((8/10) * corner.x);
-        // eighty.y = ((2/10) * middle.y) + ((8/10) * corner.y);
+        // Coordinates 80% of the way between middle and corner
+        var eighty = {};
+        eighty.x = ((2/10) * middle.x) + ((8/10) * corner.x);
+        eighty.y = ((2/10) * middle.y) + ((8/10) * corner.y);
 
 
-        // var mychoice = {};
+        var mychoice = {};
 
-        // // EITHER USE THIS OR 6 subject "type" NOT BOTH
-        // // 3 subject "types"
-        // // if (rs.self.user_id % 3 == 0) { 
-        // //     mychoice.x = middle.x;
-        // //     mychoice.y = middle.y;
-        // // } else if (rs.self.user_id % 3 == 1) { 
-        // //     mychoice.x = onethird.x;
-        // //     mychoice.y = onethird.y;
-        // // } else {
-        // //     mychoice.x = threeforths.x;
-        // //     mychoice.y = threeforths.y;
-        // // }
-
-        // // EITHER USE THIS OR 3 subject "type" NOT BOTH
-        // // 6 subject "types"
-        // if (rs.self.user_id % 6 == 0) {
+        // EITHER USE THIS OR 6 subject "type" NOT BOTH
+        // 3 subject "types"
+        // if (rs.self.user_id % 3 == 0) { 
         //     mychoice.x = middle.x;
         //     mychoice.y = middle.y;
-        // } else if (rs.self.user_id % 6 == 1) {
-        //     mychoice.x = corner.x;
-        //     mychoice.y = corner.y;
-        // } else if (rs.self.user_id % 6 == 2) {
-        //     mychoice.x = twenty.x;
-        //     mychoice.y = twenty.y;
-        // } else if (rs.self.user_id % 6 == 3) {
-        //     mychoice.x = forty.x;
-        //     mychoice.y = forty.y;
-        // } else if (rs.self.user_id % 6 == 4) {
-        //     mychoice.x = sixty.x;
-        //     mychoice.y = sixty.y;
+        // } else if (rs.self.user_id % 3 == 1) { 
+        //     mychoice.x = onethird.x;
+        //     mychoice.y = onethird.y;
         // } else {
-        //     mychoice.x = eighty.x;
-        //     mychoice.y = eighty.y;
+        //     mychoice.x = threeforths.x;
+        //     mychoice.y = threeforths.y;
         // }
+
+        // EITHER USE THIS OR 3 subject "type" NOT BOTH
+        // 6 subject "types"
+        if (rs.self.user_id % 6 == 0) {
+            mychoice.x = middle.x;
+            mychoice.y = middle.y;
+        } else if (rs.self.user_id % 6 == 1) {
+            mychoice.x = corner.x;
+            mychoice.y = corner.y;
+        } else if (rs.self.user_id % 6 == 2) {
+            mychoice.x = twenty.x;
+            mychoice.y = twenty.y;
+        } else if (rs.self.user_id % 6 == 3) {
+            mychoice.x = forty.x;
+            mychoice.y = forty.y;
+        } else if (rs.self.user_id % 6 == 4) {
+            mychoice.x = sixty.x;
+            mychoice.y = sixty.y;
+        } else {
+            mychoice.x = eighty.x;
+            mychoice.y = eighty.y;
+        }
        
-        // $scope.selection = [mychoice.x, mychoice.y];
-        // rs.trigger("rp.selection", $scope.selection);
-        // $scope.confirm();
+        $scope.selection = [mychoice.x, mychoice.y];
+        rs.trigger("rp.selection", $scope.selection);
+        $scope.confirm();
 
         /****************************************
          * END TEST

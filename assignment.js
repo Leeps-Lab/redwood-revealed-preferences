@@ -90,14 +90,15 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
             }
         }        
 
-        var sums = [];
+        // length of means is priceCount /2 - one entry for each price
+        var means = [];
         for (var i = 0; i < priceCount / 2; ++i) {
-            sums.push([]);
+            means.push([]);
             for (var j = 0; j < subjects.length; ++j) {
                 var subject = subjects[j];
                 var subjectID = subject.hasOwnProperty("id") ?
                     subject.id : (j+1).toString();
-                sums[i].push({
+                means[i].push({
                     "index": j,
                     "id": subjectID,
                     "a": subjects[j]["a"][i],
@@ -106,37 +107,29 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
             }
         }
 
-        var priceOrder = options.priceOrder;
-        var gridCount = options.priceOrder.length;
-        for (var i = 0; i < (gridCount / 2); ++i) {
-            for (var j = gridCount / 2; j < gridCount; ++j) {
-                if (priceOrder[i] == priceOrder[j]) {
-/*test*/            console.log("priceOrder[" + i + "] = " + priceOrder[i]);
-/*test*/            console.log("priceOrder[" + j + "] = " + priceOrder[j]);
-                    for (var k = 0; k < subjects.length; ++k) {
-                        sums[i][k].a = selections[i][k].a + selections[j][k].a;
-                        sums[i][k].b = selections[i][k].b + selections[j][k].b;
-
-/*test*/                console.log("selections[" + i + "][" + k + "].a = " + selections[i][k].a);
-/*test*/                console.log("selections[" + j + "][" + k + "].a = " + selections[j][k].a);
-/*test*/                console.log("sums[" + i + "][" + k + "].a = " + sums[i][k].a);
-
-/*test*/                console.log("selections[" + i + "][" + k + "].b = " + selections[i][k].b);
-/*test*/                console.log("selections[" + j + "][" + k + "].b = " + selections[j][k].b);
-/*test*/                console.log("sums[" + i + "][" + k + "].b = " + sums[i][k].b);
-                    }
-                }
+        // Set the value of each means[price] = mean(selection[1st occurence of price], selection[2nd occurence of price])
+        var count = 0;
+        for (var i = 0; i < priceCount; ++i) {
+            if ((i % 2) != 0) continue;
+            for (var j = 0; j < subjects.length; ++j) {
+                means[count][j].a = (selections[i][j].a + selections[i + 1][j].a) / 2;
+                means[count][j].b = (selections[i][j].b + selections[i + 1][j].b) / 2;
             }
+            count++;
         }
 
-        //NEW
-        var diffs = sums.map(function(subjects) {
+        // // The C vector in the spec
+        // // diffs[P][S] is the X/Y selection diff of subject S for price P
+        var diffs = means.map(function(subjects) {
             return subjects.map(function(subject) {
                 return -subject.a + subject.b;
             })
         });
 
-        var sortings = sums.map(function(subjects, priceIndex) {
+        // // The S vector in the spec
+        // // an array of subject sortings for each price, sorted from greatest to least C value.
+        // // sortings[P] is the sorting of subjects for price P
+        var sortings = means.map(function(subjects, priceIndex) {
             return subjects.sort(function(a, b) {
                 return diffs[priceIndex][b.index] - diffs[priceIndex][a.index];
             }).map(function(subject, index) {
@@ -144,27 +137,6 @@ RedwoodRevealedPreferences.factory("RPEndowmentAssignment", ["RedwoodSubject", f
                 return subject;
             });
         });
-
-
-        // // The C vector in the spec
-        // // diffs[P][S] is the X/Y selection diff of subject S for price P
-        // var diffs = selections.map(function(subjects) {
-        //     return subjects.map(function(subject) {
-        //         return -subject.a + subject.b;
-        //     })
-        // });
-
-        // The S vector in the spec
-        // an array of subject sortings for each price, sorted from greatest to least C value.
-        // sortings[P] is the sorting of subjects for price P
-        // var sortings = selections.map(function(subjects, priceIndex) {
-        //     return subjects.sort(function(a, b) {
-        //         return diffs[priceIndex][b.index] - diffs[priceIndex][a.index];
-        //     }).map(function(subject, index) {
-        //         subject.assignedEndowment = getAssignedEndowment(index, subjects.length);
-        //         return subject;
-        //     });
-        // });
 
         // An array of excess demands for each subject sorting
         // excessDemands[P] is the excessDemand to price P
