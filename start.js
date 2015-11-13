@@ -61,7 +61,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
             marketMaker             : true,
             snapPriceToGrid         : false,
             priceGrid               : [0.2, 0.4, 0.5, 0.57, 0.63, 0.69, 0.75, 0.81, 0.87, 0.94, 1, 1.07, 1.17, 1.5],
-            priceOrder              : [0.75, 0.40, 1.07, 0.81, 0.57, 0.2, 0.69, 1, 0.5, 1.5, 0.94, 0.63, 1.17, 0.87, 1.07, 0.63, 0.94, 0.69, 0.5, 0.81, 1.17, 0.2, 0.57, 0.87, 0.4, 1, 1.5, 0.75],
             weightVector            : [0.1745, 0.08725, 0.043625, 0.021813, 0.010906],
             computeEndowment        : false,   // Endowment Assignment Options
             Ax                      : 100,     // Ax, Ay, Bx, By - Used if computeEndowment is true
@@ -95,8 +94,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             $scope.endowment = ea.getAssignedEndowment(rs.self.user_id, {
                 endowmentA: {x: $scope.config.Ax, y: $scope.config.Ay},
                 endowmentB: {x: $scope.config.Bx, y: $scope.config.By},
-                minimizeEquilibriumPrice: $scope.config.minimizeEquilibriumPrice, 
-                priceOrder: $scope.config.priceOrder
+                minimizeEquilibriumPrice: $scope.config.minimizeEquilibriumPrice
             });
         }
 
