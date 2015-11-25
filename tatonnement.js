@@ -36,6 +36,9 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
     api.TatonnementAlgorithm = function(config) {
         var excessDemandHistory = [];
         var _weightIndex = 0;
+        var firstRounded = false; // this gets set to true after the first round
+                                  // in which price are off the grid AND
+                                  // the end of the _weightVector has been reached
 
         var _weightVector = config.weightVector;
         var _expectedExcess = config.expectedExcess;
@@ -63,7 +66,7 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
                 var previousDemand = excessDemandHistory[excessDemandHistory.length - 1];
 
                 if (excessDemand * previousDemand < 0) {
-                    _weightIndex += 1;
+                    _weightIndex = Math.min(_weightIndex + 1, _weightVector.length - 1); //_weightIndex never moves beyond end of _weightVector
                 }
             }
             excessDemandHistory.push(excessDemand);
@@ -73,38 +76,56 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
             var adjustedPrice;
             var excessDemandSign = sign(roundContext.excessDemand);
 
-            if (_weightIndex < _weightVector.length) {
-
-                var weight = _weightVector[_weightIndex] / _expectedExcess;
+            var weight = _weightVector[_weightIndex] / _expectedExcess;
                 
-                // make sure angular difference is no more than 15 degrees
-                var angularDiff = weight * roundContext.excessDemandPerCapita;
-                var maxAngularDiff = _maxAngularDiff * excessDemandSign;
-                var constrainedAngularDiff = Math.min(Math.abs(angularDiff), Math.abs(maxAngularDiff)) * excessDemandSign;
-                
-                var newPriceAngle = Math.atan(roundContext.price) + constrainedAngularDiff;
+            // make sure angular difference is no more than 15 degrees
+            var angularDiff = weight * roundContext.excessDemandPerCapita;
+            var maxAngularDiff = _maxAngularDiff * excessDemandSign;
+            var constrainedAngularDiff = Math.min(Math.abs(angularDiff), Math.abs(maxAngularDiff)) * excessDemandSign;
+            var newPriceAngle = Math.atan(roundContext.price) + constrainedAngularDiff;
 
-                // make sure that 0.01 <= price <= 100
-                var priceLowerBoundAngle = Math.atan(_priceLowerBound);
-                var priceUpperBoundAngle = Math.atan(_priceUpperBound);
-                if (constrainedAngularDiff < 0) {
-                    adjustedPrice = Math.tan(Math.max(newPriceAngle, priceLowerBoundAngle));
-                } else {
-                    adjustedPrice = Math.tan(Math.min(newPriceAngle, priceUpperBoundAngle));
-                }
+            // make sure that 0.01 <= price <= 100
+            var priceLowerBoundAngle = Math.atan(_priceLowerBound);
+            var priceUpperBoundAngle = Math.atan(_priceUpperBound);
+            if (constrainedAngularDiff < 0) {
+                adjustedPrice = Math.tan(Math.max(newPriceAngle, priceLowerBoundAngle));
             } else {
-                adjustedPrice = roundContext.price + 0.01 * excessDemandSign;
+                adjustedPrice = Math.tan(Math.min(newPriceAngle, priceUpperBoundAngle));
+            }
+
+            // If the end of the _weightVector has been reached AND prices are off the grid
+            // round new price to closest of {last price - .01, last price, last price + .01}
+            if (_snapPriceToGrid == false && _weightIndex == (_weightVector.length - 1)) {
+                var priceDiff = roundContext.price - adjustedPrice;
+                if (firstRounded) { // If this condition has been met before
+                    if (priceDiff > 0.01) {
+                        adjustedPrice = roundTwoPlaces(roundContext.price) - 0.01;
+                    }
+                    else if (priceDiff < -0.01) {
+                        adjustedPrice = roundTwoPlaces(roundContext.price) + 0.01;
+                    }
+                    else {
+                        adjustedPrice = roundTwoPlaces(adjustedPrice);
+                    }
+                } else { // First time this condition has been met,
+                         // price does not depend on last price
+                        firstRounded = true;
+                        adjustedPrice = roundTwoPlaces(adjustedPrice);
+                }
             }
 
             if (_snapPriceToGrid) {
                 var snappedPrice = priceSnappedToGrid(adjustedPrice);
                 if (snappedPrice == roundContext.price) {
+                    if (_weightIndex == (_weightVector.length - 1)) {
+                        firstRounded = true;
+                        adjustedPrice = roundTwoPlaces(adjustedPrice);
+                    }
                     _snapPriceToGrid = false;
                 } else {
                     adjustedPrice = snappedPrice;
                 }
             }
-
             return adjustedPrice;
         }
 
@@ -137,6 +158,10 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
                 }
             }
             return allocation;
+        }
+
+        var roundTwoPlaces = function (num) {
+            return +(Math.round(num + "e+2") + "e-2");
         }
 
         return {

@@ -61,7 +61,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             marketMaker             : true,
             snapPriceToGrid         : false,
             priceGrid               : [0.2, 0.4, 0.5, 0.57, 0.63, 0.69, 0.75, 0.81, 0.87, 0.94, 1, 1.07, 1.17, 1.5],
-            weightVector            : [0.1745, 0.08725, 0.043625, 0.021813, 0.010906],
+            weightVector            : [0.1745, 0.08725, 0.043625, 0.0218125, 0.01090625],
             computeEndowment        : false,   // Endowment Assignment Options
             Ax                      : 100,     // Ax, Ay, Bx, By - Used if computeEndowment is true
             Ay                      : 0,       // - must be the same values as the two sets of Ex and Ey
