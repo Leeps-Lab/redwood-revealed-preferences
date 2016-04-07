@@ -1,0 +1,64 @@
+<div ng-controller="RPStartController">
+  <div rw-subject-header time-remaining="timeRemaining" time-total="config.timeLimit"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-offset-2 col-lg-8 text-center">
+        <div
+          rp-plot
+          budget-func="budgetFunction"
+          inverse-budget-func="inverseBudgetFunction"
+          constraints-x="config.constraintsX"
+          endowment="shownEndowment"
+          limits="limits"
+          input-enabled="inputEnabled"
+          selection="selection"
+          result="finalResult"
+          prob-x="config.ProbX"
+          label-x="config.labelX"
+          label-y="config.labelY"
+          width="650"
+          height="650"
+        ></div>
+      </div>
+      <div class="col-lg-2" ng-if="config.showTable">
+        <table class="table table-bordered info-table">
+          <tr>
+            <th>Probability X</th>
+            <td>{{config.ProbX | number: 2}}</td>
+          </tr>
+          <tr>
+            <th>Probability Y</th>
+            <td>{{(1.0 - config.ProbX | number: 2)}}</td>
+          </tr>
+        </table>
+        <table class="table table-bordered">
+          <tr>
+            <th>Selected X</th>
+            <td>{{selection[0] | number: 2}}</td>
+          </tr>
+          <tr>
+            <th>Selected Y</th>
+            <td>{{(selection[1] | number: 2)}}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="col-lg-2" ng-if="config.showMaxPayouts" >
+        <div class="max-payouts-message">
+        <p>
+        If <strong>{{config.labelX}}</strong> you could earn up to <strong>{{intercepts.x | number: 2}}</strong> tokens.
+        </p>
+        <p>
+        If <strong>{{config.labelY}}</strong> you could earn up to <strong>{{intercepts.y | number: 2}}</strong> tokens.
+        </p>
+        </div>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 40px">
+      <div class="col-lg-offset-3 col-lg-6">
+          <button id="confirmButton" class="btn btn-lg btn-block" 
+          ng-class="{'btn-success': waiting, 'btn-danger': !waiting}"
+          ng-click="confirm()" ng-disabled="!inputEnabled || !selection">{{ButtonText}}</button>
+      </div>
+    </div>
+  </div>
+</div>
