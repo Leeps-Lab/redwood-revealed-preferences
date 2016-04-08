@@ -12,31 +12,41 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
         return subjects.map(function(subject) {
             return {
                 "selection": subject.get("rp.selection"),
-                "endowment": subject.get("rp.endowment")
+                "endowment": subject.get("rp.endowment"),
+                "group": subject.get("rp.group"),
+                "inTTM": subject.get("rp.inTTM")
             };
         });
     }
 
+
+// Change this so it doesn't include "deleted" subjects
     // Sum of excessDemand for entire array
     // excessDemand = selection.x - endowment.x
     api.excessDemand = function(subjectData) {
         return subjectData.reduce(function(sum, data) {
-            return sum + (data.selection[0] - data.endowment.x);
+            if (data.inTTM) {
+                return sum + (data.selection[0] - data.endowment.x);
+            } else {
+                return sum;
+            }
         }, 0); 
     }
 
+// excessDemandPerCapita = excessDemand / (subjectData.length - 2)
     api.RoundContext = function(price, subjectData) {
         var excessDemand = api.excessDemand(subjectData);
         return {
             "price":                 price,
             "subjectData":           subjectData,
             "excessDemand":          excessDemand,
-            "excessDemandPerCapita": excessDemand / subjectData.length,
+            "excessDemandPerCapita": excessDemand / subjectData.length - 2,
         };
     }
 
     api.TatonnementAlgorithm = function(config) {
-        var excessDemandHistory = [];
+        var excessDemandHistory1 = [];
+        var excessDemandHistory2 = [];
         var _weightIndex = 0;
         var firstRounded = false; // this gets set to true after the first round
                                   // in which price are off the grid AND
@@ -62,18 +72,31 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
             return _weightIndex >= _weightVector.length
         }
 
-        var addExcessDemand = function(excessDemand) {
+        var addExcessDemand1 = function(excessDemand) {
             // increment weight index if the sign of the excess demand changes
-            if (excessDemandHistory.length > 0) {
-                var previousDemand = excessDemandHistory[excessDemandHistory.length - 1];
+            if (excessDemandHistory1.length > 0) {
+                var previousDemand = excessDemandHistory1[excessDemandHistory1.length - 1];
 
                 if (excessDemand * previousDemand < 0) {
                     _weightIndex = Math.min(_weightIndex + 1, _weightVector.length - 1); //_weightIndex never moves beyond end of _weightVector
                 }
             }
-            excessDemandHistory.push(excessDemand);
+            excessDemandHistory1.push(excessDemand);
         }
 
+        var addExcessDemand2 = function(excessDemand) {
+            // increment weight index if the sign of the excess demand changes
+            if (excessDemandHistory2.length > 0) {
+                var previousDemand = excessDemandHistory2[excessDemandHistory2.length - 1];
+
+                if (excessDemand * previousDemand < 0) {
+                    _weightIndex = Math.min(_weightIndex + 1, _weightVector.length - 1); //_weightIndex never moves beyond end of _weightVector
+                }
+            }
+            excessDemandHistory2.push(excessDemand);
+        }
+
+// PROBABLY NEED TO CHANGE THIS
         var adjustedPrice = function(roundContext) {
             var adjustedPrice;
             var excessDemandSign = sign(roundContext.excessDemand);
@@ -135,29 +158,42 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
             var allocation = {};
             
             var netBuyers = roundContext.subjectData.filter(function(subject) {
-                return subject.selection[0] > subject.endowment.x;
+                if (!subject.inTTM){
+                    return false;   
+                } else {
+                    return subject.selection[0] > subject.endowment.x;
+                }
             }).length;
 
             var netSellers = roundContext.subjectData.filter(function(subject) {
-                return subject.selection[0] < subject.endowment.x;
+                if (!subject.inTTM) {
+                    return false;
+                } else {
+                    return subject.selection[0] < subject.endowment.x;
+                }
             }).length;
             
-            if (marketMaker) {
-                allocation.x = selection[0];
-                allocation.y = selection[1];
-            } else {
-                if (selection[0] > endowment.x) { // net buyer
-                    var halfExcessPerBuyer = roundContext.excessDemand / (2 * netBuyers);
-                    allocation.x = selection[0] - halfExcessPerBuyer;
-                    allocation.y = selection[1] + roundContext.price * halfExcessPerBuyer;
-                } else if (selection[0] < endowment.x) { // net seller
-                    var halfExcessPerSeller = roundContext.excessDemand / (2 * netSellers);
-                    allocation.x = selection[0] + halfExcessPerSeller;
-                    allocation.y = selection[1] - roundContext.price * halfExcessPerSeller;
-                } else { // chooses endowment
+            if (roundContext.subjectData.inTTM){
+                if (marketMaker) {
                     allocation.x = selection[0];
                     allocation.y = selection[1];
+                } else {
+                    if (selection[0] > endowment.x) { // net buyer
+                        var halfExcessPerBuyer = roundContext.excessDemand / (2 * netBuyers);
+                        allocation.x = selection[0] - halfExcessPerBuyer;
+                        allocation.y = selection[1] + roundContext.price * halfExcessPerBuyer;
+                    } else if (selection[0] < endowment.x) { // net seller
+                        var halfExcessPerSeller = roundContext.excessDemand / (2 * netSellers);
+                        allocation.x = selection[0] + halfExcessPerSeller;
+                        allocation.y = selection[1] - roundContext.price * halfExcessPerSeller;
+                    } else { // chooses endowment
+                        allocation.x = selection[0];
+                        allocation.y = selection[1];
+                    }
                 }
+            } else {
+                allocation.x = selection[0];
+                allocation.y = selection[1];
             }
             return allocation;
         }
@@ -168,7 +204,8 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
 
         return {
             "weightVectorFinished": weightVectorFinished,
-            "addExcessDemand": addExcessDemand,
+            "addExcessDemand1": addExcessDemand1,
+            "addExcessDemand2": addExcessDemand2,
             "adjustedPrice": adjustedPrice,
             "adjustedAllocation": adjustedAllocation
         };

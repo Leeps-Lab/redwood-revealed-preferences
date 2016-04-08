@@ -3,11 +3,9 @@ Arrow securities risk elicitation experiment.
 
 
 ####Tatonnement
-At the beginning of every TTM period we choose endowments for every subject based on the decisions made in previous non-TTM periods.
-The algorithm found in [Dropbox/Edgeworks 2013/ChoiceAndTatonnement/AssignEndowments.pdf](https://www.dropbox.com/s/k0hcu2nl9h4gs7c/AssignEndowments.pdf?dl=0) determines the endowment for each subject. This endowment is used in every round of the TTM period.
-
-The tatonnement algorithm is outlined in [Dropbox/Edgeworks 2013/ChoiceAndTatonnement/Design.pdf](https://www.dropbox.com/s/r0izezd1btl60r6/Design.pdf?dl=0).
-
+The tatonnement algorithm is outlined in 
+Dropbox/Edgeworks 2013/ChoiceAndTatonnement/ in [Design.pdf](https://www.dropbox.com/s/r0izezd1btl60r6/Design.pdf?dl=0)
+and [FinalTatDesign.pdf](https://www.dropbox.com/s/wcudmv2zblpswya/FinalTatDesign.pdf?dl=0).
 
 
 ####Default Configuration Parameters
@@ -23,7 +21,8 @@ The tatonnement algorithm is outlined in [Dropbox/Edgeworks 2013/ChoiceAndTatonn
 -  epsilon2                : 2,  -- (excess demand under `epsilon2` and prices off the grid)
 -  roundsUnderEpsilon      : 2,
 -  expectedExcess          : 13.5, -- `ez` in *Tatonnement Algorithm*
--  priceGrid               : [0.2, 0.4, 0.5, 0.57, 0.63, 0.69, 0.75, 0.81, 0.87, 0.94, 1, 1.07, 1.17, 1.5],
+-  priceGrid               : [0.2, 0.28, 0.36, 0.43, 0.5, 0.57, 0.64, 0.7, 0.76, 0.83, 0.89, 0.94,
+							  1, 10.6, 1.13, 1.21, 1.31, 1.43, 1.57, 1.75, 2, 2.33, 3.57, 5],
 -  weightVector            : [0.1745, 0.08725, 0.043625, 0.0218125, 0.01090625],
 -  marketMaker             : true, -- `mm` in *TA*
 -  snapPriceToGrid         : true, -- `g` in *TA*
@@ -38,7 +37,7 @@ The tatonnement algorithm is outlined in [Dropbox/Edgeworks 2013/ChoiceAndTatonn
   -  Bx                      : 0,   -- endowments used in part 1 of experiment
   -  By                      : 50,        
 -  minimizeEquilibriumPrice: false,
--  saveAllocation          : false
+-  saveAllocation          : true   -- True only for rounds whose allocations should be used in TTM rounds
 
 ######Visual Options
 -  XLimit                  : 100,
