@@ -1,7 +1,12 @@
 RedwoodRevealedPreferences.factory("RPSorting", ["RedwoodSubject", function (rs) {
 
 	var sign = function (value) {
-        return value < 0 ? -1 : 1;
+        if (value < 0) 
+            return -1;
+        else if (value > 0) 
+            return 1;
+        else 
+            return 0;
     }
 
 	var api = {};
@@ -114,10 +119,9 @@ for (var i = 0; i < buyers.length; i++){
             for (var j = 0; j < allocationCount - 1; ++j) {
                 dxSellers[i].push(sellers[i]["a"][j + 1].x - sellers[i]["a"][j].x);
                 dySellers[i].push(sellers[i]["a"][j + 1].y - sellers[i]["a"][j].y);
-                distSellers[i].push(Math.pow(
-                                (Math.pow((sellers[i]["a"][j].x - sellers[i]["a"][j + 1].x), 2) + 
-                                 Math.pow((sellers[i]["a"][j].y - sellers[i]["a"][j + 1].y), 2)), 
-                             0.5));
+                distSellers[i].push(Math.sqrt(
+                                (Math.pow((sellers[i]["a"][j + 1].x - sellers[i]["a"][j].x), 2) + 
+                                 Math.pow((sellers[i]["a"][j + 1].y - sellers[i]["a"][j].y), 2))));
             }    
         }
 
@@ -133,10 +137,9 @@ for (var i = 0; i < buyers.length; i++){
             for (var j = 0; j < allocationCount - 1; ++j) {
                 dxBuyers[i].push(buyers[i]["a"][j + 1].x - buyers[i]["a"][j].x);
                 dyBuyers[i].push(buyers[i]["a"][j + 1].y - buyers[i]["a"][j].y);
-                distBuyers[i].push(Math.pow(
-                                (Math.pow((buyers[i]["a"][j].x - buyers[i]["a"][j + 1].x), 2) + 
-                                 Math.pow((buyers[i]["a"][j].y - buyers[i]["a"][j + 1].y), 2)), 
-                             0.5));
+                distBuyers[i].push(Math.sqrt(
+                                (Math.pow((buyers[i]["a"][j + 1].x - buyers[i]["a"][j].x), 2) + 
+                                 Math.pow((buyers[i]["a"][j + 1].y - buyers[i]["a"][j].y), 2))));
             }    
         }
 
@@ -181,8 +184,9 @@ for (var i = 0; i < distBuyers.length; i++){
 
         noiseSellers = sellers.map(function(seller, index) { 
             var noise = 0;
-            for (var j = 1; j < allocationCount; ++j) {
-                if ((sign(dxSellers[index][j]) != sign(dxSellers[index][j - 1])) || (sign(dySellers[index][j]) != sign(dySellers[index][j - 1]))) {
+            for (var j = 1; j < allocationCount - 1; ++j) {
+                if ((sign(dxSellers[index][j]) != sign(dxSellers[index][j - 1])) || 
+                    (sign(dySellers[index][j]) != sign(dySellers[index][j - 1]))) {
                     noise += distSellers[index][j];
                 }
             }
@@ -196,7 +200,8 @@ for (var i = 0; i < distBuyers.length; i++){
         noiseBuyers = buyers.map(function(buyer, index) { 
             var noise = 0;
             for (var j = 1; j < allocationCount - 1; ++j) {
-                if ((sign(dxBuyers[index][j]) != sign(dxBuyers[index][j - 1])) || (sign(dyBuyers[index][j]) != sign(dyBuyers[index][j - 1]))) {
+                if ((sign(dxBuyers[index][j]) != sign(dxBuyers[index][j - 1])) || 
+                    (sign(dyBuyers[index][j]) != sign(dyBuyers[index][j - 1]))) {
                     noise += distBuyers[index][j];
                 }
             }
