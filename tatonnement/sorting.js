@@ -279,6 +279,8 @@ for (var i = 0; i < noiseBuyers.length; i++){
             var sB = 0;
             for (var i = 7; i < 10; i++) {
 console.log("sA: " + sA + " sB: " + sB + "\n");
+console.log("a[" + i + "].x: " + a["a"][i].x + "\n");
+console.log("b[" + i + "].x: " + b["a"][i].x + "\n");
                 sA += a["a"][i].x;
                 sB += b["a"][i].x;
             } 
