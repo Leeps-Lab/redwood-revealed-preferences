@@ -298,8 +298,8 @@ for (var i = 0; i < noiseBuyers.length; i++){
         finalBuyers = noiseBuyers.sort(function(a, b) {
             var dA, dB = 0;
             for (var i = 7; i < 10; i++) {
-                dA += a.x;
-                dB += b.x;
+                dA += a["a"].x;
+                dB += b["a"].x;
             }
             return dA - dB;
         }).map(function(subject, index) {
