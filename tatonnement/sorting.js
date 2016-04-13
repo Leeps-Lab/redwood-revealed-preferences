@@ -277,6 +277,7 @@ for (var i = 0; i < noiseBuyers.length; i++){
         finalSellers = noiseSellers.sort(function(a, b) {  
             var sA, sB = 0;
             for (var i = 7; i < 10; i++) {
+console.log("sA: " + sA + " sB: " + sB + "\n");
                 sA += a["a"][i].x;
                 sB += b["a"][i].x;
             } 
