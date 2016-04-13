@@ -275,7 +275,8 @@ for (var i = 0; i < noiseBuyers.length; i++){
             };
         }
         finalSellers = noiseSellers.sort(function(a, b) {  
-            var sA, sB = 0;
+            var sA = 0;
+            var sB = 0;
             for (var i = 7; i < 10; i++) {
 console.log("sA: " + sA + " sB: " + sB + "\n");
                 sA += a["a"][i].x;
@@ -297,7 +298,8 @@ console.log("sA: " + sA + " sB: " + sB + "\n");
         });
 
         finalBuyers = noiseBuyers.sort(function(a, b) {
-            var dA, dB = 0;
+            var dA = 0;
+            var dB = 0;
             for (var i = 7; i < 10; i++) {
                 dA += a["a"][i].x;
                 dB += b["a"][i].x;
