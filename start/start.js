@@ -258,38 +258,38 @@ console.log("GROUP DONE JUST GONNA WAIT HERE");
 
             // EITHER USE THIS OR 6 subject "type" NOT BOTH
             // 3 subject "types"
-            // if (rs.self.user_id % 3 == 0) { 
-            //     mychoice.x = middle.x;
-            //     mychoice.y = middle.y;
-            // } else if (rs.self.user_id % 3 == 1) { 
-            //     mychoice.x = onethird.x;
-            //     mychoice.y = onethird.y;
-            // } else {
-            //     mychoice.x = threeforths.x;
-            //     mychoice.y = threeforths.y;
-            // }
+            if (rs.self.user_id % 3 == 0) { 
+                mychoice.x = middle.x;
+                mychoice.y = middle.y;
+            } else if (rs.self.user_id % 3 == 1) { 
+                mychoice.x = onethird.x;
+                mychoice.y = onethird.y;
+            } else {
+                mychoice.x = threeforths.x;
+                mychoice.y = threeforths.y;
+            }
 
             // EITHER USE THIS OR 3 subject "type" NOT BOTH
             // 6 subject "types"
-            if (rs.self.user_id % 6 == 0) {
-                mychoice.x = middle.x;
-                mychoice.y = middle.y;
-            } else if (rs.self.user_id % 6 == 1) {
-                mychoice.x = corner.x;
-                mychoice.y = corner.y;
-            } else if (rs.self.user_id % 6 == 2) {
-                mychoice.x = twenty.x;
-                mychoice.y = twenty.y;
-            } else if (rs.self.user_id % 6 == 3) {
-                mychoice.x = forty.x;
-                mychoice.y = forty.y;
-            } else if (rs.self.user_id % 6 == 4) {
-                mychoice.x = sixty.x;
-                mychoice.y = sixty.y;
-            } else {
-                mychoice.x = eighty.x;
-                mychoice.y = eighty.y;
-            }
+            // if (rs.self.user_id % 6 == 0) {
+            //     mychoice.x = middle.x;
+            //     mychoice.y = middle.y;
+            // } else if (rs.self.user_id % 6 == 1) {
+            //     mychoice.x = corner.x;
+            //     mychoice.y = corner.y;
+            // } else if (rs.self.user_id % 6 == 2) {
+            //     mychoice.x = twenty.x;
+            //     mychoice.y = twenty.y;
+            // } else if (rs.self.user_id % 6 == 3) {
+            //     mychoice.x = forty.x;
+            //     mychoice.y = forty.y;
+            // } else if (rs.self.user_id % 6 == 4) {
+            //     mychoice.x = sixty.x;
+            //     mychoice.y = sixty.y;
+            // } else {
+            //     mychoice.x = eighty.x;
+            //     mychoice.y = eighty.y;
+            // }
            
             $scope.selection = [mychoice.x, mychoice.y];
             rs.trigger("rp.selection", $scope.selection);
