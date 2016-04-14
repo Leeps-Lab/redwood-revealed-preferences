@@ -68,7 +68,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             Ay                      : 0,       // - must be the same values as the two sets of Ex and Ey
             Bx                      : 0,       // - this is assuming only 2 different sets of endowments are being used.
             By                      : 50,        
-            minimizeEquilibriumPrice: false,
+            firstMarkets            : true,
             TTMPeriod               : false,   // True for all TTM periods
             seller                  : true,    // True for all "sellers" in market
             saveAllocation          : false,   // True for all subjects whose decisions should be
@@ -98,7 +98,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
         if ($scope.config.computeGroup) {
             var assignedGroup = ea.getAssignedGroup(rs.self.user_id, {
-                minimizeEquilibriumPrice: $scope.config.minimizeEquilibriumPrice
+                firstMarkets            : $scope.config.firstMarkets            
             });
 
             $scope.assignedGroup = assignedGroup.group;
