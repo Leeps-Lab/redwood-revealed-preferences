@@ -20,6 +20,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             labelY: "=",
             width: "=",
             height: "=",
+            points: "="
          },
          templateUrl: '/static/experiments/redwood-revealed-preferences/plot/rpPlot.html',
          link: function ($scope, $elem, attr) {
