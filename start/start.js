@@ -89,6 +89,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             pause                   : false,
             points                  : [(5, 45), (10, 40), (25,25), (40,10), (45,5)]
         });
+        console.log("points :"+$scope.config.points);
 
         $scope.endowment = {
             x: $scope.config.Ex,
