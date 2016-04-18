@@ -101,7 +101,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     .y(function(d) {
                         return yScale(d[1])
                     })
-                    
+
                 var path = plot.select("." + className);
                 if (path.empty()) {
                     plot.append("path")
@@ -115,6 +115,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawPoint = function (point, className) {
                 if (!xScale) return;
+                console.log(point);
 
                 var dot = plot.select("." + className);
                 if (dot.empty()) {
@@ -133,7 +134,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawBudgetLine = function () {
                 if (!$scope.budgetFunc) return;
-                
+
                 // constrain line to plot boundaries
                 var pointA = [0, $scope.budgetFunc(0)];
                 if (pointA[1] > $scope.limits.y) {
@@ -239,7 +240,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             var drawResult = function () {
                 if (!$scope.result || !xScale) return;
 
-                $scope.resultPoint = $scope.result.chosen === "x" ? 
+                $scope.resultPoint = $scope.result.chosen === "x" ?
                     [$scope.result.x, 0] : [0, $scope.result.y];
 
                 drawPoint($scope.resultPoint, "result-point");
