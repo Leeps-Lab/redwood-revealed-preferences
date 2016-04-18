@@ -172,10 +172,13 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             }
 
             var drawPoints = function() {
+              console.log("in points");
               if (!$scope.points) return;
+              console.log("past check");
 
               $scope.points.forEach(function(ele) {
                 drawPoint(ele, "setpoint");
+                console.log("drew point : "+ele);
               });
             }
 
