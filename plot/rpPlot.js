@@ -20,6 +20,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             labelY: "=",
             width: "=",
             height: "=",
+            points: "="
          },
          templateUrl: '/static/experiments/redwood-revealed-preferences/plot/rpPlot.html',
          link: function ($scope, $elem, attr) {
@@ -101,7 +102,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     .y(function(d) {
                         return yScale(d[1])
                     })
-                    
+
                 var path = plot.select("." + className);
                 if (path.empty()) {
                     plot.append("path")
@@ -133,7 +134,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawBudgetLine = function () {
                 if (!$scope.budgetFunc) return;
-                
+
                 // constrain line to plot boundaries
                 var pointA = [0, $scope.budgetFunc(0)];
                 if (pointA[1] > $scope.limits.y) {
@@ -167,6 +168,14 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                         "left": toPx(pointRect.left+pointRect.width)
                     });
                 }
+            }
+
+            var drawPoints = function() {
+              if (!scope.points) return;
+
+              scope.points.forEach(function(ele) {
+                drawPoint(ele, "setpoint");
+              });
             }
 
             var drawCursor = function () {
@@ -239,7 +248,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             var drawResult = function () {
                 if (!$scope.result || !xScale) return;
 
-                $scope.resultPoint = $scope.result.chosen === "x" ? 
+                $scope.resultPoint = $scope.result.chosen === "x" ?
                     [$scope.result.x, 0] : [0, $scope.result.y];
 
                 drawPoint($scope.resultPoint, "result-point");
@@ -266,6 +275,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 drawAxes();
                 drawBudgetLine();
                 drawEndowment();
+                drawPoints();
                 drawConstraintPoints();
                 drawSelection();
                 drawCursor();
@@ -322,12 +332,14 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             angular.element($window).bind('resize', function() {
                 drawSelection();
                 drawEndowment();
+                drawPoints();
                 drawResult();
             });
 
             angular.element($window).bind('scroll', function() {
                 drawSelection();
                 drawEndowment();
+                drawPoints();
                 drawCursor();
                 drawResult();
             });

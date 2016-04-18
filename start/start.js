@@ -1,4 +1,4 @@
-RedwoodRevealedPreferences.controller("RPStartController", 
+RedwoodRevealedPreferences.controller("RPStartController",
     ["$scope",
      "RedwoodSubject",
      "SynchronizedStopWatch",
@@ -67,7 +67,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             Ax                      : 100,     // Ax, Ay, Bx, By - Used if computeEndowment is true
             Ay                      : 0,       // - must be the same values as the two sets of Ex and Ey
             Bx                      : 0,       // - this is assuming only 2 different sets of endowments are being used.
-            By                      : 50,        
+            By                      : 50,
             minimizeEquilibriumPrice: false,
             TTMPeriod               : false,   // True for all TTM periods
             seller                  : true,    // True for all "sellers" in market
@@ -87,6 +87,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             delay                   : 5,
             timeLimit               : 0,
             pause                   : false,
+            points                  : [(5, 45), (10, 40), (25,25), (40,10), (45,5)]
         });
 
         $scope.endowment = {
@@ -121,7 +122,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
         rs.trigger("rp.configuration", $scope.config);
         rs.trigger("rp.endowment", $scope.endowment);
-        rs.trigger("rp.next_round");              
+        rs.trigger("rp.next_round");
 
         if ($scope.config.saveAllocation) {
             ea.save();
@@ -258,10 +259,10 @@ console.log("GROUP DONE JUST GONNA WAIT HERE");
 
             // EITHER USE THIS OR 6 subject "type" NOT BOTH
             // 3 subject "types"
-            // if (rs.self.user_id % 3 == 0) { 
+            // if (rs.self.user_id % 3 == 0) {
             //     mychoice.x = middle.x;
             //     mychoice.y = middle.y;
-            // } else if (rs.self.user_id % 3 == 1) { 
+            // } else if (rs.self.user_id % 3 == 1) {
             //     mychoice.x = onethird.x;
             //     mychoice.y = onethird.y;
             // } else {
@@ -290,7 +291,7 @@ console.log("GROUP DONE JUST GONNA WAIT HERE");
                 mychoice.x = eighty.x;
                 mychoice.y = eighty.y;
             }
-           
+
             $scope.selection = [mychoice.x, mychoice.y];
             rs.trigger("rp.selection", $scope.selection);
             $scope.confirm();
@@ -350,7 +351,7 @@ console.log("GROUP DONE JUST GONNA WAIT HERE");
                     if (currentPrice === $scope.config.priceGrid[i]) {
                         inGrid = true;
                     }
-                }            
+                }
 
                 // Split subjects into groups
                 var group1 = [];
@@ -495,8 +496,8 @@ console.log("nothing should happen...just go to next round");
                 // Proceed to next round
                 rs.set("rp.price", newPrice);
                 rs.trigger("rp.next_round");
-                
-            } 
+
+            }
             // Non-TTM Periods
             else {
 console.log("no assignedGroup");
