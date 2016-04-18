@@ -171,6 +171,14 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 }
             }
 
+            var drawPoints = function() {
+              if (!scope.points) return;
+
+              scope.points.forEach(function(ele) {
+                drawPoint(ele, "setpoint");
+              });
+            }
+
             var drawCursor = function () {
                 if (!$scope.cursor) {
                     elem.select(".cursor-point").remove();
@@ -268,6 +276,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 drawAxes();
                 drawBudgetLine();
                 drawEndowment();
+                drawPoints();
                 drawConstraintPoints();
                 drawSelection();
                 drawCursor();
@@ -324,12 +333,14 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             angular.element($window).bind('resize', function() {
                 drawSelection();
                 drawEndowment();
+                drawPoints();
                 drawResult();
             });
 
             angular.element($window).bind('scroll', function() {
                 drawSelection();
                 drawEndowment();
+                drawPoints();
                 drawCursor();
                 drawResult();
             });
