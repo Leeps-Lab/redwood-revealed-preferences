@@ -173,6 +173,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawPoints = function() {
               console.log("in points");
+              console.log($scope.points);
               if (!$scope.points) return;
               console.log("past check");
 
