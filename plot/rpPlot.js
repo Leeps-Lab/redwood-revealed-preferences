@@ -188,8 +188,10 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     .attr("cy", function(d) {
                         return yScale(d[1])
                     })
-                    .setAttribute('fill', "#3333cc")
-                    .setAttribute('stroke', "#000000");
+                    .style({
+                      fill: "#3333cc",
+                      stroke: "#000000",
+                    });
                 dot.on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
