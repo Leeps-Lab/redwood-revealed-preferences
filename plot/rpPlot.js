@@ -206,6 +206,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             }
 
             var drawCursor = function () {
+              if ($scope.display !== "line") return;
                 if (!$scope.cursor) {
                     elem.select(".cursor-point").remove();
                     elem.select(".cursor-crosshair-x").remove();
