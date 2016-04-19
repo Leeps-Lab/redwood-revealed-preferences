@@ -331,6 +331,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             $scope.$watchCollection("limits", redraw);
             $scope.$watch("budgetFunc", redraw);
             $scope.$watch("endowment", drawEndowment);
+            $scope.$watch("points", drawPoints)
             $scope.$watch("selection", drawSelection);
             $scope.$watch("result", drawResult);
 
