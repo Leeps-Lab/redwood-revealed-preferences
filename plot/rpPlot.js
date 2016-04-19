@@ -184,6 +184,14 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     .attr("cy", function(d) {
                         return yScale(d[1])
                     });
+                dot.addEventListener('click', function(event) {
+                  if (distance(ele, $scope.cursor, 1)) {
+                    $scope.$emit("rpPlot.click", $scope.cursor);
+                    drawSelection();
+                    console.log("cursor " + $scope.cursor);
+                    console.log("point " + ele);
+                  }
+                })
               });
             }
             var distance = function(a, b, r) {
@@ -383,15 +391,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                           .ease(d3.ease("cubic-out-in"))
                           .attr("r", 5)
                           .remove();
-                } else {
-                  $scope.points.forEach(function(ele) {
-                    if (distance(ele, $scope.cursor, 1)) {
-                      $scope.$emit("rpPlot.click", $scope.cursor);
-                      drawSelection();
-                      console.log("cursor " + $scope.cursor);
-                      console.log("point " + ele);
-                    }
-                  });
                 }
             });
 
