@@ -196,9 +196,13 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     //this.classed({"default-point": false, "selected-point": true});
                   }
                 });
-                dot.on("mouseover", function(event) {
+                dot.on("mouseenter", function(event) {
                   console.log("hover : "+event);
                   this.setAttribute('r', 7);
+                });
+                dot.on("mouseleave", function(event) {
+                  console.log("hover : "+event);
+                  this.setAttribute('r', 5);
                 });
               });
             }
