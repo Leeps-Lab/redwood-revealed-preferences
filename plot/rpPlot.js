@@ -385,7 +385,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                           .remove();
                 } else {
                   $scope.points.forEach(function(ele) {
-                    if (distance(ele, $scope.cursor, 7)) {
+                    if (distance(ele, $scope.cursor, 1)) {
                       $scope.$emit("rpPlot.click", $scope.cursor);
                       drawSelection();
                       console.log("cursor " + $scope.cursor);
