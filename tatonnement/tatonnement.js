@@ -53,13 +53,13 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
                                   // the end of the _weightVector has been reached
 
         var _weightVector = config.weightVector;
-        var _expectedExcess = config.expectedExcess;
+        var _expectedExcess = config.expectedExcess; //R:var expectedExcess = `ez`
         
-        var _priceLowerBound = config.priceLowerBound;
-        var _priceUpperBound = config.priceUpperBound;
-        var _maxAngularDiff = config.maxAngularDiff;
+        var _priceLowerBound = config.priceLowerBound; // if not set in config, deaults to 0.1
+        var _priceUpperBound = config.priceUpperBound; // if not set in config, defaults to 100.0
+        var _maxAngularDiff = config.maxAngularDiff;   //if not set in config, defaults to  0.26175
 
-        var _priceGrid = config.priceGrid;
+        var _priceGrid = config.priceGrid; //R:priceGrid = pr
         var _snapPriceToGrid = config.snapPriceToGrid;
 
         var priceSnappedToGrid = function(price) {
@@ -101,7 +101,7 @@ RedwoodRevealedPreferences.factory("RPTatonnement", function () {
             var adjustedPrice;
             var excessDemandSign = sign(roundContext.excessDemand);
 
-            var weight = _weightVector[_weightIndex] / _expectedExcess;
+            var weight = _weightVector[_weightIndex] / _expectedExcess;  //R:var expectedExcess = `ez`
                 
             // make sure angular difference is no more than 15 degrees
             var angularDiff = weight * roundContext.excessDemandPerCapita;
