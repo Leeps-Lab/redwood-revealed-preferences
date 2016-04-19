@@ -394,7 +394,11 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 }
             });
 
-            svg.on("mousemove", setCursorPosition);
+            svg.on("mousemove", function() {
+              if ($scope.display === "line") {
+                setCursorPosition();
+              }
+            });
 
             svg.on("mouseleave", function() {
                 elem.selectAll(".point-label").classed("transparent", false);
