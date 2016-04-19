@@ -406,7 +406,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             });
 
             svg.on("mouseleave", function() {
-              console.log($scope.display):
+              console.log($scope.display);
               if ($scope.display === "line") {
                 elem.selectAll(".point-label").classed("transparent", false);
                 $scope.cursor = null;
