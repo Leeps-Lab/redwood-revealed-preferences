@@ -190,6 +190,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   if (distance(ele, $scope.cursor, 1)) {
                     $scope.$emit("rpPlot.click", $scope.cursor);
                     drawSelection();
+                    console.log(this);
                     console.log("cursor " + $scope.cursor);
                     console.log("point " + ele);
                   }
