@@ -1,4 +1,4 @@
-RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
+tom RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
     function toPx(number) {
         return number.toString() + "px";
@@ -176,10 +176,11 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               if (!$scope.points) return;
               if ($scope.points === "line") return;
 
-              $scope.points.forEach(function(ele) {
+              $scope.points.forEach(function(ele, index) {
+                console.log(index);
                 var dot = plot.append("circle");
                 dot.datum(ele)
-                    .classed("default-point", true)
+                    .classed("default-point-"+index, true)
                     .attr("r", 7)
                     .attr("cx", function(d) {
                         return xScale(d[0]);
@@ -188,14 +189,16 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                         return yScale(d[1])
                     });
                 dot.on("click", function(event) {
-                  console.log(event);
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
                   if (distance(ele, $scope.cursor, 1)) {
                     $scope.$emit("rpPlot.click", ele);
                     //this.classed({"default-point": false, "selected-point": true});
                   }
-                })
+                });
+                dot.on("mouseover", function(event) {
+                  console.log("hover : "+event);
+                });
               });
             }
             var distance = function(a, b, r) {
