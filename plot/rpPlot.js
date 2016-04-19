@@ -173,10 +173,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               if (!$scope.points) return;
 
               $scope.points.forEach(function(ele) {
-                drawPoint(ele, "setpoint");
                 var dot = plot.append("circle");
                 dot.datum(ele)
-                    .classed("setpoint", true)
+                    .classed("default-point", true)
                     .attr("r", 7)
                     .attr("cx", function(d) {
                         return xScale(d[0]);
@@ -191,6 +190,8 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     $scope.$emit("rpPlot.click", $scope.cursor);
                     drawSelection();
                     console.log(this);
+                    this.removeClass("default-point");
+                    this.addClass("selected-point");
                     console.log("cursor " + $scope.cursor);
                     console.log("point " + ele);
                   }
