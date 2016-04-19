@@ -178,7 +178,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 var dot = plot.append("circle");
                 dot.datum(ele)
                     .classed("setpoint", true)
-                    .attr("r", 5)
+                    .attr("r", 7)
                     .attr("cx", function(d) {
                         return xScale(d[0]);
                     })
@@ -359,6 +359,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 if (!$scope.inputEnabled) return;
                 if (!$scope.cursor) setCursorPosition();
                 $scope.$emit("rpPlot.click", $scope.cursor);
+                console.log($scope.cursor);
                 drawSelection();
 
                 if (!xScale) return;
