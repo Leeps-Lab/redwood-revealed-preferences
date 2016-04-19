@@ -199,18 +199,14 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 dot.on("mouseenter", function(event) {
                   console.log("hover : "+event);
                   this.setAttribute('r', 7);
-                  this.style({
-                    fill: "#009900",
-                    stroke: "#000000"
-                  });
+                  this.setAttribute('fill', "#009900");
+                  this.setAttribute('stroke', "#000000");
                 });
                 dot.on("mouseleave", function(event) {
                   console.log("hover : "+event);
                   this.setAttribute('r', 5);
-                  this.style({
-                    fill: "#3333cc",
-                    stroke: "#000000",
-                  });
+                  this.setAttribute('fill', "#3333cc");
+                  this.setAttribute('stroke', "#000000");
                 });
               });
             }
