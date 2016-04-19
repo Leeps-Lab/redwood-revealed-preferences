@@ -186,6 +186,12 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     });
               });
             }
+            var distance = function(a, b, r) {
+              return Math.sqrt(square(a[0]-b[0]) + square(a[1]-b[1])) < r;
+            }
+            var square = function(x) {
+              return x * x;
+            }
 
             var drawCursor = function () {
                 if (!$scope.cursor) {
@@ -357,26 +363,35 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             svg.on("click", function() {
                 if (!$scope.inputEnabled) return;
                 if (!$scope.cursor) setCursorPosition();
-                $scope.$emit("rpPlot.click", $scope.cursor);
-                console.log($scope.cursor);
-                drawSelection();
+                if ($scope.display === "line") {
+                  $scope.$emit("rpPlot.click", $scope.cursor);
+                  drawSelection();
 
-                if (!xScale) return;
-                plot.append("circle")
-                    .datum($scope.cursor)
-                    .classed("selection-ping", true)
-                    .attr("r", 50)
-                    .attr("cx", function(d) {
-                        return xScale(d[0]);
-                    })
-                    .attr("cy", function(d) {
-                        return yScale(d[1])
-                    })
-                    .transition()
-                        .duration(500)
-                        .ease(d3.ease("cubic-out-in"))
-                        .attr("r", 5)
-                        .remove();
+                  if (!xScale) return;
+                  plot.append("circle")
+                      .datum($scope.cursor)
+                      .classed("selection-ping", true)
+                      .attr("r", 50)
+                      .attr("cx", function(d) {
+                          return xScale(d[0]);
+                      })
+                      .attr("cy", function(d) {
+                          return yScale(d[1])
+                      })
+                      .transition()
+                          .duration(500)
+                          .ease(d3.ease("cubic-out-in"))
+                          .attr("r", 5)
+                          .remove();
+                } else {
+                  $scope.points.forEach(function(ele) {
+                    if (distance(ele, $scope.cursor, 7)) {
+                      $scope.$emit("rpPlot.click", $scope.cursor);
+                      drawSelection();
+                    }
+                  });
+                }
+                console.log($scope.cursor);
             });
 
             svg.on("mousemove", setCursorPosition);
