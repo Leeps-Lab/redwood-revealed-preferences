@@ -195,6 +195,8 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               });
             }
             var distance = function(a, b, r) {
+              console.log(a);
+              console.log(b);
               return Math.sqrt(square(a[0]-b[0]) + square(a[1]-b[1])) < r;
             }
             var square = function(x) {
@@ -401,9 +403,11 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             });
 
             svg.on("mouseleave", function() {
+              if ($scope.display === "line") {
                 elem.selectAll(".point-label").classed("transparent", false);
                 $scope.cursor = null;
                 drawCursor();
+              }
             });
         }
     }
