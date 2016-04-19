@@ -176,7 +176,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               $scope.points.forEach(function(ele) {
                 drawPoint(ele, "setpoint");
                 var dot = plot.append("circle");
-                dot.datum(point)
+                dot.datum(ele)
                     .classed("setpoint", true)
                     .attr("r", 5)
                     .attr("cx", function(d) {
