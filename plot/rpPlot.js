@@ -204,7 +204,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 .on("mouseover", function(event) {
                   var dot = d3.select(this);
                   console.log(dot);
-                  dot.attr("r", 7).
+                  dot.attr("r", 7)
                   .style({
                     fill: "#009900",
                     stroke: "#000000",
@@ -213,7 +213,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 .on("mouseout", function(event) {
                   var dot = d3.select(this);
                   console.log(dot);
-                  dot.attr("r", 5).
+                  dot.attr("r", 5)
                   .style({
                     fill: "#3333cc",
                     stroke: "#000000",
