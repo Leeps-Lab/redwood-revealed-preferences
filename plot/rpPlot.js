@@ -190,8 +190,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     $scope.$emit("rpPlot.click", $scope.cursor);
                     drawSelection();
                     console.log(this);
-                    this.removeClass("default-point");
-                    this.addClass("selected-point");
+                    this.attr("class", "default-point");
                     console.log("cursor " + $scope.cursor);
                     console.log("point " + ele);
                   }
