@@ -388,10 +388,12 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     if (distance(ele, $scope.cursor, 7)) {
                       $scope.$emit("rpPlot.click", $scope.cursor);
                       drawSelection();
+                      console.log("cursor " + $scope.cursor);
+                      console.log("point " + ele);
+                      break;
                     }
                   });
                 }
-                console.log($scope.cursor);
             });
 
             svg.on("mousemove", setCursorPosition);
