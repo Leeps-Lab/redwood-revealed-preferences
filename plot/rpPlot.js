@@ -181,6 +181,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 if (dot.empty()) {
                     dot = plot.append("circle");
                 }
+                console.log(dot);
                 dot.datum(ele)
                 .classed("default-point-"+index, true)
                 .attr("r", 5)
@@ -194,8 +195,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   fill: "#3333cc",
                   stroke: "#000000",
                 });
-                console.log(dot);
-                console.log(dot[0][0].__data__);
                 dot.on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
