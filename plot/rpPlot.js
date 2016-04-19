@@ -191,10 +191,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   if (distance(ele, $scope.cursor, 1)) {
                     $scope.$emit("rpPlot.click", $scope.cursor);
                     drawSelection();
-                    console.log(this);
                     //this.classed({"default-point": false, "selected-point": true});
-                    console.log("cursor " + $scope.cursor);
-                    console.log("point " + ele);
                   }
                 })
               });
@@ -409,6 +406,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             });
 
             svg.on("mouseleave", function() {
+              console.log($scope.display):
               if ($scope.display === "line") {
                 elem.selectAll(".point-label").classed("transparent", false);
                 $scope.cursor = null;
