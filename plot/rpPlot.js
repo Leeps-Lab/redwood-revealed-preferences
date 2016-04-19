@@ -1,4 +1,4 @@
-tom RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
+RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
     function toPx(number) {
         return number.toString() + "px";
