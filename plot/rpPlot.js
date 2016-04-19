@@ -190,8 +190,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
                   if (distance(ele, $scope.cursor, 1)) {
-                    $scope.$emit("rpPlot.click", $scope.cursor);
-                    drawSelection();
+                    $scope.$emit("rpPlot.click", ele);
                     //this.classed({"default-point": false, "selected-point": true});
                   }
                 })
@@ -299,7 +298,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             var redraw = function () {
                 buildScales();
                 drawAxes();
-                drawBudgetLine();
+                if ($scope.display !== "only-points") {
+                  drawBudgetLine();
+                }
                 drawEndowment();
                 drawPoints();
                 drawConstraintPoints();
