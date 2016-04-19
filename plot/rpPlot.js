@@ -116,7 +116,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawPoint = function (point, className) {
                 if (!xScale) return;
-                console.log(point);
 
                 var dot = plot.select("." + className);
                 if (dot.empty()) {
@@ -172,18 +171,20 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             }
 
             var drawPoints = function() {
-              console.log("in points");
-              console.log($scope.points);
               if (!$scope.points) return;
-              console.log("past check");
-              for (i in $scope.points) {
-                console.log(i);
-                console.log($scope.points[i]);
-              }
 
               $scope.points.forEach(function(ele) {
                 drawPoint(ele, "setpoint");
-                console.log("drew point : "+ele);
+                var dot = plot.append("circle");
+                dot.datum(point)
+                    .classed("setpoint", true)
+                    .attr("r", 5)
+                    .attr("cx", function(d) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d[1])
+                    });
               });
             }
 
