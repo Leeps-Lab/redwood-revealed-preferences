@@ -205,6 +205,8 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 })
                 .on("mouseover", function(event) {
                   console.log(this);
+                  var dot = d3.select(this);
+                  console.log(dot);
                   this.setAttribute('r', 7);
                   this.setAttribute('fill', "#009900");
                   this.setAttribute('stroke', "#000000");
