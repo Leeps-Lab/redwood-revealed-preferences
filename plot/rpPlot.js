@@ -24,7 +24,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
          },
          templateUrl: '/static/experiments/redwood-revealed-preferences/plot/rpPlot.html',
          link: function ($scope, $elem, attr) {
-            console.log($scope)
             var elem = d3.select($elem[0])
             var svg = elem.select("svg");
 

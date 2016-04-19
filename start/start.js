@@ -89,7 +89,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
             pause                   : false,
             points                  : [(5, 45), (10, 40), (25,25), (40,10), (45,5)]
         });
-        console.log("points :"+$scope.config.points);
 
         $scope.endowment = {
             x: $scope.config.Ex,
@@ -105,8 +104,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
 
             $scope.assignedGroup = assignedGroup.group;
             $scope.inTTM = assignedGroup.inTTM;
-// console.log("assignedGroup: " + $scope.assignedGroup + "\n");
-// console.log("inTTM: " + $scope.inTTM + "\n");
 
             rs.set("rp.assignedGroup", $scope.assignedGroup);
             rs.set("rp.inTTM", $scope.inTTM);
@@ -131,7 +128,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
     });
 
     rs.on("rp.next_round", function () {
-console.log($scope.endowment);
 
 
         //Reset the text on the button to reflect that it is 'active'
@@ -150,7 +146,6 @@ console.log($scope.endowment);
         // set initial price
         var price = rs.self.get("rp.price");
         $scope.price = $scope.currentRound > 1 ? price : $scope.config.Price;
-        console.log("price: " + $scope.price);
 
         // find x and y intercepts
         $scope.intercepts = {};
@@ -179,7 +174,6 @@ console.log($scope.endowment);
 
         if ((rs.self.get("rp.assignedGroup") == 1 && $scope.group1Finished) ||
             (rs.self.get("rp.assignedGroup") == 2 && $scope.group2Finished)) {
-console.log("GROUP DONE JUST GONNA WAIT HERE");
             $scope.confirm();
         } else {
             $scope.inputEnabled = true;
@@ -395,12 +389,8 @@ console.log("GROUP DONE JUST GONNA WAIT HERE");
                     }
                 }
 
-console.log("assignedGroup: " + rs.self.get("rp.assignedGroup") + "\n");
-console.log("group1Finished: " + $scope.group1Finished + "\n");
-console.log("group2Finished: " + $scope.group2Finished + "\n");
 
                 if (rs.self.get("rp.assignedGroup") == 1 && !$scope.group1Finished) {
-console.log("in if");
 
                     // Compute tatonnement data for this round
                     var subjectData1 = ta.getSubjectData(group1);
@@ -439,7 +429,6 @@ console.log("in if");
                                                     $scope.config.marketMaker);
 
                         $scope.selection = [actualAllocation.x, actualAllocation.y];
-console.log("FINAL DECISION g1: " + $scope.selection + "\n");
 
                         // reset rounds under epsilon
                         rs.set("rp.rounds_under_epsilon1_1", 0);
@@ -451,15 +440,12 @@ console.log("FINAL DECISION g1: " + $scope.selection + "\n");
                         // Mark group as finished
                         rs.trigger("rp.group1Finished");
                         rs.send("rp.group1Finished");
-console.log("group 1 should be true!!!!");
-
                     } else {
                         // Get adjusted price
                         newPrice = tatonnement.adjustedPrice(roundContext1);
                     }
 
                 } else if (rs.self.get("rp.assignedGroup") == 2 && !$scope.group2Finished) {
-console.log("in else if");
                     // Compute tatonnement data for this round
                     var subjectData2 = ta.getSubjectData(group2);
                     var roundContext2 = ta.RoundContext(currentPrice, subjectData2);
@@ -497,7 +483,6 @@ console.log("in else if");
                                                     $scope.config.marketMaker);
 
                         $scope.selection = [actualAllocation.x, actualAllocation.y];
-console.log("FINAL DECISION g2: " + $scope.selection + "\n");
 
                         // reset rounds under epsilon
                         rs.set("rp.rounds_under_epsilon1_2", 0);
@@ -509,19 +494,15 @@ console.log("FINAL DECISION g2: " + $scope.selection + "\n");
                         // Mark group as finished
                         rs.trigger("rp.group2Finished");
                         rs.send("rp.group2Finished");
-console.log("group 2 should be true!!!!");
-
                     } else {
                         // Get adjusted price
                         newPrice = tatonnement.adjustedPrice(roundContext2);
                     }
 
                 } else if ($scope.group1Finished == true && $scope.group2Finished == true) {
-console.log("in end if");
                     rs.next_period();
                     return;
                 } else {
-console.log("nothing should happen...just go to next round");
                 }
 
                 // Proceed to next round
@@ -531,7 +512,6 @@ console.log("nothing should happen...just go to next round");
             }
             // Non-TTM Periods
             else {
-console.log("no assignedGroup");
                 var actualAllocation = {
                     "x": $scope.selection[0],
                     "y": $scope.selection[1]
@@ -547,20 +527,16 @@ console.log("no assignedGroup");
 
     rs.on("rp.group1Finished", function () {
         $scope.group1Finished = true;
-console.log("ON Set group1Finished" + $scope.group1Finished + "\n");
     });
     rs.recv("rp.group1Finished", function () {
         $scope.group1Finished = true;
-console.log("RECV Set group1Finished" + $scope.group1Finished + "\n");
     });
 
     rs.on("rp.group2Finished", function () {
         $scope.group2Finished = true;
-console.log("ON Set group2Finished" + $scope.group2Finished + "\n");
     });
     rs.recv("rp.group2Finished", function () {
         $scope.group2Finished = true;
-console.log("RECV Set group2Finished" + $scope.group2Finished + "\n");
     });
 
     // Receive result (whether X or Y was chosen) from admin.
@@ -572,7 +548,6 @@ console.log("RECV Set group2Finished" + $scope.group2Finished + "\n");
             $scope.finalResult = result;
             rs.next_period($scope.config.delay);
         } else if (!$scope.config.TTMPeriod) {
-console.log("Going to next period now");
             rs.next_period();
         }
     });
