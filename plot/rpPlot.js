@@ -177,7 +177,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               if ($scope.points === "line") return;
 
               $scope.points.forEach(function(ele, index) {
-                console.log(index);
                 var dot = plot.append("circle");
                 dot.datum(ele)
                     .classed("default-point-"+index, true)
@@ -201,6 +200,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   }
                 });
                 dot.on("mouseenter", function(event) {
+                  console.log(this);
                   this.setAttribute('r', 7);
                   this.setAttribute('fill', "#009900");
                   this.setAttribute('stroke', "#000000");
