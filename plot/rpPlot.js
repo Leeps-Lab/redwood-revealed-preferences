@@ -194,23 +194,23 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 .style({
                   fill: "#3333cc",
                   stroke: "#000000",
-                });
-                dot.on("click", function(event) {
+                })
+                .on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
                   if (distance(ele, $scope.cursor, 1)) {
                     $scope.$emit("rpPlot.click", ele);
                     //this.classed({"default-point": false, "selected-point": true});
                   }
-                });
-                dot.on("mouseenter", function(event) {
+                })
+                .on("mouseover", function(event) {
                   var dot = plot.select(this);
                   console.log(dot);
                   this.setAttribute('r', 7);
                   this.setAttribute('fill', "#009900");
                   this.setAttribute('stroke', "#000000");
-                });
-                dot.on("mouseleave", function(event) {
+                })
+                .on("mouseout", function(event) {
                   this.setAttribute('r', 5);
                   this.setAttribute('fill', "#3333cc");
                   this.setAttribute('stroke', "#000000");
