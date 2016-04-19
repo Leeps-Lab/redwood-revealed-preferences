@@ -134,6 +134,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawBudgetLine = function () {
                 if (!$scope.budgetFunc) return;
+                if ($scope.display === "only-points") return;
 
                 // constrain line to plot boundaries
                 var pointA = [0, $scope.budgetFunc(0)];
@@ -299,9 +300,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             var redraw = function () {
                 buildScales();
                 drawAxes();
-                if ($scope.display !== "only-points") {
-                  drawBudgetLine();
-                }
+                drawBudgetLine();
                 drawEndowment();
                 drawPoints();
                 drawConstraintPoints();
