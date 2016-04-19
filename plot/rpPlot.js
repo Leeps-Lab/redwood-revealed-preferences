@@ -177,21 +177,25 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               if ($scope.points === "line") return;
 
               $scope.points.forEach(function(ele, index) {
-                var dot = plot.append("circle");
+                var dot = plot.select("default-point-"+index);
+                if (dot.empty()) {
+                    dot = plot.append("circle");
+                }
                 dot.datum(ele)
-                    .classed("default-point-"+index, true)
-                    .attr("r", 5)
-                    .attr("cx", function(d) {
-                        return xScale(d[0]);
-                    })
-                    .attr("cy", function(d) {
-                        return yScale(d[1])
-                    })
-                    .style({
-                      fill: "#3333cc",
-                      stroke: "#000000",
-                    });
+                .classed("default-point-"+index, true)
+                .attr("r", 5)
+                .attr("cx", function(d) {
+                    return xScale(d[0]);
+                })
+                .attr("cy", function(d) {
+                    return yScale(d[1])
+                })
+                .style({
+                  fill: "#3333cc",
+                  stroke: "#000000",
+                });
                 console.log(dot);
+                console.log(dot.__data__);
                 dot.on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
@@ -369,7 +373,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             $scope.$watchCollection("limits", redraw);
             $scope.$watch("budgetFunc", redraw);
             $scope.$watch("endowment", drawEndowment);
-            $scope.$watch("points", drawPoints)
             $scope.$watch("selection", drawSelection);
             $scope.$watch("result", drawResult);
 
