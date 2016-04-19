@@ -198,8 +198,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               });
             }
             var distance = function(a, b, r) {
-              console.log(a);
-              console.log(b);
               return Math.sqrt(square(a[0]-b[0]) + square(a[1]-b[1])) < r;
             }
             var square = function(x) {
@@ -376,7 +374,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             svg.on("click", function() {
                 if (!$scope.inputEnabled) return;
                 if (!$scope.cursor) setCursorPosition();
-                console.log("display : " + $scope.display);
                 if ($scope.display === "line") {
                   $scope.$emit("rpPlot.click", $scope.cursor);
                   drawSelection();
