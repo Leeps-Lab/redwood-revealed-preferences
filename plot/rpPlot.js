@@ -181,7 +181,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 var dot = plot.append("circle");
                 dot.datum(ele)
                     .classed("default-point-"+index, true)
-                    .attr("r", 7)
+                    .attr("r", 5)
                     .attr("cx", function(d) {
                         return xScale(d[0]);
                     })
@@ -198,6 +198,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 });
                 dot.on("mouseover", function(event) {
                   console.log("hover : "+event);
+                  this.setAttribute('r', 7);
                 });
               });
             }
