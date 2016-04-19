@@ -204,7 +204,8 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   }
                 });
                 dot.on("mouseenter", function(event) {
-                  console.log(this);
+                  var dot = plot.select(this);
+                  console.log(dot);
                   this.setAttribute('r', 7);
                   this.setAttribute('fill', "#009900");
                   this.setAttribute('stroke', "#000000");
