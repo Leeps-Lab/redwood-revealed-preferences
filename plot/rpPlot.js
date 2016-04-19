@@ -197,24 +197,27 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 })
                 .on("click", function(event) {
                   if (!$scope.inputEnabled) return;
-                  if (!$scope.cursor) setCursorPosition();
-                  if (distance(ele, $scope.cursor, 1)) {
-                    $scope.$emit("rpPlot.click", ele);
-                    //this.classed({"default-point": false, "selected-point": true});
-                  }
-                })
-                .on("mouseover", function(event) {
-                  console.log(this);
                   var dot = d3.select(this);
                   console.log(dot);
-                  this.setAttribute('r', 7);
-                  this.setAttribute('fill', "#009900");
-                  this.setAttribute('stroke', "#000000");
+                  $scope.$emit("rpPlot.click", dot[0][0].__data__);
+                })
+                .on("mouseover", function(event) {
+                  var dot = d3.select(this);
+                  console.log(dot);
+                  dot.attr("r", 7).
+                  .style({
+                    fill: "#009900",
+                    stroke: "#000000",
+                  })
                 })
                 .on("mouseout", function(event) {
-                  this.setAttribute('r', 5);
-                  this.setAttribute('fill', "#3333cc");
-                  this.setAttribute('stroke', "#000000");
+                  var dot = d3.select(this);
+                  console.log(dot);
+                  dot.attr("r", 5).
+                  .style({
+                    fill: "#3333cc",
+                    stroke: "#000000",
+                  })
                 });
               });
             }
