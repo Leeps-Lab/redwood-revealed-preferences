@@ -187,7 +187,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     })
                     .attr("cy", function(d) {
                         return yScale(d[1])
-                    });
+                    })
+                    .setAttribute('fill', "#3333cc")
+                    .setAttribute('stroke', "#000000");
                 dot.on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
@@ -197,13 +199,11 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   }
                 });
                 dot.on("mouseenter", function(event) {
-                  console.log("hover : "+event);
                   this.setAttribute('r', 7);
                   this.setAttribute('fill', "#009900");
                   this.setAttribute('stroke', "#000000");
                 });
                 dot.on("mouseleave", function(event) {
-                  console.log("hover : "+event);
                   this.setAttribute('r', 5);
                   this.setAttribute('fill', "#3333cc");
                   this.setAttribute('stroke', "#000000");
