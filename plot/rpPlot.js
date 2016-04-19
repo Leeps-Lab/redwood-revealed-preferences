@@ -176,6 +176,10 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               console.log($scope.points);
               if (!$scope.points) return;
               console.log("past check");
+              for (i in $scope.points) {
+                console.log(i);
+                console.log($scope.points[i]);
+              }
 
               $scope.points.forEach(function(ele) {
                 drawPoint(ele, "setpoint");

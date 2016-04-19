@@ -7,7 +7,7 @@ body {
 }
 
 /*
-    dirty quicky css to get 
+    dirty quicky css to get
     messages to line up nicely
 */
 .max-payouts-message {
@@ -96,6 +96,11 @@ body {
 .selection-point {
     fill: #8888ff;
     stroke: #000044;
+}
+
+.default-point {
+  fill: #3333cc;
+  stroke: #000000;
 }
 
 .cursor-point {
