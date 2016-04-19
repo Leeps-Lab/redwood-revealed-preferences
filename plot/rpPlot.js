@@ -195,7 +195,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   stroke: "#000000",
                 });
                 console.log(dot);
-                console.log(dot.__data__);
+                console.log(dot[0][0].__data__);
                 dot.on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
