@@ -185,6 +185,8 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                         return yScale(d[1])
                     });
                 dot.on("click", function(event) {
+                  if (!$scope.inputEnabled) return;
+                  if (!$scope.cursor) setCursorPosition();
                   if (distance(ele, $scope.cursor, 1)) {
                     $scope.$emit("rpPlot.click", $scope.cursor);
                     drawSelection();
