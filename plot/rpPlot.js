@@ -186,6 +186,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                         return yScale(d[1])
                     });
                 dot.on("click", function(event) {
+                  console.log(event);
                   if (!$scope.inputEnabled) return;
                   if (!$scope.cursor) setCursorPosition();
                   if (distance(ele, $scope.cursor, 1)) {
@@ -406,7 +407,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             });
 
             svg.on("mouseleave", function() {
-              console.log($scope.display);
               if ($scope.display === "line") {
                 elem.selectAll(".point-label").classed("transparent", false);
                 $scope.cursor = null;
