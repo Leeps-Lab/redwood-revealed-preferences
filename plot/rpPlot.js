@@ -376,6 +376,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             svg.on("click", function() {
                 if (!$scope.inputEnabled) return;
                 if (!$scope.cursor) setCursorPosition();
+                console.log("display : " + $scope.display);
                 if ($scope.display === "line") {
                   $scope.$emit("rpPlot.click", $scope.cursor);
                   drawSelection();
