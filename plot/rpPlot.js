@@ -390,7 +390,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                       drawSelection();
                       console.log("cursor " + $scope.cursor);
                       console.log("point " + ele);
-                      break;
                     }
                   });
                 }
