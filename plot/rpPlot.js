@@ -198,7 +198,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 .on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   var clicked = plot.select("[clicked=true]");
-                  console.log(clicked.empty());
+                  console.log(!clicked.empty());
                   if (!clicked.empty()) {
                     clicked.attr("clicked", false);
                   }
