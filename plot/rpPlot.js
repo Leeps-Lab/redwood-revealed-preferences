@@ -198,6 +198,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 .on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   var clicked = plot.select("[clicked=true]");
+                  console.log(typeof clicked.empty());
                   if (!clicked.empty()) {
                     clicked.attr("clicked", false);
                   }
@@ -220,11 +221,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 })
                 .on("mouseout", function(event) {
                   var dot = d3.select(this);
-                  console.log(typeof dot.attr("clicked"));
-                  if (dot.attr("clicked")) {
-                    console.log("false");
+                  if (dot.attr("clicked") === "true") {
+                    return;
                   }
-                  console.log("after");
                   dot.attr("r", 5)
                   .style({
                     fill: "#3333cc",
