@@ -221,7 +221,10 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 .on("mouseout", function(event) {
                   var dot = d3.select(this);
                   console.log(dot.attr("clicked"));
-                  console.log("fales");
+                  if (dot.attr("clicked")) {
+                    console.log("false");
+                  }
+                  console.log("after");
                   dot.attr("r", 5)
                   .style({
                     fill: "#3333cc",
