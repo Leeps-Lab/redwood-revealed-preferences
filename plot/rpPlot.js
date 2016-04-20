@@ -179,6 +179,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               $scope.points.forEach(function(ele, index) {
                 var dot = plot.select("default-point-"+index);
                 if (dot.empty()) {
+                  console.log("never empty");
                     dot = plot.append("circle");
                 }
                 dot.datum(ele)
