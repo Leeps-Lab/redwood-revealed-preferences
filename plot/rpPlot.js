@@ -181,7 +181,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 if (dot.empty()) {
                     dot = plot.append("circle");
                 }
-                console.log(dot);
                 dot.datum(ele)
                 .classed("default-point-"+index, true)
                 .attr("r", 5)
@@ -221,6 +220,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 })
                 .on("mouseout", function(event) {
                   var dot = d3.select(this);
+                  console.log(dot.attr("clicked"));
                   console.log("fales");
                   dot.attr("r", 5)
                   .style({
