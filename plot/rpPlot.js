@@ -221,6 +221,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 })
                 .on("mouseout", function(event) {
                   var dot = d3.select(this);
+                  console.log(dot.attr("clicked"));
                   if (dot.attr("clicked")) {
                     return;
                   }
