@@ -174,13 +174,12 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawPoints = function() {
               if (!$scope.points) return;
-              if ($scope.points === "line") return;
+              if ($scope.points === "only-line") return;
 
               $scope.points.forEach(function(ele, index) {
                 var dot = plot.select(".default-point-"+index);
                 if (dot.empty()) {
-                  console.log("never empty");
-                    dot = plot.append("circle");
+                  dot = plot.append("circle");
                 }
                 dot.datum(ele)
                 .classed("default-point-"+index, true)
@@ -241,7 +240,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             }
 
             var drawCursor = function () {
-              if ($scope.display !== "line") return;
+              if ($scope.display !== "only-line") return;
                 if (!$scope.cursor) {
                     elem.select(".cursor-point").remove();
                     elem.select(".cursor-crosshair-x").remove();
@@ -410,7 +409,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             svg.on("click", function() {
                 if (!$scope.inputEnabled) return;
                 if (!$scope.cursor) setCursorPosition();
-                if ($scope.display === "line") {
+                if ($scope.display === "only-line") {
                   $scope.$emit("rpPlot.click", $scope.cursor);
                   drawSelection();
 
@@ -434,13 +433,13 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             });
 
             svg.on("mousemove", function() {
-              if ($scope.display === "line") {
+              if ($scope.display === "only-line") {
                 setCursorPosition();
               }
             });
 
             svg.on("mouseleave", function() {
-              if ($scope.display === "line") {
+              if ($scope.display === "only-line") {
                 elem.selectAll(".point-label").classed("transparent", false);
                 $scope.cursor = null;
                 drawCursor();

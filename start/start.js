@@ -88,7 +88,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             timeLimit               : 0,
             pause                   : false,
             points                  : [(5, 45), (10, 40), (25,25), (40,10), (45,5)],
-            display                 : "line"
+            display                 : "only-line"
         });
 
         $scope.endowment = {
