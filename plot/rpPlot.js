@@ -174,7 +174,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawPoints = function() {
               if (!$scope.points) return;
-              if ($scope.points === "only-line") return;
+              if ($scope.display === "only-line") return;
 
               $scope.points.forEach(function(ele, index) {
                 var dot = plot.select(".default-point-"+index);
