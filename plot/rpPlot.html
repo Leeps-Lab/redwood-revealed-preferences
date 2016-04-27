@@ -8,17 +8,17 @@
       <strong>Selection:</strong>
       ({{labelX}}: <strong>{{selection[0] | number: 2}}</strong>, {{labelY}}: <strong>{{selection[1] | number: 2}}</strong>)
   </div>
+  <div class="result-label">
+      Result:
+      <span ng-switch on="resultPoint[1]">
+          <span ng-switch-when="0">
+              {{labelX}} = {{resultPoint[0] | number: 2}}
+          </span>
+          <span ng-switch-default>
+              {{labelY}} = {{resultPoint[1] | number: 2}}
+          </span>
+      </span>
+  </div>
+  <div class="hover-label x">{{cursor[0] | number: 2}}</div>
+  <div class="hover-label y">{{cursor[1] | number: 2}}</div>
 </div>
-<div class="result-label">
-    Result:
-    <span ng-switch on="resultPoint[1]">
-        <span ng-switch-when="0">
-            {{labelX}} = {{resultPoint[0] | number: 2}}
-        </span>
-        <span ng-switch-default>
-            {{labelY}} = {{resultPoint[1] | number: 2}}
-        </span>
-    </span>
-</div>
-<div class="hover-label x">{{cursor[0] | number: 2}}</div>
-<div class="hover-label y">{{cursor[1] | number: 2}}</div>
