@@ -1,9 +1,9 @@
 <svg ng-attr-width="{{width}}" ng-attr-height="{{height}}" shape-rendering="optimizeSpeed"></svg>
-<div class="point-label endowment-label" ng-hide="!endowment">
+<div class="point-label endowment-label" ng-hide="!endowment || display !== 'only-line'">
     <strong>Endowment:</strong>
     ({{labelX}}: <strong>{{endowment.x | number: 2}}</strong>, {{labelY}}: <strong>{{endowment.y | number: 2}}</strong>)
 </div>
-<div class="point-label selection-label" ng-hide="!selection">
+<div class="point-label selection-label" ng-hide="!selection || display !== 'only-line'">
     <strong>Selection:</strong>
     ({{labelX}}: <strong>{{selection[0] | number: 2}}</strong>, {{labelY}}: <strong>{{selection[1] | number: 2}}</strong>)
 </div>
