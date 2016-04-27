@@ -1,5 +1,5 @@
 <svg ng-attr-width="{{width}}" ng-attr-height="{{height}}" shape-rendering="optimizeSpeed"></svg>
-<div ng-if="display === 'only-line'">
+<div ng-if="display !== 'only-line'">
   <div class="point-label endowment-label" ng-hide="!endowment">
       <strong>Endowment:</strong>
       ({{labelX}}: <strong>{{endowment.x | number: 2}}</strong>, {{labelY}}: <strong>{{endowment.y | number: 2}}</strong>)
