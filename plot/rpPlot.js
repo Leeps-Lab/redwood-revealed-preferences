@@ -203,6 +203,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   console.log(!clicked.empty());
                   if (!clicked.empty()) {
                     clicked.attr("clicked", false)
+                    .attr("r", 5)
                     .style({
                       fill: "#3333cc",
                       stroke: "#000000",
