@@ -418,6 +418,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 if (!$scope.inputEnabled) return;
                 if (!$scope.cursor) setCursorPosition();
                 if ($scope.display === "only-line") {
+                  console.log("sir, you have clicked");
                   $scope.$emit("rpPlot.click", $scope.cursor);
                   drawSelection();
 
