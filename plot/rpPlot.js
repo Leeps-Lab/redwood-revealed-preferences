@@ -197,8 +197,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 })
                 .on("click", function(event) {
                   if (!$scope.inputEnabled) return;
-                  $scope.selection = dot[0][0].__data__;
-                  drawSelection();
                   var clicked = plot.select("[clicked=true]");
                   console.log(!clicked.empty());
                   if (!clicked.empty()) {
@@ -210,6 +208,8 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                     });
                   }
                   var dot = d3.select(this);
+                  $scope.selection = dot[0][0].__data__;
+                  drawSelection();
                   dot.attr("clicked", true);
                   dot.attr("r", 7)
                   .style({
