@@ -280,6 +280,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 if ($scope.display !== "only-line") return;
                 drawPoint($scope.selection, "selection-point");
 
+                console.log("who should i select");
                 // draw label
                 var point = elem.select(".selection-point");
                 var label = elem.select(".selection-label");
