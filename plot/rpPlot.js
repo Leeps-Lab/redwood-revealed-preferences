@@ -154,7 +154,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawEndowment = function () {
                 if (!$scope.endowment) return;
-                if ($scope.display === "only-points") return;
+                if ($scope.display !== "only-line") return;
                 drawPoint([$scope.endowment.x, $scope.endowment.y], "endowment-point");
 
                 // draw label
@@ -184,7 +184,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 dot.datum(ele)
                 .classed("default-point-"+index, true)
                 .attr("r", 5)
-                .attr("clicked", false)
+                .attr("clicked", function() {
+                  console.log("ive been clicked");
+                })
                 .attr("cx", function(d) {
                     return xScale(d[0]);
                 })
@@ -224,6 +226,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   if (dot.attr("clicked") === "true") {
                     return;
                   }
+                  console.log(dot.attr("clicked"));
                   dot.attr("r", 5)
                   .style({
                     fill: "#3333cc",
