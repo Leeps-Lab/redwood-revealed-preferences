@@ -211,12 +211,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   $scope.selection = dot[0][0].__data__;
                   drawSelection();
                   dot.attr("clicked", true);
-                  dot.attr("r", 7)
-                  .style({
-                    fill: "#009900",
-                    stroke: "#000000",
-                  })
-                  $scope.$emit("rpPlot.click", dot[0][0].__data__);
+                  $scope.$emit("rpPlot.click", $scope.selection);
                 })
                 .on("mouseover", function(event) {
                   var dot = d3.select(this);
@@ -231,7 +226,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   if (dot.attr("clicked") === "true") {
                     return;
                   }
-                  console.log(dot.attr("clicked"));
                   dot.attr("r", 5)
                   .style({
                     fill: "#3333cc",
@@ -402,14 +396,12 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             angular.element($window).bind('resize', function() {
                 drawSelection();
                 drawEndowment();
-                drawPoints();
                 drawResult();
             });
 
             angular.element($window).bind('scroll', function() {
                 drawSelection();
                 drawEndowment();
-                //drawPoints();
                 drawCursor();
                 drawResult();
             });
