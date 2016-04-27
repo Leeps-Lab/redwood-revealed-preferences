@@ -277,6 +277,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawSelection = function () {
                 if (!$scope.selection) return;
+                if ($scope.display !== "only-line") return;
                 drawPoint($scope.selection, "selection-point");
 
                 // draw label
