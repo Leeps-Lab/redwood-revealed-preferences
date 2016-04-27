@@ -407,10 +407,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             });
 
             angular.element($window).bind('scroll', function() {
-              console.log("they see me scrolling");
                 drawSelection();
                 drawEndowment();
-                drawPoints();
+                //drawPoints();
                 drawCursor();
                 drawResult();
             });
