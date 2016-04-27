@@ -1,5 +1,5 @@
 RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodSubject", function($scope, rs) {
-  
+
     $scope.results = []
     $scope.selected_period = false;
 
@@ -23,7 +23,7 @@ RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodS
         }
 
         for (var i = 0; i < results.length; i++) {
-            
+
             var result = results[i];
             var period = result.period;
 
@@ -58,7 +58,7 @@ RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodS
             $scope.selected_period = period;
 
             rs.send("__mark_paid__", {
-                period: period, 
+                period: period,
                 paid: $scope.payoutFunction(result)
             })
         }
@@ -73,7 +73,7 @@ RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodS
             result.chosen = xOrY;
             result.chosenLabel = xOrY === "x" ? $scope.labelX : $scope.labelY;
             rs.send("__set_points__", {
-                period: $scope.selected_period, 
+                period: $scope.selected_period,
                 points: xOrY === "x" ? result.X : result.Y
             });
         }
