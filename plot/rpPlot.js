@@ -202,7 +202,11 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   var clicked = plot.select("[clicked=true]");
                   console.log(!clicked.empty());
                   if (!clicked.empty()) {
-                    clicked.attr("clicked", false);
+                    clicked.attr("clicked", false)
+                    .style({
+                      fill: "#3333cc",
+                      stroke: "#000000",
+                    });
                   }
                   var dot = d3.select(this);
                   dot.attr("clicked", true);
