@@ -184,9 +184,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 dot.datum(ele)
                 .classed("default-point-"+index, true)
                 .attr("r", 5)
-                .attr("clicked", function() {
-                  console.log("ive been clicked");
-                })
+                .attr("clicked", false)
                 .attr("cx", function(d) {
                     return xScale(d[0]);
                 })
@@ -199,6 +197,8 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 })
                 .on("click", function(event) {
                   if (!$scope.inputEnabled) return;
+                  $scope.selection = dot[0][0].__data__;
+                  drawSelection();
                   var clicked = plot.select("[clicked=true]");
                   console.log(!clicked.empty());
                   if (!clicked.empty()) {
