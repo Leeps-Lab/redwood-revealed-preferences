@@ -213,7 +213,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   $scope.$emit("rpPlot.click", $scope.selection);
 
                   // label
-                  var point = elem.select(".selection-point");
+                  var point = elem.select(".default-point-"+index);
                   var label = elem.select(".selection-label");
                   var pointRect = point[0][0].getBoundingClientRect();
                   var labelRect = label[0][0].getBoundingClientRect();
