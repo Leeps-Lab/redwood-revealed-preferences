@@ -198,7 +198,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 .on("click", function(event) {
                   if (!$scope.inputEnabled) return;
                   var clicked = plot.select("[clicked=true]");
-                  console.log(!clicked.empty());
                   if (!clicked.empty()) {
                     clicked.attr("clicked", false)
                     .attr("r", 5)
@@ -212,6 +211,25 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   drawSelection();
                   dot.attr("clicked", true);
                   $scope.$emit("rpPlot.click", $scope.selection);
+
+                  // label
+                  var point = elem.select(".selection-point");
+                  var label = elem.select(".selection-label");
+                  var pointRect = point[0][0].getBoundingClientRect();
+                  var labelRect = label[0][0].getBoundingClientRect();
+                  label.style({
+                      "position": "fixed",
+                      "top": toPx(pointRect.top+pointRect.height),
+                      "left": toPx(pointRect.left-labelRect.width)
+                  });
+                  // hack to make sure that the labelRect has the correct dimensions
+                  // when the selection label is just coming out of hiding
+                  labelRect = label[0][0].getBoundingClientRect();
+                  label.style({
+                      "position": "fixed",
+                      "top": toPx(pointRect.top+pointRect.height),
+                      "left": toPx(pointRect.left-labelRect.width)
+                  });
                 })
                 .on("mouseover", function(event) {
                   var dot = d3.select(this);
