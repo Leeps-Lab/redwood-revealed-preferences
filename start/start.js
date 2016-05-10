@@ -1,4 +1,4 @@
-aRedwoodRevealedPreferences.controller("RPStartController",
+RedwoodRevealedPreferences.controller("RPStartController",
     ["$scope",
      "RedwoodSubject",
      "SynchronizedStopWatch",
