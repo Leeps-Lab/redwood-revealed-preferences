@@ -420,7 +420,7 @@ aRedwoodRevealedPreferences.controller("RPStartController",
         result.Px = $scope.config.Px;
         result.Py = $scope.config.Py;
         result.ProbX = $scope.config.ProbX;
-        result.subject = parseInt(rs.user_id),
+        result.subject = parseInt(rs.user_id);
         rs.set("rp.results", result);
 
         if($scope.config.plotResult) {
