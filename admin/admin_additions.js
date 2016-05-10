@@ -1,5 +1,5 @@
 RedwoodRevealedPreferences.controller("RPAdminAdditionsController", ["Admin", "$scope", function(ra, $scope) {
-    
+
     // The admin is in charge of deciding results
     var outcome;
     ra.recv("rp.next_round", function() {
@@ -13,6 +13,11 @@ RedwoodRevealedPreferences.controller("RPAdminAdditionsController", ["Admin", "$
             outcome = Math.random() < ra.get_config(period).ProbX ? "x" : "y";
         }
         // send as the subject who sent the confirm message
-        ra.sendAsSubject("rp.result", {x: allocation.x, y: allocation.y, chosen: outcome}, sender);
+        ra.sendAsSubject("rp.result", {
+          x: allocation.x,
+          y: allocation.y,
+          chosen: outcome
+        },
+        sender);
     });
 }]);

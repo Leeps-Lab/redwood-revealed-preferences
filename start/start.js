@@ -411,6 +411,15 @@ RedwoodRevealedPreferences.controller("RPStartController",
     // Receive result (whether X or Y was chosen) from admin.
     rs.on("rp.result", function (result) {
         result.period = rs.period;
+        result.treatment = $scope.config.display;
+        if ($scope.config.display !== "only-line") {
+          result.points = $scope.config.points;
+        }
+        result.Ex = $scope.config.Ex;
+        result.Ey = $scope.config.Ey;
+        result.Px = $scope.config.Px;
+        result.Py = $scope.config.Py;
+        result.ProbX = $scope.config.ProbX;
         rs.set("rp.results", result);
 
         if($scope.config.plotResult) {
