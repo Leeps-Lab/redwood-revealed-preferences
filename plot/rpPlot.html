@@ -19,6 +19,6 @@
           </span>
       </span>
   </div>
-  <div class="hover-label x">{{cursor[0] | number: 2}}</div>
-  <div class="hover-label y">{{cursor[1] | number: 2}}</div>
+  <div ng-if="display === 'only-line'" class="hover-label x">{{cursor[0] | number: 2}}</div>
+  <div ng-if="display === 'only-line'" class="hover-label y">{{cursor[1] | number: 2}}</div>
 </div>
