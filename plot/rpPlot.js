@@ -261,7 +261,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             }
 
             var drawCursor = function () {
-              console.log($scope.display !== "only-line");
               if ($scope.display !== "only-line") {
                 $(".hover-label").hide();
                 return;
