@@ -110,7 +110,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             rs.set("rp.inTTM", $scope.inTTM);
         }
 
-        if ($scope.config.showEndowment) {
+        if ($scope.config.showEndowment && $scope.config.display !== "only-points") {
             $scope.shownEndowment = $scope.endowment;
         }
 
