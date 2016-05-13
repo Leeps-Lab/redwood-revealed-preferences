@@ -262,10 +262,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             var drawCursor = function () {
               console.log($scope.display !== "only-line");
               if ($scope.display !== "only-line") {
-                console.log('here i am, but will i return?');
+                $("#.hover-label").hide();
                 return;
               }
-              console.log('nope');
               if (!$scope.cursor) {
                   elem.select(".cursor-point").remove();
                   elem.select(".cursor-crosshair-x").remove();
