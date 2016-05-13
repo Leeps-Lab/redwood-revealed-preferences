@@ -261,37 +261,40 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
 
             var drawCursor = function () {
               console.log($scope.display !== "only-line");
-              if ($scope.display !== "only-line") return;
-                if (!$scope.cursor) {
-                    elem.select(".cursor-point").remove();
-                    elem.select(".cursor-crosshair-x").remove();
-                    elem.select(".cursor-crosshair-y").remove();
-                    elem.selectAll(".hover-label").style("display", "none");
-                    return;
-                }
-                drawPoint($scope.cursor, "cursor-point");
-                drawLine([$scope.cursor, [$scope.cursor[0], 0]], "cursor-crosshair-x");
-                drawLine([$scope.cursor, [0, $scope.cursor[1]]], "cursor-crosshair-y");
+              if ($scope.display !== "only-line") {
+                console.log('here i am, but will i return?');
+                return;
+              }
+              if (!$scope.cursor) {
+                  elem.select(".cursor-point").remove();
+                  elem.select(".cursor-crosshair-x").remove();
+                  elem.select(".cursor-crosshair-y").remove();
+                  elem.selectAll(".hover-label").style("display", "none");
+                  return;
+              }
+              drawPoint($scope.cursor, "cursor-point");
+              drawLine([$scope.cursor, [$scope.cursor[0], 0]], "cursor-crosshair-x");
+              drawLine([$scope.cursor, [0, $scope.cursor[1]]], "cursor-crosshair-y");
 
-                // draw hover labels
-                var xHoverLabel = elem.select(".hover-label.x");
-                var yHoverLabel = elem.select(".hover-label.y");
+              // draw hover labels
+              var xHoverLabel = elem.select(".hover-label.x");
+              var yHoverLabel = elem.select(".hover-label.y");
 
-                var plotRect = plotBackground[0][0].getBoundingClientRect();
-                var xLabelRect = xHoverLabel[0][0].getBoundingClientRect();
-                var yLabelRect = yHoverLabel[0][0].getBoundingClientRect();
+              var plotRect = plotBackground[0][0].getBoundingClientRect();
+              var xLabelRect = xHoverLabel[0][0].getBoundingClientRect();
+              var yLabelRect = yHoverLabel[0][0].getBoundingClientRect();
 
-                elem.selectAll(".hover-label").style("display", "block");
-                xHoverLabel.style({
-                    "position": "fixed",
-                    "top": toPx(plotRect.bottom+yOffset),
-                    "left": toPx(plotRect.left+xScale($scope.cursor[0])-xLabelRect.width/2)
-                });
-                yHoverLabel.style({
-                    "position": "fixed",
-                    "top": toPx(plotRect.top+yScale($scope.cursor[1])-yLabelRect.height/2),
-                    "left": toPx(plotRect.left-xOffset*2.5)
-                });
+              elem.selectAll(".hover-label").style("display", "block");
+              xHoverLabel.style({
+                  "position": "fixed",
+                  "top": toPx(plotRect.bottom+yOffset),
+                  "left": toPx(plotRect.left+xScale($scope.cursor[0])-xLabelRect.width/2)
+              });
+              yHoverLabel.style({
+                  "position": "fixed",
+                  "top": toPx(plotRect.top+yScale($scope.cursor[1])-yLabelRect.height/2),
+                  "left": toPx(plotRect.left-xOffset*2.5)
+              });
             }
 
             var drawSelection = function () {
@@ -299,7 +302,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 if ($scope.display !== "only-line") return;
                 drawPoint($scope.selection, "selection-point");
 
-                console.log("who should i select");
                 // draw label
                 var point = elem.select(".selection-point");
                 var label = elem.select(".selection-label");
@@ -431,7 +433,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 if (!$scope.inputEnabled) return;
                 if (!$scope.cursor) setCursorPosition();
                 if ($scope.display === "only-line") {
-                  console.log("sir, you have clicked");
                   $scope.$emit("rpPlot.click", $scope.cursor);
                   drawSelection();
 
