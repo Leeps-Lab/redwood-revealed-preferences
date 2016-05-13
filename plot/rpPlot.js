@@ -156,6 +156,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 if (!$scope.endowment) return;
                 if ($scope.display !== "only-line") return;
                 drawPoint([$scope.endowment.x, $scope.endowment.y], "endowment-point");
+                console.log('got passed everything');
 
                 // draw label
                 var point = elem.select(".endowment-point");
