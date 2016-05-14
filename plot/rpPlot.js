@@ -433,6 +433,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             svg.on("click", function() {
                 if (!$scope.inputEnabled) return;
                 if (!$scope.cursor) setCursorPosition();
+
                 if ($scope.display === "only-line") {
                   $scope.$emit("rpPlot.click", $scope.cursor);
                   drawSelection();
@@ -463,11 +464,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
             });
 
             svg.on("mouseleave", function() {
-              if ($scope.display === "only-line") {
-                elem.selectAll(".point-label").classed("transparent", false);
-                $scope.cursor = null;
-                drawCursor();
-              }
+              elem.selectAll(".point-label").classed("transparent", false);
+              $scope.cursor = null;
+              drawCursor();
             });
         }
     }
