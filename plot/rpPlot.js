@@ -217,9 +217,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   // label
                   var point = elem.select(".default-point-"+index);
                   var label = elem.select(".selection-label");
-                      console.log('3point '+' '+point);
                   var pointRect = point[0][0].getBoundingClientRect();
-                      console.log('4label '+' '+label);
                   var labelRect = label[0][0].getBoundingClientRect();
                   label.style({
                       "position": "fixed",
@@ -228,7 +226,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   });
                   // hack to make sure that the labelRect has the correct dimensions
                   // when the selection label is just coming out of hiding
-                      console.log('5label '+' '+label);
                   labelRect = label[0][0].getBoundingClientRect();
                   label.style({
                       "position": "fixed",
@@ -284,11 +281,8 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
               var xHoverLabel = elem.select(".hover-label.x");
               var yHoverLabel = elem.select(".hover-label.y");
 
-                  console.log('6plotBackground '+' '+plotBackground);
               var plotRect = plotBackground[0][0].getBoundingClientRect();
-                  console.log('7xHoverLabel '+' '+xHoverLabel);
               var xLabelRect = xHoverLabel[0][0].getBoundingClientRect();
-                  console.log('8yHoverLabel '+' '+yHoverLabel);
               var yLabelRect = yHoverLabel[0][0].getBoundingClientRect();
 
               elem.selectAll(".hover-label").style("display", "block");
@@ -312,9 +306,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 // draw label
                 var point = elem.select(".selection-point");
                 var label = elem.select(".selection-label");
-                console.log('8point '+' '+point);
                 var pointRect = point[0][0].getBoundingClientRect();
-                console.log('9label '+' '+label);
                 var labelRect = label[0][0].getBoundingClientRect();
                 label.style({
                     "position": "fixed",
@@ -323,7 +315,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 });
                 // hack to make sure that the labelRect has the correct dimensions
                 // when the selection label is just coming out of hiding
-                console.log('10label '+' '+label);
                 labelRect = label[0][0].getBoundingClientRect();
                 label.style({
                     "position": "fixed",
@@ -357,9 +348,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 // draw label
                 var point = elem.select(".result-point");
                 var label = elem.select(".result-label");
-                console.log('11point '+' '+point);
                 var pointRect = point[0][0].getBoundingClientRect();
-                console.log('12label '+' '+label);
                 var labelRect = label[0][0].getBoundingClientRect();
                 label.style({
                     "display": "block",
