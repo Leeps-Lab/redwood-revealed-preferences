@@ -184,54 +184,54 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                   dot = plot.append("circle");
                 }
                 dot.datum(ele)
-                  .classed("default-point-"+index, true)
-                  .attr("r", 5)
-                  .attr("clicked", false)
-                  .attr("cx", function(d) {
-                      return xScale(d[0]);
-                  })
-                  .attr("cy", function(d) {
-                      return yScale(d[1])
-                  })
-                  .style({
-                    fill: "#3333cc",
-                    stroke: "#000000",
-                  })
-                  .on("click", function(event) {
-                    if (!$scope.inputEnabled) return;
-                    var clicked = plot.select("[clicked=true]");
-                    if (!clicked.empty()) {
-                      clicked.attr("clicked", false)
-                      .attr("r", 5)
-                      .style({
-                        fill: "#3333cc",
-                        stroke: "#000000",
-                      });
-                    }
-                    var dot = d3.select(this);
-                    $scope.selection = dot[0][0].__data__;
-                    drawSelection();
-                    dot.attr("clicked", true);
-                    $scope.$emit("rpPlot.click", $scope.selection);
+                .classed("default-point-"+index, true)
+                .attr("r", 5)
+                .attr("clicked", false)
+                .attr("cx", function(d) {
+                    return xScale(d[0]);
+                })
+                .attr("cy", function(d) {
+                    return yScale(d[1])
+                })
+                .style({
+                  fill: "#3333cc",
+                  stroke: "#000000",
+                })
+                .on("click", function(event) {
+                  if (!$scope.inputEnabled) return;
+                  var clicked = plot.select("[clicked=true]");
+                  if (!clicked.empty()) {
+                    clicked.attr("clicked", false)
+                    .attr("r", 5)
+                    .style({
+                      fill: "#3333cc",
+                      stroke: "#000000",
+                    });
+                  }
+                  var dot = d3.select(this);
+                  $scope.selection = dot[0][0].__data__;
+                  drawSelection();
+                  dot.attr("clicked", true);
+                  $scope.$emit("rpPlot.click", $scope.selection);
 
-                    // label
-                    var point = elem.select(".default-point-"+index);
-                    var label = elem.select(".selection-label");
-                    var pointRect = point[0][0].getBoundingClientRect();
-                    var labelRect = label[0][0].getBoundingClientRect();
-                    label.style({
-                        "position": "fixed",
-                        "top": toPx(pointRect.top+pointRect.height),
-                        "left": toPx(pointRect.left-labelRect.width)
-                    });
-                    // hack to make sure that the labelRect has the correct dimensions
-                    // when the selection label is just coming out of hiding
-                    labelRect = label[0][0].getBoundingClientRect();
-                    label.style({
-                        "position": "fixed",
-                        "top": toPx(pointRect.top+pointRect.height),
-                        "left": toPx(pointRect.left-labelRect.width)
-                    });
+                  // label
+                  var point = elem.select(".default-point-"+index);
+                  var label = elem.select(".selection-label");
+                  var pointRect = point[0][0].getBoundingClientRect();
+                  var labelRect = label[0][0].getBoundingClientRect();
+                  label.style({
+                      "position": "fixed",
+                      "top": toPx(pointRect.top+pointRect.height),
+                      "left": toPx(pointRect.left-labelRect.width)
+                  });
+                  // hack to make sure that the labelRect has the correct dimensions
+                  // when the selection label is just coming out of hiding
+                  labelRect = label[0][0].getBoundingClientRect();
+                  label.style({
+                      "position": "fixed",
+                      "top": toPx(pointRect.top+pointRect.height),
+                      "left": toPx(pointRect.left-labelRect.width)
+                  });
                 })
                 .on("mouseover", function(event) {
                   var dot = d3.select(this);
