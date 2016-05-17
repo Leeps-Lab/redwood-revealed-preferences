@@ -95,7 +95,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
             x: $scope.config.Ex,
             y: $scope.config.Ey
         };
-        console.log($scope.endowment);
 
         rs.set("rp.seller", $scope.config.seller);
 
@@ -143,7 +142,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
         if ($scope.config.useDefaultSelection) {
             $scope.selection = [$scope.endowment.x, $scope.endowment.y];
         }
-        console.log($scope.selection);
         rs.trigger("rp.selection", $scope.selection);
 
         // set initial price
@@ -154,13 +152,11 @@ RedwoodRevealedPreferences.controller("RPStartController",
         $scope.intercepts = {};
         $scope.intercepts.x = $scope.endowment.x + $scope.endowment.y / $scope.price;
         $scope.intercepts.y = $scope.endowment.y + $scope.price * $scope.endowment.x;
-        console.log($scope.intercepts);
 
         // set plot limits
         $scope.limits = {};
         $scope.limits.x = $scope.config.XLimit ? $scope.config.XLimit : $scope.intercepts.x;
         $scope.limits.y = $scope.config.YLimit ? $scope.config.YLimit : $scope.intercepts.y;
-        console.log($scope.limits);
         animateLimits();
 
         // set budget functions

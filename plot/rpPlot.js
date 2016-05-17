@@ -162,9 +162,7 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 var label = elem.select(".endowment-label");
 
                 if (point[0][0]) {
-                    console.log('1point '+' '+point);
                     var pointRect = point[0][0].getBoundingClientRect();
-                    console.log('2label '+' '+label);
                     var labelRect = label[0][0].getBoundingClientRect();
                     label.style({
                         "position": "fixed",
