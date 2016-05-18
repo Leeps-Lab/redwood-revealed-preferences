@@ -46,10 +46,10 @@
       </div>
       <div class="col-lg-2" ng-if="config.showMaxPayouts" >
         <div class="max-payouts-message">
-        <p ng-if="display === 'only-points'">
+        <p ng-if="display !== 'only-points'">
         If <strong>{{config.labelX}}</strong> you could earn up to <strong>{{intercepts.x | number: 2}}</strong> tokens.
         </p>
-        <p ng-if="display === 'only-points'">
+        <p ng-if="display !== 'only-points'">
         If <strong>{{config.labelY}}</strong> you could earn up to <strong>{{intercepts.y | number: 2}}</strong> tokens.
         </p>
         </div>
