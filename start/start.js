@@ -145,7 +145,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
         if ($scope.config.useDefaultSelection) {
             $scope.selection = [$scope.endowment.x, $scope.endowment.y];
         }
-        console.log($scpoe.);
         rs.trigger("rp.selection", $scope.selection);
 
         // set initial price
