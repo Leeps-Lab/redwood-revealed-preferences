@@ -48,6 +48,8 @@ RedwoodRevealedPreferences.controller("RPStartController",
         $scope.config = configManager.loadPerSubject(rs, {
             Ex                      : 0,       // Endowment, Price and Probability Options
             Ey                      : 0,
+            Px                      : 1,
+            Py                      : 1,
             Price                   : 1,
             ProbX                   : 0.5,
             useDefaultSelection     : false,
@@ -95,6 +97,7 @@ RedwoodRevealedPreferences.controller("RPStartController",
             x: $scope.config.Ex,
             y: $scope.config.Ey
         };
+        console.log($scope.endowment);
 
         rs.set("rp.seller", $scope.config.seller);
 
@@ -142,11 +145,11 @@ RedwoodRevealedPreferences.controller("RPStartController",
         if ($scope.config.useDefaultSelection) {
             $scope.selection = [$scope.endowment.x, $scope.endowment.y];
         }
+        console.log($scpoe.);
         rs.trigger("rp.selection", $scope.selection);
 
         // set initial price
-        var price = rs.self.get("rp.price");
-        $scope.price = $scope.currentRound > 1 ? price : $scope.config.Price;
+        $scope.price = $scope.config.Px / $scope.config.Py;
 
         // find x and y intercepts
         $scope.intercepts = {};
