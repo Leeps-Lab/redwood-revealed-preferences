@@ -375,8 +375,6 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                 // get mouse x point
                 var xMouse = Math.round(xScale.invert(d3.mouse(plot[0][0])[0]));
 
-                console.log(xMouse);
-
                 // constrain x to certain points, if specified
                 if ($scope.constraintsX) {
                     // linear search to find the closest x
