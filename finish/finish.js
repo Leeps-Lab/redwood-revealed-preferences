@@ -6,9 +6,9 @@ RedwoodRevealedPreferences.controller("RPFinishController", ["$scope", "RedwoodS
     $scope.payoutFunction = function(entry) {
         if (entry.selected && entry.chosen != "") {
             if (entry.chosen === "x") {
-                return entry.X / 3;
+                return entry.X / 10;
             } else {
-                return entry.Y / 3;
+                return entry.Y / 10;
             }
         } else {
             return 0;
