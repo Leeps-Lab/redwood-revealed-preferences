@@ -93,7 +93,9 @@ RedwoodRevealedPreferences.directive("rpPlot", function ($window) {
                         .attr("transform", "rotate(-90)")
                         .attr("x", -plotHeight/2)
                         .attr("y", -xOffset + 10)
-                        .text($scope.labelY + " (Probability: " + (1-$scope.probX).toFixed(2) + ")");
+                        .text($scope.labelY + " (Probability: " + (1-$scope.probX).toFixed(2) + ")")
+                        .append("text")
+                        .text("after");
             }
 
             var drawLine = function (coordinates, className) {
