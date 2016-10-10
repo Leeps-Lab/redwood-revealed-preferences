@@ -26,11 +26,11 @@
         <table class="table table-bordered info-table">
           <tr>
             <th>Probability X</th>
-            <td style="color: red;">{{config.ProbX | number: 2}}</td>
+            <td><font color="blue">{{config.ProbX | number: 2}}</font></td>
           </tr>
           <tr>
             <th>Probability Y</th>
-            <td style="color: blue;">{{(1.0 - config.ProbX | number: 2)}}</td>
+            <td><font color="blue">This is some text!{{(1.0 - config.ProbX | number: 2)}}</font></td>
           </tr>
         </table>
         <table class="table table-bordered">

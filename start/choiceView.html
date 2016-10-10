@@ -1,0 +1,122 @@
+<div ng-switch="treatment">
+  <div ng-switch-when="text">
+    <span style="vertical-align: middle">
+      {{choice[0].chance | fraction: 10}}
+      of ${{dollar0 | number: 2}},
+      {{choice[1].chance | fraction: 10}}
+      of ${{dollar1 | number: 2}}
+    </span>
+  </div>
+
+  <div ng-switch-when="bar">
+    <svg width="100%" height="100%">
+      <rect ng-attr-width="{{width0}}" height="20"
+            x="0" y="30"
+            ng-attr-fill="{{primaryColor1}}" />
+      <rect ng-attr-width="{{width1}}" height="20"
+            ng-attr-x="{{width0}}" y="30"
+            ng-attr-fill="{{primaryColor2}}" />
+      <text ng-attr-x="{{textPosition1}}" y="70" text-anchor="middle">
+        {{showProbability ? (choice[0].chance | fraction: 10) : ''}}
+        {{(showProbability && showPayoff) ? 'of ' : ''}}
+        {{showPayoff ? '$'+(choice[0].payoff | number:2) : ''}}
+      </text>
+      <text ng-attr-x="{{textPosition2}}" y="70" text-anchor="middle">
+        {{showProbability ? (choice[1].chance | fraction: 10) : ''}}
+        {{(showProbability && showPayoff) ? 'of ' : ''}}
+        {{showPayoff ? '$'+(choice[1].payoff | number:2) : ''}}
+      </text>
+    </svg>
+  </div>
+
+  <div ng-switch-when="bar-height">
+    <svg width="100%" height="100%">
+      <g ng-attr-transform="translate(60, {{maxHeight/2}})">
+
+        <rect ng-attr-width="{{width0}}" ng-attr-height="{{height0}}"
+              x="0" ng-attr-y="{{(maxHeight - height0)}}"
+              ng-attr-fill="{{primaryColor1}}" />
+        <rect ng-attr-width="{{width1}}" ng-attr-height="{{height1}}"
+              ng-attr-x="{{width0}}" ng-attr-y="{{maxHeight - height1}}"
+              ng-attr-fill="{{primaryColor2}}" />
+
+        <g ng-hide="!showPayoff">
+          <line ng-attr-x1="{{payoffText0Position[0] + 2}}" ng-attr-y1="{{payoffText0Position[1]}}"
+                ng-attr-x2="{{payoffText0Position[0] + 18}}" ng-attr-y2="{{payoffText0Position[1]}}"
+                stroke="black" stroke-width="2"
+                ng-hide="{{width0 == 0}}" />
+          <line ng-attr-x1="{{payoffText1Position[0] - 2}}" ng-attr-y1="{{payoffText1Position[1]}}"
+                ng-attr-x2="{{payoffText1Position[0] - 18}}" ng-attr-y2="{{payoffText1Position[1]}}"
+                stroke="black" stroke-width="2"
+                ng-hide="{{width1 == 0}}" />
+          <text ng-attr-x="{{payoffText0Position[0]}}" ng-attr-y="{{payoffText0Position[1]}}"
+                text-anchor="end"
+                alignment-baseline="central"
+                ng-hide="{{width0 == 0}}">
+            {{showPayoff ? '$'+(choice[0].payoff | number:2) : ''}}
+          </text>
+          <text ng-attr-x="{{payoffText1Position[0]}}" ng-attr-y="{{payoffText1Position[1]}}"
+                text-anchor="start"
+                alignment-baseline="central"
+                ng-hide="{{width1 == 0}}">
+            {{showPayoff ? '$'+(choice[1].payoff | number:2) : ''}}
+          </text>
+        </g>
+
+        <g ng-hide="!showProbability">
+          <line ng-attr-x1="{{probText0Position[0]}}" ng-attr-y1="{{probText0Position[1] - 14}}"
+                ng-attr-x2="{{probText0Position[0]}}" ng-attr-y2="{{maxHeight}}"
+                stroke="black" stroke-width="2"
+                ng-hide="{{width0 == 0}}" />
+          <line ng-attr-x1="{{probText1Position[0]}}" ng-attr-y1="{{probText1Position[1] - 14}}"
+                ng-attr-x2="{{probText1Position[0]}}" ng-attr-y2="{{maxHeight}}"
+                stroke="black" stroke-width="2"
+                ng-hide="{{width1 == 0}}" />
+          <text ng-attr-x="{{probText0Position[0]}}" ng-attr-y="{{probText0Position[1]}}"
+                text-anchor="middle"
+                ng-hide="{{width0 == 0}}">
+            {{showProbability ? (choice[0].chance | fraction: 10) : ''}}
+          </text>
+          <text ng-attr-x="{{probText1Position[0]}}" ng-attr-y="{{probText1Position[1]}}"
+                text-anchor="middle"
+                ng-hide="{{width1 == 0}}">
+            {{showProbability ? (choice[1].chance | fraction: 10) : ''}}
+          </text>
+        </g>
+
+      </g>
+    </svg>
+  </div>
+
+  <div ng-switch-when="bar-inverted">
+    <svg width="100%" height="100%">
+        <rect ng-attr-width="{{width0}}" height="40"
+              x="0" y="0"
+              ng-attr-fill="{{primaryColor1}}" />
+        <rect ng-attr-width="{{width1}}" height="40"
+              x="0" y="40"
+              ng-attr-fill="{{primaryColor2}}" />
+        <text ng-attr-x="{{textX0}}" y="24"
+              ng-attr-text-anchor="{{textAnchor0}}">
+          {{showProbability ? (choice[0].chance | fraction: 10) : ''}}
+          {{(showProbability && showPayoff) ? 'of ' : ''}}
+          {{showPayoff ? '$'+(choice[0].payoff | number:2) : ''}}        </text>
+        <text ng-attr-x="{{textX1}}" y="64"
+              ng-attr-text-anchor="{{textAnchor1}}">
+          {{showProbability ? (choice[1].chance | fraction: 10) : ''}}
+          {{(showProbability && showPayoff) ? 'of ' : ''}}
+          {{showPayoff ? '$'+(choice[1].payoff | number:2) : ''}}
+        </text>
+      </svg>
+  </div>
+
+  <div ng-switch-when="pie">
+    {{drawPie()}}
+    <canvas width="410" height="80"></canvas>
+  </div>
+
+  <div ng-switch-when="pie-height">
+    {{drawPieHeight()}}
+    <canvas width="410" height="80" ng-mousemove="doRotate($event)"></canvas>
+  </div>
+</div>
