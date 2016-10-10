@@ -44,6 +44,12 @@ body {
 .axis-label {
     font-weight: bold;
 }
+.red-label {
+  color: red;
+}
+.blue-label {
+  color: blue;
+}
 
 .plot-background {
     fill: #f8f8f8;

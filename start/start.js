@@ -93,16 +93,6 @@ RedwoodRevealedPreferences.controller("RPStartController",
             display                 : "only-line"
         });
 
-        $scope.pies = {
-          "treatment": "pie",
-          "showProbability": false,
-          "keyColor1": "#2382D7",
-          "tintColor1": "#4594DB",
-          "keyColor2": "#0659A3",
-          "tintColor2": "#0B75D4",
-          "lotteryFile": null
-        };
-
         $scope.endowment = {
             x: $scope.config.Ex,
             y: $scope.config.Ey
